@@ -1,15 +1,12 @@
 from .common import *
 
-DEBUG = True
-TEMPLATE_DEBUG = True
+MEDIA_ROOT = '/home/chaumes/share/dewey/media'
+STATIC_ROOT = '/home/chaumes/share/dewey/static'
+COMPRESS_ROOT = STATIC_ROOT
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'dewey',
-        'USER' : 'chaumes',
-        'PASSWORD' : get_env('POSTGRES_PASSWORD'),
-        'HOST' : 'localhost',
-        'PORT' : ''
-    },
-}
+DEBUG = True
+
+DATABASES['default']['USER'] = 'chaumes'
+
+for backend in TEMPLATES:
+    backend['OPTIONS']['debug'] = True
