@@ -45,6 +45,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'dewey',
+    'hardware'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -112,3 +114,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+JIRA_USERNAME = get_env('JIRA_USERNAME')
+JIRA_PASSWORD = get_env('JIRA_PASSWORD')
+JIRA_URL = 'https://developer.plos.org/jira'

@@ -10,3 +10,7 @@ DATABASES['default']['USER'] = 'chaumes'
 
 for backend in TEMPLATES:
     backend['OPTIONS']['debug'] = True
+
+INSTALLED_APPS += (
+    'django_extensions',
+)
