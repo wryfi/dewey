@@ -34,6 +34,7 @@ class Server(models.Model):
     serial = models.CharField(max_length=256, blank=True)
     cabinet = models.ForeignKey('Cabinet', blank=True, null=True)
     position = models.IntegerField(blank=True, null=True)
+    rack_units = models.IntegerField(blank=True, null=True)
     orientation = enum.EnumField(RackOrientation, blank=True, null=True)
 
     def __str__(self):
