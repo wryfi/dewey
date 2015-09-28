@@ -1,7 +1,13 @@
+from django_enumfield import enum
+
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.db import models
 
+from . import HostType, ClusterType
 
-class ServerRole(models.Model):
+
+class HostRole(models.Model):
     slug = models.SlugField()
     name = models.CharField(max_length=128)
 
@@ -10,8 +16,12 @@ class ServerRole(models.Model):
 
 
 class Host(models.Model):
-    hostname = models.CharField(max_length=256)
-    roles = models.ManyToManyField('ServerRole')
+    hostname = models.CharField(max_length=256, help_text='FQDN')
+    kind = enum.EnumField(HostType)
+    roles = models.ManyToManyField('HostRole', blank=True)
+    parent_type = models.ForeignKey(ContentType)
+    parent_id = models.PositiveIntegerField()
+    parent = GenericForeignKey('parent_type', 'parent_id')
 
     @property
     def domain(self):
@@ -21,6 +31,13 @@ class Host(models.Model):
 
     def __str__(self):
         return self.hostname
+
+
+class Cluster(models.Model):
+    name = models.CharField(max_length=128)
+    slug = models.SlugField()
+    kind = enum.EnumField(ClusterType)
+    hosts = models.ManyToManyField('Host')
 
 
 class Network(models.Model):
@@ -41,7 +58,6 @@ class Network(models.Model):
         assigned = self.addressassignment_set.all()
         return [addr for addr in self.range if addr not in self.addressassignment_set.all()]
 
-
     def get_unused_address(self):
         return self.unused_addresses[0]
 
@@ -53,5 +69,3 @@ class AddressAssignment(models.Model):
 
     def __str__(self):
         return self.address
-
-
