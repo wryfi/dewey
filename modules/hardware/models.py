@@ -86,10 +86,10 @@ class NetworkSwitch(AssetBase):
 
 
 class PortAssignment(models.Model):
-    device_type = models.ForeignKey('ContentType')
+    device_type = models.ForeignKey(ContentType, related_name='port_assignment')
     device_id = models.PositiveIntegerField()
     device = GenericForeignKey('device_type', 'device_id')
     port = models.PositiveIntegerField()
-    connected_device_type = models.ForeignKey('ContentType')
+    connected_device_type = models.ForeignKey(ContentType, related_name='connected_device')
     connected_device_id = models.PositiveIntegerField()
     connected_device = GenericForeignKey('connected_device_type', 'connected_device_id')
