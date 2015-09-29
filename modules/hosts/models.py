@@ -1,7 +1,6 @@
 from django_enumfield import enum
 import iptools
 import os
-import random
 import subprocess
 
 from django.contrib.contenttypes.models import ContentType
@@ -16,16 +15,24 @@ class HostRole(models.Model):
     name = models.CharField(max_length=128)
 
     def __str__(self):
-        return 'role: {}'.format(self.name)
+        return self.name
 
 
 class Host(models.Model):
+    """
+    A network host. Hosts must have a parent, which may be: (1) a piece of hardware
+    (e.g. Server, PowerDistributionUnit, or NetworkGear); or (2) another host (e.g. for
+    a static VM); or (3) a cluster of hosts (e.g. a VM on an ESXi cluster)
+    """
     hostname = models.CharField(max_length=256, help_text='FQDN')
     kind = enum.EnumField(HostType)
     roles = models.ManyToManyField('HostRole', blank=True)
     parent_type = models.ForeignKey(ContentType)
     parent_id = models.PositiveIntegerField()
     parent = GenericForeignKey('parent_type', 'parent_id')
+
+    def __str__(self):
+        return self.hostname
 
     @property
     def domain(self):
@@ -37,8 +44,9 @@ class Host(models.Model):
     def shortname(self):
         return self.hostname.split('.')[0]
 
-    def __str__(self):
-        return self.hostname
+    @property
+    def kind(self):
+        pass
 
 
 class Cluster(models.Model):
@@ -73,14 +81,14 @@ class Network(models.Model):
                     available.append(address)
         return available
 
-    def get_unused_address(self):
-        random_ip = random.choice(self.unused_addresses)
+    def get_unused_address(self, index=0):
+        next_ip = self.unused_addresses[index]
         try:
             with open(os.devnull, 'w') as nullfile:
-                subprocess.check_call(['ping', '-c', '1', '-w', '1', random_ip], stdout=nullfile, stderr=nullfile)
-            return random_ip
+                subprocess.check_call(['ping', '-c', '1', '-w', '1', next_ip], stdout=nullfile, stderr=nullfile)
+            return next_ip
         except subprocess.CalledProcessError:
-            return self.get_unused_address()
+            return self.get_unused_address(index+1)
 
 
 class AddressAssignment(models.Model):

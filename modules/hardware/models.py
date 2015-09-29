@@ -23,7 +23,7 @@ class Cabinet(models.Model):
     rack_units = models.IntegerField()
 
     def __str__(self):
-        return 'cabinet: {}'.format(name)
+        return 'cabinet: {}'.format(self.name)
 
 
 class Server(models.Model):
