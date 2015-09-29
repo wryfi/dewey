@@ -33,6 +33,10 @@ class Host(models.Model):
         domain = components[1:]
         return '.'.join(domain)
 
+    @property
+    def shortname(self):
+        return self.hostname.split('.')[0]
+
     def __str__(self):
         return self.hostname
 
@@ -42,6 +46,9 @@ class Cluster(models.Model):
     slug = models.SlugField()
     kind = enum.EnumField(ClusterType)
     hosts = models.ManyToManyField('Host')
+
+    def __str__(self):
+        return 'cluster: {}'.format(self.slug)
 
 
 class Network(models.Model):
