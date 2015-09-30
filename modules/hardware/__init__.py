@@ -18,11 +18,11 @@ class SwitchSpeed(enum.Enum):
     FORTY_GIGABIT = 5
 
     labels = {
-        TEN: '10Mbps',
-        ONE_HUNDRED: '100Mbps',
-        GIGABIT: '1Gbps',
-        TEN_GIGABIT: '10Gbps',
-        FORTY_GIGABIT: '40Gbps'
+        TEN: '10 Mbps',
+        ONE_HUNDRED: '100 Mbps',
+        GIGABIT: '1 Gbps',
+        TEN_GIGABIT: '10 Gbps',
+        FORTY_GIGABIT: '40 Gbps'
     }
 
 

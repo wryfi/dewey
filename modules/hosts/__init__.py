@@ -1,18 +1,5 @@
 from django_enumfield import enum
 
-class HostType(enum.Enum):
-    BARE_METAL_SERVER = 1
-    VIRTUAL_MACHINE = 2
-    POWER_DISTRIBUTION_UNIT = 3
-    NETWORK_EQUIPMENT = 4
-
-    labels = {
-        BARE_METAL_SERVER: 'Bare metal server',
-        VIRTUAL_MACHINE: 'Virtual machine',
-        POWER_DISTRIBUTION_UNIT: 'Power Distribution Unit',
-        NETWORK_EQUIPMENT: 'Networking equipment'
-    }
-
 
 class ClusterType(enum.Enum):
     ESX = 1
@@ -23,4 +10,20 @@ class ClusterType(enum.Enum):
         ESX: 'VMWare ESX cluster',
         JUNIPER: 'JunOS cluster',
         APPLICATION: 'Generic application cluster'
+    }
+
+
+class OperatingSystem(enum.Enum):
+    LINUX = 1
+    WINDOWS = 2
+    MAC_OS = 3
+    JUNOS = 4
+    OTHER = 5
+
+    labels = {
+        LINUX: 'gnu/linux',
+        WINDOWS: 'Windows',
+        MAC_OS: 'Mac OS',
+        JUNOS: 'JunOS',
+        OTHER: 'Other'
     }
