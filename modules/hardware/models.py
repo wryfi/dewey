@@ -92,7 +92,7 @@ class AssetBase(models.Model):
 
     @property
     def switch_ports(self):
-        return self._get_ports(NetworkSwitch)
+        return self._get_ports(NetworkDevice)
 
 
 class Server(AssetBase):
@@ -133,7 +133,7 @@ class PowerDistributionUnit(PeripheralMixin, AssetBase):
         return self.amps * self.volts
 
 
-class NetworkSwitch(PeripheralMixin, AssetBase):
+class NetworkDevice(PeripheralMixin, AssetBase):
     speed = enum.EnumField(SwitchSpeed)
     interconnect = enum.EnumField(SwitchInterconnect)
 
@@ -151,4 +151,4 @@ class PortAssignment(models.Model):
     connected_device = GenericForeignKey('connected_device_type', 'connected_device_id')
 
     def __str__(self):
-        return '{}'.format(self.device.__class__.__name__)
+        return '{} port {}'.format(self.device.name, self.port)

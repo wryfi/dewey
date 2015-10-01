@@ -21,8 +21,8 @@ class HostRole(models.Model):
 class Host(models.Model):
     """
     A network host. Hosts must have a parent, which may be: (1) a piece of hardware
-    (e.g. Server, PowerDistributionUnit, or NetworkGear); or (2) another host (e.g. for
-    a static VM); or (3) a cluster of hosts (e.g. a VM on an ESXi cluster)
+    (e.g. Server, PowerDistributionUnit, or NetworkDevice); or (2) another host
+    (e.g. for a static VM); or (3) a cluster of hosts (e.g. a VM on an ESXi cluster)
     """
     hostname = models.CharField(max_length=256, help_text='FQDN')
     roles = models.ManyToManyField('HostRole', blank=True)
@@ -41,18 +41,19 @@ class Host(models.Model):
         return '.'.join(domain)
 
     @property
-    def shortname(self):
-        return self.hostname.split('.')[0]
-
-    @property
     def kind(self):
+        # can't be imported with module - creates circular import
         from hardware.models import Server
-        if type(self.parent) == 'Host' or type(self.parent) == 'Cluster':
+        if type(self.parent) == Host or type(self.parent) == Cluster:
             return 'virtual machine host'
         elif type(self.parent) == Server:
             return 'bare metal host'
         else:
             return 'peripheral host'
+
+    @property
+    def shortname(self):
+        return self.hostname.split('.')[0]
 
 
 class Cluster(models.Model):
@@ -82,11 +83,14 @@ class Network(models.Model):
             return True
 
     def get_unused_address(self, index=0):
-        next_ip = self.unused_addresses[index]
         try:
+            next_ip = self.unused_addresses[index]
             with open(os.devnull, 'w') as nullfile:
-                subprocess.check_call(['ping', '-c', '1', '-w', '1', next_ip], stdout=nullfile, stderr=nullfile)
+                subprocess.check_call(['ping', '-c', '1', '-w', '1', next_ip],
+                                      stdout=nullfile, stderr=nullfile)
             return next_ip
+        except IndexError:
+            return 0
         except subprocess.CalledProcessError:
             return self.get_unused_address(index+1)
 
@@ -96,6 +100,11 @@ class Network(models.Model):
 
     @property
     def reserved_addresses(self):
+        """
+        Unfortunately, there's no built-in way to concatenate IpRange objects,
+        so to get a comprehensive list of addresses in reserved blocks, we have
+        to construct it manually.
+        """
         reserved = []
         for block in self.reservedaddressblock_set.all():
             for address in block.range:
