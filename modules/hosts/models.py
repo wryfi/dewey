@@ -11,11 +11,15 @@ from . import ClusterType, OperatingSystem
 
 
 class HostRole(models.Model):
-    slug = models.SlugField()
-    name = models.CharField(max_length=128)
+    name = models.SlugField(unique=True)
+    description = models.CharField(max_length=128, blank=True)
 
     def __str__(self):
         return self.name
+
+    @property
+    def hosts(self):
+        return self.host_set.all()
 
 
 class Host(models.Model):

@@ -47,7 +47,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'dewey',
     'hardware',
-    'hosts'
+    'hosts',
+    'rest_framework'
 )
 
 MIDDLEWARE_CLASSES = (

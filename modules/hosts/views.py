@@ -1,3 +1,14 @@
-from django.shortcuts import render
+from rest_framework import generics
 
-# Create your views here.
+from .models import HostRole
+from .serializers import HostRoleSerializer
+
+
+class HostRoleList(generics.ListCreateAPIView):
+    queryset = HostRole.objects.all()
+    serializer_class = HostRoleSerializer
+
+
+class HostRoleDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = HostRole.objects.all()
+    serializer_class = HostRoleSerializer
