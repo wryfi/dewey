@@ -7,23 +7,27 @@ class ClusterType(enum.Enum):
     APPLICATION = 3
 
     labels = {
-        ESX: 'VMWare ESX cluster',
+        ESX: 'VMWare ESX/ESXi cluster',
         JUNIPER: 'JunOS cluster',
         APPLICATION: 'Generic application cluster'
     }
 
 
 class OperatingSystem(enum.Enum):
-    LINUX = 1
-    WINDOWS = 2
-    MAC_OS = 3
-    JUNOS = 4
-    OTHER = 5
+    UBUNTU = 1
+    CENTOS = 2
+    WINDOWS = 3
+    MAC_OS = 4
+    JUNOS = 5
+    ESX = 6
+    OTHER = 7
 
     labels = {
-        LINUX: 'gnu/linux',
+        UBUNTU: 'ubuntu',
+        CENTOS: 'CentOS',
         WINDOWS: 'Windows',
         MAC_OS: 'Mac OS',
         JUNOS: 'JunOS',
-        OTHER: 'Other'
+        ESX: 'VMware ESX/ESXi',
+        OTHER: 'other'
     }

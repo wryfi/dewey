@@ -47,6 +47,7 @@ class CabinetAssignment(models.Model):
 
 
 class AssetBase(models.Model):
+    # TODO: on delete check for child hosts, cabinet assignments, and connected_to devices
     ephor_id = models.PositiveIntegerField(unique=True)
     asset_tag = models.CharField(max_length=128)
     manufacturer = models.CharField(max_length=128, blank=True)

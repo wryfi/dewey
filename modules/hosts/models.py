@@ -17,6 +17,7 @@ class HostRole(models.Model):
     def __str__(self):
         return self.name
 
+    # exposing this as a property for generic rest api views
     @property
     def hosts(self):
         return self.host_set.all()
@@ -46,6 +47,8 @@ class Host(models.Model):
 
     @property
     def kind(self):
+        if not self.parent:
+            return 'unknown'
         # can't be imported with module - creates circular import
         from hardware.models import Server
         if type(self.parent) == Host or type(self.parent) == Cluster:
@@ -61,8 +64,8 @@ class Host(models.Model):
 
 
 class Cluster(models.Model):
-    name = models.CharField(max_length=128)
-    slug = models.SlugField()
+    name = models.SlugField()
+    description = models.CharField(max_length=128, blank=True)
     kind = enum.EnumField(ClusterType)
     hosts = models.ManyToManyField('Host')
 

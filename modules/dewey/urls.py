@@ -16,9 +16,21 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 
-from hosts import urls as hosts_urls
+from rest_framework.routers import DefaultRouter
+
+from hardware import views as hardware_views
+from hosts import rest_urls as hosts_rest_urls
+from  hosts import views as hosts_views
+
+
+router = DefaultRouter()
+router.register(r'hosts', hosts_views.HostViewSet)
+router.register(r'host-roles', hosts_views.HostRoleViewSet)
+router.register(r'clusters', hosts_views.ClusterViewSet)
+router.register(r'servers', hardware_views.ServerViewSet)
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^hosts/', include(hosts_urls))
+    url(r'^api/', include(router.urls)),
+    #url(r'^api/hosts/', include(hosts_rest_urls))
 ]
