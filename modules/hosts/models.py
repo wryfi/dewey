@@ -5,6 +5,7 @@ import subprocess
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.generic import GenericRelation
 from django.db import models
 
 from . import ClusterType, OperatingSystem
@@ -35,6 +36,11 @@ class Host(models.Model):
     parent_type = models.ForeignKey(ContentType)
     parent_id = models.PositiveIntegerField()
     parent = GenericForeignKey('parent_type', 'parent_id')
+    virtual_machines = GenericRelation(
+        'Host',
+        content_type_field = 'parent_type',
+        object_id_field = 'parent_id'
+    )
 
     def __str__(self):
         return self.hostname
@@ -67,7 +73,12 @@ class Cluster(models.Model):
     name = models.SlugField()
     description = models.CharField(max_length=128, blank=True)
     kind = enum.EnumField(ClusterType)
-    hosts = models.ManyToManyField('Host')
+    members = models.ManyToManyField('Host')
+    virtual_machines = GenericRelation(
+        'Host',
+        content_type_field = 'parent_type',
+        object_id_field = 'parent_id'
+    )
 
     def __str__(self):
         return 'cluster: {}'.format(self.slug)
@@ -143,6 +154,7 @@ class ReservedAddressBlock(models.Model):
     network = models.ForeignKey('Network')
     start_address = models.GenericIPAddressField()
     end_address = models.GenericIPAddressField()
+    description = models.CharField(max_length=256, blank=True)
 
     def __str__(self):
         return 'Reserved addresses: {} - {}'.format(self.start_address, self.end_address)
