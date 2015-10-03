@@ -66,16 +66,17 @@ class HyperlinkedParentField(HyperlinkedGenericRelatedField):
             return None
 
         name = self.get_name(value)
-        return {'id': value.id, 'type': parent_type, 'url': Hyperlink(url, name)}
+        return {'id': value.id, 'kind': parent_type, 'url': Hyperlink(url, name)}
 
 
 class HostDetailSerializer(serializers.HyperlinkedModelSerializer):
     # TODO: figure out how to make writable!
     parent = HyperlinkedParentField(read_only=True)
+    virtual_machines = serializers.HyperlinkedRelatedField(read_only=True, many=True, view_name='host-detail')
 
     class Meta:
         model = Host
-        fields = ('hostname', 'shortname', 'domain', 'kind', 'operating_system', 'roles', 'parent')
+        fields = ('hostname', 'shortname', 'domain', 'kind', 'operating_system', 'roles', 'parent', 'virtual_machines')
 
 
 class HostRoleSerializer(serializers.HyperlinkedModelSerializer):
@@ -89,7 +90,7 @@ class ClusterSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Cluster
-        fields = ('id', 'name', 'description', 'kind', 'hosts')
+        fields = ('id', 'name', 'description', 'kind', 'members')
 
     def get_kind(selfself, obj):
         return obj.get_kind_display()

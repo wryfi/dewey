@@ -58,9 +58,9 @@ class Host(models.Model):
         # can't be imported with module - creates circular import
         from hardware.models import Server
         if type(self.parent) == Host or type(self.parent) == Cluster:
-            return 'virtual machine host'
+            return 'virtual machine'
         elif type(self.parent) == Server:
-            return 'bare metal host'
+            return 'bare metal host os'
         else:
             return 'peripheral host'
 
