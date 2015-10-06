@@ -50,6 +50,7 @@ class AssetBase(models.Model):
     # TODO: on delete check for child hosts, cabinet assignments, and connected_to devices
     ephor_id = models.PositiveIntegerField(unique=True)
     asset_tag = models.CharField(max_length=128)
+    description = models.CharField(max_length=256, blank=True)
     manufacturer = models.CharField(max_length=128, blank=True)
     model = models.CharField(max_length=128, blank=True)
     serial = models.CharField(max_length=256, blank=True)
@@ -98,12 +99,11 @@ class AssetBase(models.Model):
 
 class Server(AssetBase):
     def __str__(self):
-        return 'server #{}'.format(self.asset_tag)
+        return 'Server: asset #{}, ephor id {}'.format(self.asset_tag, self.ephor_id)
 
 
-class PeripheralMixin(models.Model):
+class PortDeviceMixin(models.Model):
     name = models.SlugField()
-    description = models.CharField(max_length=256)
     ports = models.PositiveIntegerField()
     port_assignments = generic.GenericRelation(
         'PortAssignment',
@@ -122,7 +122,7 @@ class PeripheralMixin(models.Model):
         return devices
 
 
-class PowerDistributionUnit(PeripheralMixin, AssetBase):
+class PowerDistributionUnit(PortDeviceMixin, AssetBase):
     volts = models.PositiveIntegerField()
     amps = models.PositiveIntegerField()
 
@@ -134,7 +134,7 @@ class PowerDistributionUnit(PeripheralMixin, AssetBase):
         return self.amps * self.volts
 
 
-class NetworkDevice(PeripheralMixin, AssetBase):
+class NetworkDevice(PortDeviceMixin, AssetBase):
     speed = enum.EnumField(SwitchSpeed)
     interconnect = enum.EnumField(SwitchInterconnect)
 

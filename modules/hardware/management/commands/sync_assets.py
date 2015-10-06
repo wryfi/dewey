@@ -29,6 +29,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         url = '/'.join([settings.JIRA_URL, 'rest', 'com-spartez-ephor', '1.0', 'search'])
         auth = self._get_auth()
+        print(auth)
         payload = {'query': 'Category=Servers'}
         request = requests.get(url, auth=auth, params=payload)
         request.raise_for_status()
