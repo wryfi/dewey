@@ -34,3 +34,15 @@ class SwitchInterconnect(enum.Enum):
         RJ45: 'RJ-45',
         TWINAX: 'Twinaxial'
     }
+
+
+class RackDepth(enum.Enum):
+    FULL = 1
+    HALF = 2
+    QUARTER = 4
+
+    labels = {
+        FULL: 'Full depth',
+        HALF: 'Half depth',
+        QUARTER: 'Quarter depth'
+    }

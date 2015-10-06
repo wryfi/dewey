@@ -4,7 +4,7 @@ from django_enumfield import enum
 from django.contrib.contenttypes import generic
 from django.db import models
 
-from . import RackOrientation, SwitchInterconnect, SwitchSpeed
+from . import RackDepth, RackOrientation, SwitchInterconnect, SwitchSpeed
 from hosts.models import Host
 
 
@@ -24,7 +24,8 @@ class Cabinet(models.Model):
     name = models.CharField(max_length=128)
     slug = models.SlugField()
     datacenter = models.ForeignKey('Datacenter')
-    rack_units = models.IntegerField()
+    rack_units = models.PositiveIntegerField()
+    posts = models.PositiveIntegerField()
 
     def __str__(self):
         return 'cabinet: {}'.format(self.slug)
@@ -34,6 +35,7 @@ class CabinetAssignment(models.Model):
     cabinet = models.ForeignKey('Cabinet')
     position = models.PositiveIntegerField(blank=True, null=True)
     orientation = enum.EnumField(RackOrientation, blank=True, null=True)
+    depth = enum.EnumField(RackDepth, blank=True, null=True)
     equipment_type = models.ForeignKey(ContentType)
     equipment_id = models.PositiveIntegerField()
     equipment = GenericForeignKey('equipment_type', 'equipment_id')
