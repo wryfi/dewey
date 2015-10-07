@@ -141,7 +141,7 @@ class NetworkDevice(PortDeviceMixin, AssetBase):
     interconnect = enum.EnumField(SwitchInterconnect)
 
     def __str__(self):
-        return '{} {} switch'.format(self.get_speed_display(), self.manufacturer)
+        return 'networking device: {}'.format(self.name)
 
 
 class PortAssignment(models.Model):

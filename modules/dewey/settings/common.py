@@ -15,7 +15,9 @@ import os
 
 from django.core.exceptions import ImproperlyConfigured
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SETTINGS_MODULE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MODULE_ROOT = os.path.dirname(SETTINGS_MODULE)
+PROJECT_ROOT = os.path.dirname(MODULE_ROOT)
 
 def get_env(variable):
     try:
@@ -23,9 +25,6 @@ def get_env(variable):
     except KeyError:
         message = 'Invalid settings. Please set the {} environment variable'.format(variable)
         raise ImproperlyConfigured(message)
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = get_env('SECRET_KEY')
@@ -117,6 +116,46 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+
+# Logging configuration
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+      'verbose': {
+          'format' : "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+          'datefmt' : "%d/%b/%Y %H:%M:%S"
+      },
+      'simple': {
+          'format': '%(levelname)s %(message)s'
+      },
+    },
+    'handlers': {
+      'file': {
+          'level': 'DEBUG',
+          'class': 'logging.handlers.RotatingFileHandler',
+          'filename': os.path.join(PROJECT_ROOT, 'dewey.log'),
+          'maxBytes' : 1024 * 1024 * 5,  # 5MiB
+          'backupCount' : 5,
+          'formatter': 'verbose'
+      },
+    },
+    'loggers': {
+      'django': {
+          'handlers':['file'],
+          'propagate': True,
+          'level':'INFO',
+      },
+      'bhujanga' : {
+          'handlers': ['file'],
+          'level': 'DEBUG',
+      },
+    }
+}
+
+
+# Jira integration for syncing assets
 
 JIRA_USERNAME = get_env('JIRA_USERNAME')
 JIRA_PASSWORD = get_env('JIRA_PASSWORD')
