@@ -12,8 +12,8 @@ from . import ClusterType, OperatingSystem
 
 
 class HostRole(models.Model):
-    name = models.SlugField(unique=True)
-    description = models.CharField(max_length=128, blank=True)
+    name = models.CharField(max_length=256)
+    description = models.CharField(max_length=256, blank=True)
 
     def __str__(self):
         return self.name
