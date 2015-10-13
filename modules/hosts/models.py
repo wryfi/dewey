@@ -70,7 +70,7 @@ class Host(models.Model):
 
 
 class Cluster(models.Model):
-    name = models.SlugField()
+    name = models.CharField(max_length=256)
     description = models.CharField(max_length=128, blank=True)
     kind = enum.EnumField(ClusterType)
     members = models.ManyToManyField('Host')
