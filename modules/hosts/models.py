@@ -81,7 +81,7 @@ class Cluster(models.Model):
     )
 
     def __str__(self):
-        return 'cluster: {}'.format(self.slug)
+        return 'cluster: {}'.format(self.name)
 
 
 class Network(models.Model):
