@@ -5,11 +5,15 @@ import requests
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
-from hardware.models import Server
+from hardware.models import Cabinet, CabinetAssignment, Server
 
 
 
 class Command(BaseCommand):
+    def __init__(self):
+        super(Command, self).__init__()
+        self.search_url = '/'.join([settings.JIRA_URL, 'rest', 'com-spartez-ephor', '1.0', 'search'])
+
     def _get_field(self, name, fields):
         ''' Always returns a list, even when there is only one value'''
         for field in fields:
@@ -25,13 +29,12 @@ class Command(BaseCommand):
             jira_password = getpass('Jira Password: ')
         return HTTPBasicAuth(jira_user, jira_password)
 
-    def handle(self, *args, **options):
-        url = '/'.join([settings.JIRA_URL, 'rest', 'com-spartez-ephor', '1.0', 'search'])
+    def _sync_servers(self):
         auth = self._get_auth()
-        payload = {'query': 'Category=Servers'}
-        request = requests.get(url, auth=auth, params=payload)
+        payload = {'query': 'Type=Computer AND Category=Servers AND plos.assetstatus=Deployed'}
+        request = requests.get(self.search_url, auth=auth, params=payload)
         request.raise_for_status()
-        assets = [item for item in request.json()['items'] if item['typeName'] == 'Computer']
+        assets = [item for item in request.json()['items']]
         for asset in assets:
             status = self._get_field('Asset Status', asset['fields'])
             if len(status) > 0 and status[0] == 'Deployed':
@@ -45,3 +48,21 @@ class Command(BaseCommand):
                     server.model = self._get_field('Model', asset['fields'])[0]
                     server.serial = self._get_field('Serial Number', asset['fields'])[0]
                     server.save()
+                    if not server.cabinets.all():
+                        self.stdout.write('server has no cabinet assignments')
+                        try:
+                            cabinet_name = self._get_field('Location', asset['fields'])[0]
+                            self.stdout.write('looking for cabinet named {}'.format(cabinet_name))
+                            cabinet = Cabinet.objects.get(slug=cabinet_name)
+                            self.stdout.write('adding cabinet assignment')
+                            server.cabinets.add(cabinet)
+                        except Cabinet.DoesNotExist:
+                            self.stdout.write('cabinet {} not found'.format(cabinet_name))
+                            pass
+
+    def _sync_storage(self):
+        payload = {'query': 'foo'}
+
+    def handle(self, *args, **options):
+        self._sync_servers()
+

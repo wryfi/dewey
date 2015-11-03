@@ -101,7 +101,7 @@ class AssetBase(models.Model):
 
 class Server(AssetBase):
     def __str__(self):
-        return 'Server: asset #{}, ephor id {}'.format(self.asset_tag, self.ephor_id)
+        return 'Server #{}: {} {}'.format(self.asset_tag, self.manufacturer, self.model)
 
 
 class PortDeviceMixin(models.Model):
