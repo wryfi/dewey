@@ -11,7 +11,7 @@ from hardware.models import Server
 class HostListSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Host
-        fields = ('id', 'hostname', 'roles')
+        fields = ('id', 'hostname', 'roles', 'environment')
 
 
 class HyperlinkedParentField(HyperlinkedGenericRelatedField):

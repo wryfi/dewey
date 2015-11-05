@@ -1,6 +1,9 @@
 from django_enumfield import enum
 import iptools
 import os
+import re
+import socket
+import struct
 import subprocess
 
 from django.contrib.contenttypes.models import ContentType
@@ -68,6 +71,20 @@ class Host(models.Model):
     def shortname(self):
         return self.hostname.split('.')[0]
 
+    @property
+    def environment(self):
+        if re.match(r'.*-p-\d{2,}', self.hostname):
+            return 'prod'
+        elif re.match(r'.*-d-\d{2,}', self.hostname):
+            return 'dev'
+        elif re.match(r'.*-s-\d{2,}', self.hostname):
+            return 'stage'
+        else:
+            return 'other'
+
+    @property
+    def ip_addresses(self):
+        return [assignment.address for assignment in self.addressassignment_set.all()]
 
 class Cluster(models.Model):
     name = models.CharField(max_length=256)
@@ -145,6 +162,15 @@ class AddressAssignment(models.Model):
     network = models.ForeignKey('Network')
     address = models.CharField(max_length=15)
     host = models.ForeignKey('Host')
+
+    @property
+    def netmask(self):
+        prefix = int(self.network.network.split('/')[1])
+        # I confess I have no idea how this works. See http://goo.gl/WikFMa.
+        return socket.inet_ntoa(struct.pack(">I", (0xffffffff << (32 - prefix)) & 0xffffffff))
+
+    class Meta:
+        unique_together = (('network', 'address'),)
 
     def __str__(self):
         return self.address
