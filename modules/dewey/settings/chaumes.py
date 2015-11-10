@@ -1,7 +1,9 @@
+import os
+
 from .common import *
 
-MEDIA_ROOT = '/home/chaumes/share/dewey/media'
-STATIC_ROOT = '/home/chaumes/share/dewey/static'
+MEDIA_ROOT = os.path.join(os.environ.get('HOME', '/tmp'), 'share', 'dewey', 'media')
+STATIC_ROOT = os.path.join(os.environ.get('HOME', '/tmp'), 'share', 'dewey', 'static')
 COMPRESS_ROOT = STATIC_ROOT
 
 DEBUG = True
