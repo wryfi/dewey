@@ -1,4 +1,4 @@
-from django_enumfield import enum
+from collections import defaultdict
 import iptools
 import os
 import re
@@ -6,6 +6,7 @@ import socket
 import struct
 import subprocess
 
+from django_enumfield import enum
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.generic import GenericRelation
@@ -51,8 +52,7 @@ class Host(models.Model):
     @property
     def domain(self):
         components = self.hostname.split('.')
-        domain = components[1:]
-        return '.'.join(domain)
+        return '.'.join(components[1:])
 
     @property
     def kind(self):
@@ -84,7 +84,16 @@ class Host(models.Model):
 
     @property
     def ip_addresses(self):
-        return [assignment.address for assignment in self.addressassignment_set.all()]
+        grouped = {}
+        for assignment in self.addressassignment_set.all():
+            details = {'address': assignment.address, 'network': assignment.network.cidr,
+                       'netmask': assignment.network.netmask, 'mask_bits': assignment.network.mask_bits}
+            if assignment.network.interface_id not in grouped:
+                grouped[assignment.network.interface_id] = [details]
+            else:
+                grouped[assignment.network.interface_id].append(details)
+        return grouped
+
 
 class Cluster(models.Model):
     name = models.CharField(max_length=256)
@@ -103,8 +112,9 @@ class Cluster(models.Model):
 
 class Network(models.Model):
     slug = models.SlugField()
-    network = models.CharField(max_length=18, help_text='CIDR notation')
     description = models.CharField(max_length=256)
+    cidr = models.CharField(max_length=18, help_text='network CIDR notation, e.g. 192.168.1.0/24')
+    interface_id = models.PositiveIntegerField(help_text='what interface should minions associate this addr with?')
 
     def __str__(self):
         return self.slug
@@ -130,8 +140,17 @@ class Network(models.Model):
             return self.get_unused_address(index+1)
 
     @property
+    def mask_bits(self):
+        return int(self.cidr.split('/')[1])
+
+    @property
+    def netmask(self):
+        # I confess I have no idea how this works. See http://goo.gl/WikFMa.
+        return socket.inet_ntoa(struct.pack(">I", (0xffffffff << (32 - self.mask_bits)) & 0xffffffff))
+
+    @property
     def range(self):
-        return iptools.IpRange(self.network)
+        return iptools.IpRange(self.cidr)
 
     @property
     def reserved_addresses(self):
@@ -162,12 +181,6 @@ class AddressAssignment(models.Model):
     network = models.ForeignKey('Network')
     address = models.CharField(max_length=15)
     host = models.ForeignKey('Host')
-
-    @property
-    def netmask(self):
-        prefix = int(self.network.network.split('/')[1])
-        # I confess I have no idea how this works. See http://goo.gl/WikFMa.
-        return socket.inet_ntoa(struct.pack(">I", (0xffffffff << (32 - prefix)) & 0xffffffff))
 
     class Meta:
         unique_together = (('network', 'address'),)
