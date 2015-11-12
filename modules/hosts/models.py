@@ -87,7 +87,8 @@ class Host(models.Model):
         grouped = {}
         for assignment in self.addressassignment_set.all():
             details = {'address': assignment.address, 'network': assignment.network.cidr,
-                       'netmask': assignment.network.netmask, 'mask_bits': assignment.network.mask_bits}
+                       'netmask': assignment.network.netmask, 'mask_bits': assignment.network.mask_bits,
+                       'gateway': assignment.network.gateway}
             if assignment.network.interface_id not in grouped:
                 grouped[assignment.network.interface_id] = [details]
             else:
@@ -147,6 +148,10 @@ class Network(models.Model):
     def netmask(self):
         # I confess I have no idea how this works. See http://goo.gl/WikFMa.
         return socket.inet_ntoa(struct.pack(">I", (0xffffffff << (32 - self.mask_bits)) & 0xffffffff))
+
+    @property
+    def gateway(self):
+        return self.range[1]
 
     @property
     def range(self):
