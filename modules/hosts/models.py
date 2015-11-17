@@ -73,14 +73,16 @@ class Host(models.Model):
 
     @property
     def environment(self):
-        if re.match(r'.*-p-\d{2,}', self.hostname):
-            return 'prod'
-        elif re.match(r'.*-d-\d{2,}', self.hostname):
-            return 'dev'
-        elif re.match(r'.*-s-\d{2,}', self.hostname):
-            return 'stage'
-        else:
-            return 'other'
+        match = re.match(r'.*-(\d{3})', self.hostname)
+        if match:
+            if match.groups()[0][0] == '1':
+                return 'prod'
+            if match.groups()[0][0] == '2':
+                return 'dev'
+            if match.groups()[0][0] == '3':
+                return 'stage'
+        return 'other'
+
 
     @property
     def ip_addresses(self):
