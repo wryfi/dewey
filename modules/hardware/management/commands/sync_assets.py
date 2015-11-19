@@ -55,7 +55,7 @@ class Command(BaseCommand):
                             self.stdout.write('looking for cabinet named {}'.format(cabinet_name))
                             cabinet = Cabinet.objects.get(slug=cabinet_name)
                             self.stdout.write('adding cabinet assignment')
-                            server.cabinets.add(cabinet)
+                            CabinetAssignment.objects.create(cabinet=cabinet, equipment=server)
                         except Cabinet.DoesNotExist:
                             self.stdout.write('cabinet {} not found'.format(cabinet_name))
                             pass
