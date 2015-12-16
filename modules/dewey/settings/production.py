@@ -7,4 +7,3 @@ STATIC_ROOT = os.path.join(HOME, 'static')
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['dewey.sfo.plos.org']

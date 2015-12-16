@@ -32,7 +32,7 @@ SECRET_KEY = get_env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['dewey.sfo.plos.org']
+ALLOWED_HOSTS = ['dewey.sfo.plos.org', 'dewey.soma.plos.org']
 
 
 # Application definition
