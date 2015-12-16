@@ -18,6 +18,7 @@ test -d $RUNDIR || mkdir -p $RUNDIR
 
 # Activate the virtual environment
 . $VIRTUALENV/bin/activate
+. $HOME/etc/environment
  
 # Start your Django Unicorn
 # Programs meant to be run under supervisor should not daemonize themselves (do not use --daemon)
