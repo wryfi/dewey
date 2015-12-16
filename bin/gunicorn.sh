@@ -1,7 +1,7 @@
 #!/bin/bash
  
 NAME="dewey" # Name of the application
-DJANGODIR="$HOME/dewey/modules" # Django project directory
+MODULE_ROOT="$HOME/dewey/modules" # Django project directory
 SOCKFILE="$HOME/run/gunicorn.sock" # we will communicte using this unix socket
 USER=dewey # the user to run as
 GROUP=dewey # the group to run as
@@ -11,14 +11,13 @@ VIRTUALENV="$HOME/.virtualenv"
  
 echo "Starting $NAME as `whoami`"
  
-export PYTHONPATH=$DJANGODIR:$PYTHONPATH
+export PYTHONPATH=$MODULE_ROOT:$PYTHONPATH
 
 RUNDIR=$(dirname $SOCKFILE)
 test -d $RUNDIR || mkdir -p $RUNDIR
 
 # Activate the virtual environment
 . $VIRTUALENV/bin/activate
-. /opt/dewey/etc/environment
  
 # Start your Django Unicorn
 # Programs meant to be run under supervisor should not daemonize themselves (do not use --daemon)
