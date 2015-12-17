@@ -1,4 +1,4 @@
-import loggin
+import logging
 
 from celery import shared_task
 
