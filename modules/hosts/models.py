@@ -226,8 +226,8 @@ class AddressAssignment(models.Model):
     def ptr_name(self):
         octets = self.address.split('.')
         octets.reverse()
-        reversed = '.'.join(octets)
-        return '.'.join([reversed, 'in-addr.arpa'])
+        octets_reversed = '.'.join(octets)
+        return '.'.join([octets_reversed, 'in-addr.arpa'])
 
 
 class ReservedAddressBlock(models.Model):
