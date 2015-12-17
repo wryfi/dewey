@@ -181,7 +181,7 @@ class Network(models.Model):
         """
         Calculates the name of the reverse DNS zone of the network, by determining the
         significant octets of the IP address, reversing them, and returning a valid in-addr.arpa
-        zone name.
+        zone name. This works as long as you create your reverse DNS zones based on significant octets.
         """
         # convert ip address into a binary string
         bin_string = ''.join([bin(int(octet)+256)[3:] for octet in self.network.split('.')])
@@ -197,7 +197,7 @@ class Network(models.Model):
                 significant_octets.append(str(int(octet, 2)))
         significant_octets.reverse()
         reversed_string = '.'.join(significant_octets)
-        return '.'.join([reversed_string, 'in-addr.apra'])
+        return '.'.join([reversed_string, 'in-addr.arpa'])
 
     @property
     def unused_addresses(self):
