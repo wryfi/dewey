@@ -12,7 +12,7 @@ def create_dns_record(record_zone, record_key, record_type, record_value):
     if not record_zone.exists():
         record_zone.create()
         logger.warning('Created new DNS zone {}; you may need to log in to poweradmin '
-                       'and update the details for the zone!'.format(reco:memoryviewrd_zone.name))
+                       'and update the details for the zone!'.format(record_zone.name))
     record = zones.Record(record_zone, record_key, record_type, record_value)
     if record.exists():
         record.update()
