@@ -4,11 +4,13 @@ from celery import shared_task
 
 from plop.pdns import zones
 
+from .models import AddressAssignment, Host
+
 logger = logging.getLogger('.'.join(['dewey', __name__]))
 
 
 def create_dns_record(record_zone, record_key, record_type, record_value):
-    logger.info('Create DNS {} record for {}'.format(record_type, record_key))
+    logger.info('Attempting to create DNS {} record for {}'.format(record_type, record_key))
     zone = zones.Zone(record_zone)
     if not zone.exists():
         zone.create()
@@ -24,7 +26,7 @@ def create_dns_record(record_zone, record_key, record_type, record_value):
 
 
 def delete_dns_record(record_zone, record_key, record_type, record_value):
-    logger.info('Delete DNS {} record {}'.format(record_type, record_key))
+    logger.info('Attempting to delete DNS {} record {}'.format(record_type, record_key))
     zone = zones.Zone(record_zone)
     if zone.exists():
         record = zones.Record(record_zone, record_key, record_type, record_value)
@@ -39,8 +41,8 @@ def delete_dns_record(record_zone, record_key, record_type, record_value):
 
 @shared_task(default_retry_delay=60, max_retries=5)
 def create_dns_records(assignment):
+    host, address = assignment.host, assignment.address
     try:
-        host, address = assignment.host, assignment.address
         if assignment.network.interface_id == 0:
             create_dns_record(host.domain, host.hostname, 'A', address)
         create_dns_record(assignment.network.reverse_zone, assignment.ptr_name, 'PTR', host.hostname)
@@ -53,6 +55,10 @@ def create_dns_records(assignment):
 def delete_dns_records(assignment):
     try:
         host, address = assignment.host, assignment.address
+    except (Host.DoesNotExist, AddressAssignment.DoesNotExist):
+        logger.debug('Host or AddressAssignment does not exist!')
+        return
+    try:
         delete_dns_record(host.domain, host.hostname, 'A', address)
         delete_dns_record(assignment.network.reverse_zone, assignment.ptr_name, 'PTR', host.hostname)
     except Exception as ex:
