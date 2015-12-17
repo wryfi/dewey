@@ -1,4 +1,4 @@
-import logging
+import loggin
 
 from celery import shared_task
 
@@ -44,7 +44,7 @@ def create_dns_records(assignment):
         reverse_zone = zones.Zone(assignment.network.reverse_zone)
         create_dns_record(reverse_zone, assignment.ptr_name, 'PTR', host.hostname)
     except Exception as ex:
-        log.error('Error creating DNS records for assignment {}'.format(address))
+        log.error('Error creating DNS records for assignment {}: {}'.format(address, ex))
         raise create_dns_records.retry(exc=ex)
 
 
@@ -57,5 +57,5 @@ def delete_dns_records(assignment):
         reverse_zone = zones.Zone(assignment.network.reverse_zone)
         delete_dns_record(reverse_zone, assignment.ptr_name, 'PTR', host.hostname)
     except Exception as ex:
-        log.error('Error deleting DNS records for assignment {}'.format(address))
+        log.error('Error deleting DNS records for assignment {}: {}'.format(address, ex))
         raise delete_dns_records.retry(exc=ex)
