@@ -152,6 +152,10 @@ class Network(models.Model):
         return socket.inet_ntoa(struct.pack(">I", (0xffffffff << (32 - self.mask_bits)) & 0xffffffff))
 
     @property
+    def network(self):
+        return self.cidr.split('/')[0]
+
+    @property
     def gateway(self):
         return self.range[1]
 
@@ -171,6 +175,20 @@ class Network(models.Model):
             for address in block.range:
                 reserved.append(address)
         return reserved
+
+    @property
+    def reverse_zone(self):
+        bin_string = ''.join([bin(int(octet)+256)[3:] for octet in self.network.split('.')])
+        assert len(bin_string) == 32
+        significant_digits = bin_string[:int(self.mask_bits)]
+        significant_by_8 = [significant_digits[i:i+8] for i in range(0, len(significant_digits), 8)]
+        significant_octets = []
+        for octet in significant_by_8:
+            if len(octet) == 8:
+                significant_octets.append(str(int(octet, 2)))
+        significant_octets.reverse()
+        reversed_string = '.'.join(significant_octets)
+        return '.'.join([reversed_string, 'in-addr.apra'])
 
     @property
     def unused_addresses(self):
