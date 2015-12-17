@@ -4,7 +4,7 @@ django-celery==3.1.17
 django-enumfield==1.2.1
 djangorestframework==3.2.4
 iptools==0.6.1
-plop==0.0.0a1
+-e git+https://github.com/PLOS/plop.git@18d9a01a584c844bbfee1b591d6d5b08eb31a8a5#egg=plop
 psycopg2==2.6.1
 redis==2.10.5
 requests==2.7.0

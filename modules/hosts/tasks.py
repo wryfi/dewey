@@ -9,10 +9,11 @@ logger = logging.getLogger('.'.join(['dewey', __name__]))
 
 def create_dns_record(record_zone, record_key, record_type, record_value):
     logger.info('Create DNS {} record for {}'.format(record_type, record_key))
-    if not record_zone.exists():
-        record_zone.create()
+    zone = zones.Zone(record_zone)
+    if not zone.exists():
+        zone.create()
         logger.warning('Created new DNS zone {}; you may need to log in to poweradmin '
-                       'and update the details for the zone!'.format(record_zone.name))
+                       'and update the details for the zone!'.format(record_zone))
     record = zones.Record(record_zone, record_key, record_type, record_value)
     if record.exists():
         record.update()
@@ -24,7 +25,8 @@ def create_dns_record(record_zone, record_key, record_type, record_value):
 
 def delete_dns_record(record_zone, record_key, record_type, record_value):
     logger.info('Delete DNS {} record {}'.format(record_type, record_key))
-    if record_zone.exists():
+    zone = zones.Zone(record_zone)
+    if zone.exists():
         record = zones.Record(record_zone, record_key, record_type, record_value)
         if record.exists():
             record.delete()
@@ -39,10 +41,8 @@ def delete_dns_record(record_zone, record_key, record_type, record_value):
 def create_dns_records(assignment):
     try:
         host, address = assignment.host, assignment.address
-        forward_zone = zones.Zone(host.domain)
-        create_dns_record(forward_zone, host.hostname, 'A', address)
-        reverse_zone = zones.Zone(assignment.network.reverse_zone)
-        create_dns_record(reverse_zone, assignment.ptr_name, 'PTR', host.hostname)
+        create_dns_record(host.domain, host.hostname, 'A', address)
+        create_dns_record(assignment.network.reverse_zone, assignment.ptr_name, 'PTR', host.hostname)
     except Exception as ex:
         logger.error('Error creating DNS records for assignment {}: {}'.format(address, ex))
         raise create_dns_records.retry(exc=ex)
@@ -52,10 +52,8 @@ def create_dns_records(assignment):
 def delete_dns_records(assignment):
     try:
         host, address = assignment.host, assignment.address
-        forward_zone = zones.Zone(host.domain)
-        delete_dns_record(forward_zone, host.hostname, 'A', address)
-        reverse_zone = zones.Zone(assignment.network.reverse_zone)
-        delete_dns_record(reverse_zone, assignment.ptr_name, 'PTR', host.hostname)
+        delete_dns_record(host.domain, host.hostname, 'A', address)
+        delete_dns_record(assignment.network.reverse_zone, assignment.ptr_name, 'PTR', host.hostname)
     except Exception as ex:
         logger.error('Error deleting DNS records for assignment {}: {}'.format(address, ex))
         raise delete_dns_records.retry(exc=ex)
