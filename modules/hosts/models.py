@@ -215,6 +215,7 @@ class AddressAssignment(models.Model):
     network = models.ForeignKey('Network')
     address = models.CharField(max_length=15)
     host = models.ForeignKey('Host')
+    canonical = models.BooleanField(default=True, help_text='This address is the canonical (DNS) address for the host')
 
     class Meta:
         unique_together = (('network', 'address'),)

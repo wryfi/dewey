@@ -43,16 +43,20 @@ def delete_dns_record(record_zone, record_key, record_type, record_value):
 def create_dns_records(assignment):
     host, address = assignment.host, assignment.address
     try:
-        if assignment.network.interface_id == 0:
+        # only create A record for "canonical" addresses
+        if assignment.canonical:
             create_dns_record(host.domain, host.hostname, 'A', address)
+        # create PTR records for all addresses
         create_dns_record(assignment.network.reverse_zone, assignment.ptr_name, 'PTR', host.hostname)
     except Exception as ex:
         logger.error('Error creating DNS records for assignment {}: {}'.format(address, ex))
-        raise create_dns_records.retry(exc=ex)
+        raise self.retry(exc=ex)
 
 
 @shared_task(default_retry_delay=60, max_retries=5)
 def delete_dns_records(assignment):
+    # this first try/except block is necessary for dealing with cascading
+    # deletes on Host objects
     try:
         host, address = assignment.host, assignment.address
     except (Host.DoesNotExist, AddressAssignment.DoesNotExist):
@@ -63,10 +67,13 @@ def delete_dns_records(assignment):
         delete_dns_record(assignment.network.reverse_zone, assignment.ptr_name, 'PTR', host.hostname)
     except Exception as ex:
         logger.error('Error deleting DNS records for assignment {}: {}'.format(address, ex))
-        raise delete_dns_records.retry(exc=ex)
+        raise self.retry(exc=ex)
 
 
 @shared_task(default_retry_delay=600, max_retries=5)
 def sync_dns_records():
-    for assignment in AddressAssignment.objects.all():
-        create_dns_records.delay(assignment)
+    try:
+        for assignment in AddressAssignment.objects.all():
+            create_dns_records.delay(assignment)
+    except Exception as ex:
+        raise self.retry(exc=ex)
