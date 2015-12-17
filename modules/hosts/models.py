@@ -230,7 +230,6 @@ class AddressAssignment(models.Model):
         return '.'.join([reversed, 'in-addr.arpa'])
 
 
-
 class ReservedAddressBlock(models.Model):
     network = models.ForeignKey('Network')
     start_address = models.GenericIPAddressField()
