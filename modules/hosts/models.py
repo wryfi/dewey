@@ -178,11 +178,20 @@ class Network(models.Model):
 
     @property
     def reverse_zone(self):
+        """
+        Calculates the name of the reverse DNS zone of the network, by determining the
+        significant octets of the IP address, reversing them, and returning a valid in-addr.arpa
+        zone name.
+        """
+        # convert ip address into a binary string
         bin_string = ''.join([bin(int(octet)+256)[3:] for octet in self.network.split('.')])
         assert len(bin_string) == 32
+        # grab the significant bytes from the string
         significant_digits = bin_string[:int(self.mask_bits)]
+        # group the significant bytes into octets
         significant_by_8 = [significant_digits[i:i+8] for i in range(0, len(significant_digits), 8)]
         significant_octets = []
+        # the significant octets are the ones that have a full 8 bits
         for octet in significant_by_8:
             if len(octet) == 8:
                 significant_octets.append(str(int(octet, 2)))
