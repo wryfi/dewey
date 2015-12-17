@@ -148,7 +148,7 @@ LOGGING = {
           'propagate': True,
           'level':'INFO',
       },
-      'bhujanga' : {
+      'dewey' : {
           'handlers': ['file'],
           'level': 'DEBUG',
       },

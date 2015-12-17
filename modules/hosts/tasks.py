@@ -41,7 +41,8 @@ def delete_dns_record(record_zone, record_key, record_type, record_value):
 def create_dns_records(assignment):
     try:
         host, address = assignment.host, assignment.address
-        create_dns_record(host.domain, host.hostname, 'A', address)
+        if assignment.network.interface_id == 0:
+            create_dns_record(host.domain, host.hostname, 'A', address)
         create_dns_record(assignment.network.reverse_zone, assignment.ptr_name, 'PTR', host.hostname)
     except Exception as ex:
         logger.error('Error creating DNS records for assignment {}: {}'.format(address, ex))
