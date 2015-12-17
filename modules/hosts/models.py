@@ -222,6 +222,14 @@ class AddressAssignment(models.Model):
     def __str__(self):
         return self.address
 
+    @property
+    def ptr_name(self):
+        octets = self.address.split('.')
+        octets.reverse()
+        reversed = '.'.join(octets)
+        return '.'.join([reversed, 'in-addr.arpa'])
+
+
 
 class ReservedAddressBlock(models.Model):
     network = models.ForeignKey('Network')
