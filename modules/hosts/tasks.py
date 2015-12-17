@@ -64,3 +64,9 @@ def delete_dns_records(assignment):
     except Exception as ex:
         logger.error('Error deleting DNS records for assignment {}: {}'.format(address, ex))
         raise delete_dns_records.retry(exc=ex)
+
+
+@shared_task(default_retry_delay=600, max_retries=5)
+def sync_dns_records():
+    for assignment in AddressAssignment.objects.all():
+        create_dns_records.delay(assignment)
