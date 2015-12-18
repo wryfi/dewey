@@ -25,13 +25,11 @@ class CustomAddrAssignmentForm(forms.ModelForm):
         return self.cleaned_data
 
 
-
 class AddrAssignmentAdmin(admin.ModelAdmin):
     form = CustomAddrAssignmentForm
 
 
 admin.site.register(AddressAssignment, AddrAssignmentAdmin)
-
 for model in apps.get_app_config('hosts').get_models():
     if model != AddressAssignment:
         admin.site.register(model)
