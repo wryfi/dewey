@@ -62,7 +62,9 @@ def delete_dns_records(assignment):
         logger.debug('Host or AddressAssignment does not exist!')
         return
     try:
-        delete_dns_record(host.domain, host.hostname, 'A', address)
+        # only delete the A record if this is the "canonical" address
+        if assignment.canonical:
+            delete_dns_record(host.domain, host.hostname, 'A', address)
         delete_dns_record(assignment.network.reverse_zone, assignment.ptr_name, 'PTR', host.hostname)
     except Exception as ex:
         logger.error('Error deleting DNS records for assignment {}: {}'.format(address, ex))
