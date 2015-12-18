@@ -221,7 +221,10 @@ class AddressAssignment(models.Model):
         unique_together = (('network', 'address'),)
 
     def __str__(self):
-        return self.address
+        if self.canonical:
+            return('{} on {}*'.format(self.address, self.host.hostname))
+        else:
+            return('{} on {}'.format(self.address, self.host.hostname))
 
     @property
     def ptr_name(self):

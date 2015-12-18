@@ -55,8 +55,7 @@ def create_dns_records(assignment):
 
 @shared_task(default_retry_delay=60, max_retries=5)
 def delete_dns_records(assignment):
-    # this first try/except block is necessary for dealing with cascading
-    # deletes on Host objects
+    # this first try/except block is necessary for cascading deletes on Host objects
     try:
         host, address = assignment.host, assignment.address
     except (Host.DoesNotExist, AddressAssignment.DoesNotExist):
