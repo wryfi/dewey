@@ -1,5 +1,6 @@
 from getpass import getpass
 from requests.auth import HTTPBasicAuth
+import logging
 import requests
 
 from django.core.management.base import BaseCommand
@@ -7,6 +8,8 @@ from django.conf import settings
 
 from hardware.models import Cabinet, CabinetAssignment, Server
 
+
+logger = logging.getLogger('.'.join(['dewey', __name__]))
 
 
 class Command(BaseCommand):
@@ -49,20 +52,21 @@ class Command(BaseCommand):
                     server.serial = self._get_field('Serial Number', asset['fields'])[0]
                     server.save()
                     if not server.cabinets.all():
-                        self.stdout.write('server has no cabinet assignments')
+                        logger.info('server has no cabinet assignments')
                         try:
                             cabinet_name = self._get_field('Location', asset['fields'])[0]
-                            self.stdout.write('looking for cabinet named {}'.format(cabinet_name))
+                            logger.info('looking for cabinet named {}'.format(cabinet_name))
                             cabinet = Cabinet.objects.get(slug=cabinet_name)
-                            self.stdout.write('adding cabinet assignment')
+                            logger.info('adding cabinet assignment: #{} in {}'.format(server.asset_tag, cabinet_name))
                             CabinetAssignment.objects.create(cabinet=cabinet, equipment=server)
                         except Cabinet.DoesNotExist:
-                            self.stdout.write('cabinet {} not found'.format(cabinet_name))
+                            logger.warning('cabinet {} not found'.format(cabinet_name))
                             pass
 
     def _sync_storage(self):
         payload = {'query': 'foo'}
 
     def handle(self, *args, **options):
+        self.stdout.write('Synchronizing assets. Please see log file for details.')
         self._sync_servers()
 
