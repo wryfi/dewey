@@ -18,8 +18,11 @@ def create_dns_record(record_zone, record_key, record_type, record_value):
                        'and update the details for the zone!'.format(record_zone))
     record = zones.Record(record_zone, record_key, record_type, record_value)
     if record.exists():
-        record.update()
-        logger.info('Updated DNS {} record for {}'.format(record_type, record_key))
+        if record.read()['content'] != record_value:
+            record.update()
+            logger.info('Updated DNS {} record for {}'.format(record_type, record_key))
+        else:
+            logger.info('Matching record for {} already exists'.format(record_key))
     else:
         record.create()
         logger.info('Created DNS {} record for {}'.format(record_type, record_key))
