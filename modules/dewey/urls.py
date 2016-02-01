@@ -20,7 +20,8 @@ from rest_framework.routers import DefaultRouter
 
 from hardware import views as hardware_views
 from hosts import rest_urls as hosts_rest_urls
-from  hosts import views as hosts_views
+from hosts import views as hosts_views
+from hosts import urls as hosts_urls
 
 
 router = DefaultRouter()
@@ -32,5 +33,6 @@ router.register(r'servers', hardware_views.ServerViewSet)
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/', include(router.urls)),
+    url(r'^hosts/', include(hosts_urls)),
     #url(r'^api/hosts/', include(hosts_rest_urls))
 ]

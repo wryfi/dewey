@@ -1,0 +1,12 @@
+#
+# automatically generated; do not edit
+#
+{% for host in hosts %}
+define host{
+    host_name               {{ host.hostname }}
+    alias                   {{ host.shortname }}
+    address                 {{ host.hostname }}
+    parent                  {{ host.canonical_assignment.network.gateway }}
+    use                     dewey_host
+}
+{% endfor %}

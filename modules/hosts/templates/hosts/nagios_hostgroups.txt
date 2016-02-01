@@ -1,0 +1,7 @@
+{% for role in roles %}
+define hostgroup{
+    hostgroup-name                  {{ role.name }}
+    alias                           {{ role.name }}
+    members                         {{ role.hosts|join:"," }}
+}
+{% endfor %}

@@ -83,7 +83,6 @@ class Host(models.Model):
                 return 'stage'
         return 'other'
 
-
     @property
     def ip_addresses(self):
         grouped = {}
@@ -96,6 +95,12 @@ class Host(models.Model):
             else:
                 grouped[assignment.network.interface_id].append(details)
         return grouped
+
+    @property
+    def canonical_assignment(self):
+        for assignment in self.addressassignment_set.all():
+            if assignment.canonical:
+                return assignment
 
 
 class Cluster(models.Model):

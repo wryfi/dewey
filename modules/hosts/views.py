@@ -1,3 +1,4 @@
+from django.shortcuts import render
 from rest_framework import generics, viewsets
 from rest_framework.response import Response
 
@@ -24,3 +25,13 @@ class HostRoleViewSet(viewsets.ModelViewSet):
 class ClusterViewSet(viewsets.ModelViewSet):
     queryset = Cluster.objects.all()
     serializer_class = ClusterSerializer
+
+
+def nagios_hosts(request):
+    hosts = Host.objects.all()
+    return render(request, 'hosts/nagios_hosts.txt', {'hosts': hosts})
+
+
+def nagios_hostgroups(request):
+    roles = HostRole.objects.all()
+    return render(request, 'hosts/nagios_hostgroups.txt', {'roles': roles})
