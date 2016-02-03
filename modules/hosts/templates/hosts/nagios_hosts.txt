@@ -6,7 +6,7 @@ define host{
     host_name               {{ host.hostname }}
     alias                   {{ host.shortname }}
     address                 {{ host.hostname }}
-    {% if host.canonical_assignment.network.gateway %}parent                  {{ host.canonical_assignment.network.gateway }}{% endif %}
     use                     dewey_host
+    {% if host.canonical_assignment.network.gateway %}parent                  {{ host.canonical_assignment.network.gateway }}{% endif %}
 }
 {% endfor %}
