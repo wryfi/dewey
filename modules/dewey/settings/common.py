@@ -183,3 +183,6 @@ try:
     FRONTEND = None
 except IndexError:
   FRONTEND = None
+
+
+NAGIOS_NETWORKS = ['soma-servers']

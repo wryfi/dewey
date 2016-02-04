@@ -9,7 +9,7 @@ from django.conf import settings
 from rest_framework import generics, viewsets
 from rest_framework.response import Response
 
-from .models import Cluster, Host, HostRole
+from .models import Cluster, Host, HostRole, Network
 from .serializers import ClusterSerializer, HostRoleSerializer, HostDetailSerializer, HostListSerializer
 
 
@@ -36,7 +36,15 @@ class ClusterViewSet(viewsets.ModelViewSet):
 
 def nagios_hosts(request):
     hosts = Host.objects.all()
-    return render(request, 'hosts/nagios_hosts.txt', {'hosts': hosts}, content_type='text/plain')
+    routers = []
+    for slug in settings.NAGIOS_NETWORKS:
+        try:
+            network = Network.objects.get(slug=slug)
+            routers.append({'ip': network.gateway, 'name': network.gateway.replace('.', '-')})
+        except Network.DoesNotExist:
+            pass
+    return render(request, 'hosts/nagios_hosts.txt', {'hosts': hosts, 'routers': routers},
+                  content_type='text/plain')
 
 
 def nagios_hostgroups(request):

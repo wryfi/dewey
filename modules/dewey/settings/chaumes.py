@@ -18,3 +18,4 @@ INSTALLED_APPS += (
 )
 
 ALLOWED_HOSTS = []
+NAGIOS_NETWORKS = ['soma']

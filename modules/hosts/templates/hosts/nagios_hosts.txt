@@ -1,12 +1,22 @@
 #
 # automatically generated; do not edit
 #
+{% for host in routers %}
+define host{
+    host_name               {{ host.ip }}
+    alias                   {{ host.ip }}
+    address                 {{ host.ip }}
+    use                     dewey_router
+}
+{% endfor %}
 {% for host in hosts %}
 define host{
     host_name               {{ host.hostname }}
     alias                   {{ host.shortname }}
     address                 {{ host.hostname }}
     use                     dewey_host
-    {% if host.canonical_assignment.network.gateway %}parent                  {{ host.canonical_assignment.network.gateway }}{% endif %}
+    {% if host.canonical_assignment.network.gateway %}
+    parent                  {{ host.canonical_assignment.network.gateway }}
+    {% endif %}
 }
 {% endfor %}
