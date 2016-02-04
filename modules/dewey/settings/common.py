@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import sys
 
 from django.core.exceptions import ImproperlyConfigured
 
@@ -168,3 +169,17 @@ JIRA_URL = 'https://developer.plos.org/jira'
 BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND='djcelery.backends.database:DatabaseBackend'
 CELERYBEAT_SCHEDULER='djcelery.schedulers.DatabaseScheduler'
+
+SITE_PROTOCOL = 'http'
+SITE_DOMAIN = 'localhost:8000'
+
+# Detect gunicorn
+try:
+  if 'gunicorn' in sys.argv[0]:
+    FRONTEND = 'gunicorn'
+  elif 'runserver' in sys.argv[1]:
+    FRONTEND = 'runserver'
+  else:
+    FRONTEND = None
+except IndexError:
+  FRONTEND = None
