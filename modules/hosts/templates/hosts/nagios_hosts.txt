@@ -15,8 +15,5 @@ define host{
     alias                   {{ host.shortname }}
     address                 {{ host.hostname }}
     use                     dewey_host
-    {% if host.canonical_assignment.network.gateway %}
-    parents                 router-10-5-2-1
-    {% endif %}
 }
 {% endfor %}
