@@ -1,11 +1,28 @@
-Celery==3.1.19
-Django==1.8.3
+amqp==1.4.9
+anyjson==0.3.3
+appnope==0.1.0
+backports.shutil-get-terminal-size==1.0.0
+billiard==3.3.0.23
+celery==3.1.23
+decorator==4.0.9
+Django==1.9.6
 django-celery==3.1.17
-django-enumfield==1.2.1
-djangorestframework==3.2.4
+django-enumfield==1.3b2
+djangorestframework==3.3.3
+gnureadline==6.3.3
 iptools==0.6.1
--e git+https://github.com/PLOS/plop.git@18d9a01a584c844bbfee1b591d6d5b08eb31a8a5#egg=plop
+Jinja2==2.8
+kombu==3.0.35
+MarkupSafe==0.23
+netifaces==0.10.4
+pexpect==4.0.1
+pickleshare==0.7.2
+-e git+https://github.com/PLOS/plop.git@18d9a01a584c844bbfee1b591d6d5b08eb31a8a5#egg=plop-master
 psycopg2==2.6.1
+ptyprocess==0.5.1
+pytz==2016.4
 redis==2.10.5
-requests==2.7.0
-six==1.9.0
+requests==2.10.0
+simplegeneric==0.8.1
+six==1.10.0
+traitlets==4.2.1

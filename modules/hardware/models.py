@@ -1,7 +1,7 @@
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django_enumfield import enum
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 
 from . import RackDepth, RackOrientation, SwitchInterconnect, SwitchSpeed
@@ -57,17 +57,17 @@ class AssetBase(models.Model):
     model = models.CharField(max_length=128, blank=True)
     serial = models.CharField(max_length=256, blank=True)
     rack_units = models.IntegerField(blank=True, null=True)
-    cabinets = generic.GenericRelation(
+    cabinets = GenericRelation(
         'CabinetAssignment',
         content_type_field='equipment_type',
         object_id_field='equipment_id'
     )
-    connected_to = generic.GenericRelation(
+    connected_to = GenericRelation(
         'PortAssignment',
         content_type_field='connected_device_type',
         object_id_field='connected_device_id'
     )
-    hosts = generic.GenericRelation(
+    hosts = GenericRelation(
         Host,
         content_type_field='parent_type',
         object_id_field='parent_id'
@@ -107,7 +107,7 @@ class Server(AssetBase):
 class PortDeviceMixin(models.Model):
     name = models.SlugField()
     ports = models.PositiveIntegerField()
-    port_assignments = generic.GenericRelation(
+    port_assignments = GenericRelation(
         'PortAssignment',
         content_type_field='device_type',
         object_id_field='device_id'

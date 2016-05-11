@@ -9,7 +9,7 @@ import subprocess
 from django_enumfield import enum
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.generic import GenericRelation
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 
 from . import ClusterType, OperatingSystem
