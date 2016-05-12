@@ -30,7 +30,7 @@ router.register(r'host-roles', hosts_views.HostRoleViewSet)
 router.register(r'clusters', hosts_views.ClusterViewSet)
 router.register(r'servers', hardware_views.ServerViewSet)
 router.register(r'pdus', hardware_views.PowerDistributionUnitViewSet)
-router.register(r'networking-devices', hardware_views.NetworkDeviceViewSet)
+router.register(r'network-devices', hardware_views.NetworkDeviceViewSet)
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
