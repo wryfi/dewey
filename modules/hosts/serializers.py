@@ -3,9 +3,9 @@ from rest_framework.relations import Hyperlink
 from rest_framework.reverse import reverse
 
 from dewey.serializers import HyperlinkedGenericRelatedField
+
 from .models import Cluster, Host, HostRole
-from . import OperatingSystem
-from hardware.models import Server
+from hardware.models import NetworkDevice, PowerDistributionUnit, Server
 
 
 class HostListSerializer(serializers.HyperlinkedModelSerializer):
@@ -38,6 +38,14 @@ class HyperlinkedParentField(HyperlinkedGenericRelatedField):
             self.view_name = 'cluster-detail'
             self.queryset = Cluster.objects.all()
             parent_type = 'cluster'
+        elif isinstance(value, PowerDistributionUnit):
+            self.view_name = 'powerdistributionunit-detail'
+            self.queryset = PowerDistributionUnit.objects.all()
+            parent_type = 'powerdistributionunit'
+        elif isinstance(value, NetworkDevice):
+            self.view_name = 'networkdevice-detail'
+            self.queryset = NetworkDevice.objects.all()
+            parent_type = 'networkdevice'
         else:
             raise RuntimeError('Unexpected parent type')
 
