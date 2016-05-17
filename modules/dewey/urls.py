@@ -36,13 +36,17 @@ hosts_router = routers.NestedSimpleRouter(router, r'hosts', lookup='host')
 hosts_router.register(r'roles', hosts_views.HostRoleViewSet, base_name='host-roles-nested')
 
 parent_router = routers.NestedSimpleRouter(router, r'hosts', lookup='host')
-parent_router.register(r'parent', hosts_views.HostParentViewSet)
+parent_router.register(r'parent', hosts_views.HostParentViewSet, base_name='host-parent')
+
+virtual_machines_router = routers.NestedSimpleRouter(router, r'hosts', lookup='host')
+virtual_machines_router.register(r'virtual_machines', hosts_views.HostVirtualMachineViewSet, base_name='host-virtual-machines')
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/', include(router.urls)),
     url(r'^api/', include(hosts_router.urls)),
     url(r'^api/', include(parent_router.urls)),
+    url(r'^api/', include(virtual_machines_router.urls)),
     url(r'^api/hosts/(?P<pk>[^/.]+)/relationships/(?P<related_field>[^/.]+)/$', hosts_views.HostRelationshipView.as_view(), name='host-relationships'),
     #url(r'^api/', hosts_views.HostRelationshipView.as_view()),
     url(r'^hosts/', include(hosts_urls)),

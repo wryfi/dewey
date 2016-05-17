@@ -7,12 +7,23 @@ from hardware.models import Server
 
 
 class HostDetailSerializer(serializers.ModelSerializer):
-    parent = serializers.HyperlinkedRelatedField(view_name='host-detail', read_only=True)
-    virtual_machines = serializers.HyperlinkedRelatedField(read_only=True, many=True, view_name='host-detail')
+    parent = serializers.ResourceRelatedField(
+        queryset=Host.objects,
+        related_link_view_name='host-parent-list',
+        related_link_url_kwarg='host_pk',
+        self_link_view_name='host-relationships'
+    )
     roles = serializers.ResourceRelatedField(
         many=True,
         queryset=Host.objects,
         related_link_view_name='host-roles-nested-list',
+        related_link_url_kwarg='host_pk',
+        self_link_view_name='host-relationships'
+    )
+    virtual_machines = serializers.ResourceRelatedField(
+        many=True,
+        queryset=Host.objects,
+        related_link_view_name='host-virtual-machines-list',
         related_link_url_kwarg='host_pk',
         self_link_view_name='host-relationships'
     )
