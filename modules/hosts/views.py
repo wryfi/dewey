@@ -1,32 +1,51 @@
 from hashlib import md5
 import requests
 
+from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.shortcuts import render
-from django.template.loader import render_to_string
 from django.core.urlresolvers import reverse
 from django.conf import settings
-from rest_framework import generics, viewsets
-from rest_framework.response import Response
+from rest_framework import viewsets
+from rest_framework_json_api.views import RelationshipView
 
 from .models import Cluster, Host, HostRole, Network
-from .serializers import ClusterSerializer, HostRoleSerializer, HostDetailSerializer, HostListSerializer
+from .serializers import ClusterSerializer, HostRoleSerializer, HostDetailSerializer
 
 
 class HostViewSet(viewsets.ModelViewSet):
     queryset = Host.objects.all()
     serializer_class = HostDetailSerializer
 
-    def list(self, request, *args, **kwargs):
-        queryset = Host.objects.all()
-        context = {'request': request}
-        serializer = HostListSerializer(queryset, many=True, context=context)
-        return Response(serializer.data)
+
+class HostRelationshipView(RelationshipView):
+    queryset = Host.objects
 
 
 class HostRoleViewSet(viewsets.ModelViewSet):
     queryset = HostRole.objects.all()
     serializer_class = HostRoleSerializer
+
+    def get_queryset(self):
+        queryset = self.queryset
+        if 'host_pk' in self.kwargs:
+            host_pk = self.kwargs['host_pk']
+            queryset = queryset.filter(host__pk=host_pk)
+        return queryset
+
+
+class HostParentViewSet(viewsets.ModelViewSet):
+    queryset = Host.objects.all()
+    serializer_class = HostDetailSerializer
+
+    def get_queryset(self):
+        queryset = self.queryset
+        if 'host_pk' in self.kwargs:
+            host_pk = self.kwargs['host_pk']
+            host = Host.objects.get(id=host_pk)
+            parent = host.parent_type.model_class().objects.get(id=host.parent_id)
+            queryset = queryset.filter(id=parent.id)
+        return queryset
 
 
 class ClusterViewSet(viewsets.ModelViewSet):

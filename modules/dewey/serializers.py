@@ -1,8 +1,6 @@
 from rest_framework.reverse import reverse
 from rest_framework.serializers import HyperlinkedRelatedField
 
-from hosts.models import Host, Cluster
-from hardware.models import Server
 
 class HyperlinkedGenericRelatedField(HyperlinkedRelatedField):
     """

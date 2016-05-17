@@ -16,7 +16,8 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 
-from rest_framework.routers import DefaultRouter
+#from rest_framework import routers
+from rest_framework_nested import routers
 
 from hardware import views as hardware_views
 from hosts import rest_urls as hosts_rest_urls
@@ -24,15 +25,26 @@ from hosts import views as hosts_views
 from hosts import urls as hosts_urls
 
 
-router = DefaultRouter()
+#router = routers.SimpleRouter()
+router = routers.DefaultRouter()
 router.register(r'hosts', hosts_views.HostViewSet)
 router.register(r'host-roles', hosts_views.HostRoleViewSet)
 router.register(r'clusters', hosts_views.ClusterViewSet)
 router.register(r'servers', hardware_views.ServerViewSet)
 
+hosts_router = routers.NestedSimpleRouter(router, r'hosts', lookup='host')
+hosts_router.register(r'roles', hosts_views.HostRoleViewSet, base_name='host-roles-nested')
+
+parent_router = routers.NestedSimpleRouter(router, r'hosts', lookup='host')
+parent_router.register(r'parent', hosts_views.HostParentViewSet)
+
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/', include(router.urls)),
+    url(r'^api/', include(hosts_router.urls)),
+    url(r'^api/', include(parent_router.urls)),
+    url(r'^api/hosts/(?P<pk>[^/.]+)/relationships/(?P<related_field>[^/.]+)/$', hosts_views.HostRelationshipView.as_view(), name='host-relationships'),
+    #url(r'^api/', hosts_views.HostRelationshipView.as_view()),
     url(r'^hosts/', include(hosts_urls)),
     #url(r'^api/hosts/', include(hosts_rest_urls))
 ]
