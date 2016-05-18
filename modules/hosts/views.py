@@ -6,11 +6,14 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.conf import settings
-from rest_framework import viewsets
+from rest_framework import renderers, metadata, pagination, parsers, viewsets
+from rest_framework.response import Response
+from rest_framework.decorators import api_view, renderer_classes
 from rest_framework_json_api.views import RelationshipView
 
-from .models import Cluster, Host, HostRole, Network
-from .serializers import ClusterSerializer, HostRoleSerializer, HostDetailSerializer
+from .models import AddressAssignment, Cluster, Host, HostRole, Network
+from .serializers import AddressAssignmentSerializer, ClusterSerializer, HostRoleSerializer, HostDetailSerializer,\
+    SaltHostSerializer
 
 
 class HostViewSet(viewsets.ModelViewSet):
@@ -35,10 +38,10 @@ class HostRoleViewSet(viewsets.ModelViewSet):
 
 
 class HostParentViewSet(viewsets.ModelViewSet):
-    # TODO add support for additional parent types!
+    # TODO add support for additional parent types: Server, Cluster, PDU, NetworkDevice, etc.
     serializer_classes = {
         Host: HostDetailSerializer,
-        Cluster: None
+        Cluster: ClusterSerializer
     }
 
     def get_queryset(self):
@@ -61,6 +64,49 @@ class HostVirtualMachineViewSet(viewsets.ModelViewSet):
         if host_pk:
             queryset = Host.objects.filter(parent_id=host_pk).filter(parent_type=host_type).exclude(id=host_pk)
             return queryset
+
+
+class HostAddressAssignmentViewSet(viewsets.ModelViewSet):
+    queryset = AddressAssignment.objects.all()
+    serializer_class = AddressAssignmentSerializer
+
+    def get_queryset(self):
+        host_pk = self.kwargs.get('host_pk', None)
+        if host_pk:
+            queryset = AddressAssignment.objects.filter(host_id=host_pk)
+            return queryset
+
+
+class StandardApiMixin(viewsets.ModelViewSet):
+    renderer_classes = [
+        renderers.JSONRenderer,
+        renderers.BrowsableAPIRenderer
+    ]
+    parser_classes = [
+        parsers.JSONParser,
+        parsers.FormParser,
+        parsers.MultiPartParser
+    ]
+    metadata_class = metadata.SimpleMetadata
+    pagination_class = None
+
+
+class SaltHostViewSet(StandardApiMixin):
+    queryset = Host.objects.all()
+    serializer_class = SaltHostSerializer
+
+
+@api_view(http_method_names=['GET'])
+@renderer_classes([renderers.JSONRenderer, renderers.BrowsableAPIRenderer])
+def salt_discovery_view(request, environment=None):
+    discovery = {}
+    if environment:
+        for role in HostRole.objects.all():
+            discovery[role.name] = []
+            for host in role.hosts:
+                if host.environment == environment:
+                    discovery[role.name].append(host.hostname)
+    return Response(discovery)
 
 
 class ClusterViewSet(viewsets.ModelViewSet):
