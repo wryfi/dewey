@@ -209,3 +209,5 @@ except IndexError:
 NAGIOS_NETWORKS = ['soma-servers']
 
 TASKS_ENABLED = True
+
+APPEND_SLASH = True

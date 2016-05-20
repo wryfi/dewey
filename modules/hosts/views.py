@@ -6,14 +6,14 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.conf import settings
-from rest_framework import renderers, metadata, pagination, parsers, viewsets
+from rest_framework import renderers, metadata, pagination, parsers, views, viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework_json_api.views import RelationshipView
 
 from .models import AddressAssignment, Cluster, Host, HostRole, Network
 from .serializers import AddressAssignmentSerializer, ClusterSerializer, HostRoleSerializer, HostDetailSerializer,\
-    SaltHostSerializer
+    NetworkSerializer, SaltHostSerializer
 
 
 class HostViewSet(viewsets.ModelViewSet):
@@ -77,7 +77,7 @@ class HostAddressAssignmentViewSet(viewsets.ModelViewSet):
             return queryset
 
 
-class StandardApiMixin(viewsets.ModelViewSet):
+class StandardApiMixin(object):
     renderer_classes = [
         renderers.JSONRenderer,
         renderers.BrowsableAPIRenderer
@@ -91,11 +91,14 @@ class StandardApiMixin(viewsets.ModelViewSet):
     pagination_class = None
 
 
-class SaltHostViewSet(StandardApiMixin):
+class SaltHostViewSet(StandardApiMixin, viewsets.ModelViewSet):
     queryset = Host.objects.all()
     serializer_class = SaltHostSerializer
+    lookup_field = 'hostname'
+    lookup_value_regex = '[\w\.-]+\.\w+'
 
 
+# TODO rewrite as a class-based view and add to api router
 @api_view(http_method_names=['GET'])
 @renderer_classes([renderers.JSONRenderer, renderers.BrowsableAPIRenderer])
 def salt_discovery_view(request, environment=None):
@@ -112,6 +115,11 @@ def salt_discovery_view(request, environment=None):
 class ClusterViewSet(viewsets.ModelViewSet):
     queryset = Cluster.objects.all()
     serializer_class = ClusterSerializer
+
+
+class NetworkViewSet(viewsets.ModelViewSet):
+    queryset = Network.objects.all()
+    serializer_class = NetworkSerializer
 
 
 def nagios_hosts(request):

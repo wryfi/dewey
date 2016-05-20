@@ -81,6 +81,8 @@ class Host(models.Model):
                 return 'dev'
             if match.groups()[0][0] == '3':
                 return 'stage'
+            if match.groups()[0][0] == '9':
+                return 'vagrant'
         return 'other'
 
     @property
@@ -217,7 +219,7 @@ class Network(models.Model):
 
 
 class AddressAssignment(models.Model):
-    network = models.ForeignKey('Network')
+    network = models.ForeignKey('Network', related_name='address_assignments')
     address = models.CharField(max_length=15)
     host = models.ForeignKey('Host', related_name='address_assignments')
     canonical = models.BooleanField(default=True, help_text='This address is the canonical (DNS) address for the host')

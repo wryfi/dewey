@@ -3,7 +3,7 @@ from rest_framework import serializers as vanilla_serial
 from rest_framework.relations import Hyperlink
 
 from dewey.serializers import HyperlinkedGenericRelatedField
-from .models import AddressAssignment, Cluster, Host, HostRole
+from .models import AddressAssignment, Cluster, Host, HostRole, Network
 from hardware.models import Server
 
 
@@ -40,6 +40,9 @@ class HostDetailSerializer(serializers.ModelSerializer):
         model = Host
         fields = ('hostname', 'shortname', 'domain', 'kind', 'operating_system', 'roles',
                   'parent', 'virtual_machines', 'environment', 'address_assignments')
+        read_only_fields = ('shortname', 'domain', 'roles', 'parent', 'virtual_machines'
+                            'environment', 'address_assignments')
+
 
 
 class HostRoleSerializer(serializers.ModelSerializer):
@@ -54,21 +57,10 @@ class SaltHostSerializer(vanilla_serial.ModelSerializer):
 
     class Meta:
         model = Host
-        fields = ('hostname', 'ip_addresses', 'environment', 'roles')
+        fields = ('id', 'hostname', 'ip_addresses', 'environment', 'roles')
 
     def get_roles(self, obj):
          return [role.name for role in obj.roles.all()]
-
-
-class SaltDiscoverySerializer(vanilla_serial.ModelSerializer):
-    hosts = vanilla_serial.SerializerMethodField()
-
-    class Meta:
-        model = HostRole
-        fields = ('name', 'description', 'hosts')
-
-    def get_hosts(self, obj):
-        return [host.hostname for host in obj.hosts.all()]
 
 
 class ClusterSerializer(serializers.ModelSerializer):
@@ -80,6 +72,13 @@ class ClusterSerializer(serializers.ModelSerializer):
 
     def get_kind(self, obj):
         return obj.get_kind_display()
+
+
+class NetworkSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Network
+        fields = ('slug', 'description', 'interface_id', 'cidr', 'mask_bits', 'netmask', 'reverse_zone')
 
 
 class AddressAssignmentSerializer(serializers.ModelSerializer):
