@@ -2,7 +2,6 @@ from rest_framework_json_api import serializers
 from rest_framework import serializers as vanilla_serial
 from rest_framework.relations import Hyperlink
 
-from dewey.serializers import HyperlinkedGenericRelatedField
 from .models import AddressAssignment, Cluster, Host, HostRole, Network
 from hardware.models import Server
 

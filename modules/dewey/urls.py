@@ -11,11 +11,13 @@ from hosts import urls as hosts_urls
 router = routers.DefaultRouter()
 # for hostname lookups in URLs to work reliably, we abandon format suffixes
 router.include_format_suffixes = False
-router.register(r'hosts', hosts_views.HostViewSet)
-router.register(r'salt/hosts', hosts_views.SaltHostViewSet, base_name='salt-hosts')
-router.register(r'host-roles', hosts_views.HostRoleViewSet)
 router.register(r'clusters', hosts_views.ClusterViewSet)
+router.register(r'host-roles', hosts_views.HostRoleViewSet)
+router.register(r'hosts', hosts_views.HostViewSet)
+router.register(r'network-devices', hardware_views.NetworkDeviceViewSet)
 router.register(r'networks', hosts_views.NetworkViewSet)
+router.register(r'pdus', hardware_views.PowerDistributionUnitViewSet)
+router.register(r'salt/hosts', hosts_views.SaltHostViewSet, base_name='salt-hosts')
 router.register(r'servers', hardware_views.ServerViewSet)
 
 hosts_router = routers.NestedSimpleRouter(router, r'hosts', lookup='host')

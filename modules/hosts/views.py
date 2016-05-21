@@ -14,7 +14,8 @@ from rest_framework_json_api.views import RelationshipView
 from .models import AddressAssignment, Cluster, Host, HostRole, Network
 from .serializers import AddressAssignmentSerializer, ClusterSerializer, HostRoleSerializer, HostDetailSerializer,\
     NetworkSerializer, SaltHostSerializer
-
+from hardware.models import NetworkDevice, PowerDistributionUnit
+from hardware.serializers import NetworkDeviceDetailSerializer, PowerDistributionUnitDetailSerializer
 
 class HostViewSet(viewsets.ModelViewSet):
     queryset = Host.objects.all()
@@ -41,7 +42,9 @@ class HostParentViewSet(viewsets.ModelViewSet):
     # TODO add support for additional parent types: Server, Cluster, PDU, NetworkDevice, etc.
     serializer_classes = {
         Host: HostDetailSerializer,
-        Cluster: ClusterSerializer
+        Cluster: ClusterSerializer,
+        PowerDistributionUnit: PowerDistributionUnitDetailSerializer,
+        NetworkDevice: NetworkDeviceDetailSerializer
     }
 
     def get_queryset(self):
