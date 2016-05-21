@@ -39,7 +39,6 @@ class HostRoleViewSet(viewsets.ModelViewSet):
 
 
 class HostParentViewSet(viewsets.ModelViewSet):
-    # TODO add support for additional parent types: Server, Cluster, PDU, NetworkDevice, etc.
     serializer_classes = {
         Host: HostDetailSerializer,
         Cluster: ClusterSerializer,
