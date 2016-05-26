@@ -1,29 +1,28 @@
-from rest_framework import serializers
+from rest_framework_json_api import serializers
 
-from .models import NetworkDevice, PowerDistributionUnit, Server
+from .models import  NetworkDevice, PowerDistributionUnit, Server
 
 
-class ServerListSerializer(serializers.HyperlinkedModelSerializer):
+class ServerListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Server
         fields = ('id', 'asset_tag', 'manufacturer', 'model', 'serial')
 
 
-class ServerDetailSerializer(serializers.HyperlinkedModelSerializer):
+class ServerDetailSerializer(serializers.ModelSerializer):
     hosts = serializers.HyperlinkedRelatedField(many=True, read_only=True, view_name='host-detail')
 
     class Meta:
         model = Server
         fields = ('id', 'asset_tag', 'manufacturer', 'model', 'serial', 'hosts', 'rack_units')
 
-
-class NetworkDeviceListSerializer(serializers.HyperlinkedModelSerializer):
+class NetworkDeviceListSerializer(serializers.ModelSerializer):
     class Meta:
         model = NetworkDevice
         fields = ('id', 'name', 'ports', 'speed', 'interconnect')
 
 
-class NetworkDeviceDetailSerializer(serializers.HyperlinkedModelSerializer):
+class NetworkDeviceDetailSerializer(serializers.ModelSerializer):
     hosts = serializers.HyperlinkedRelatedField(many=True, read_only=True, view_name='host-detail')
 
     class Meta:
@@ -31,13 +30,13 @@ class NetworkDeviceDetailSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'name', 'ports', 'speed', 'interconnect', 'hosts')
 
 
-class PowerDistributionUnitListSerializer(serializers.HyperlinkedModelSerializer):
+class PowerDistributionUnitListSerializer(serializers.ModelSerializer):
     class Meta:
         model = PowerDistributionUnit
         fields = ('id', 'name', 'ports', 'volts', 'amps')
 
 
-class PowerDistributionUnitDetailSerializer(serializers.HyperlinkedModelSerializer):
+class PowerDistributionUnitDetailSerializer(serializers.ModelSerializer):
     hosts = serializers.HyperlinkedRelatedField(many=True, read_only=True, view_name='host-detail')
 
     class Meta:

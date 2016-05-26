@@ -81,12 +81,14 @@ class Host(models.Model):
                 return 'dev'
             if match.groups()[0][0] == '3':
                 return 'stage'
+            if match.groups()[0][0] == '9':
+                return 'vagrant'
         return 'other'
 
     @property
     def ip_addresses(self):
         grouped = {}
-        for assignment in self.addressassignment_set.all():
+        for assignment in self.address_assignments.all():
             details = {'address': assignment.address, 'network': assignment.network.cidr,
                        'netmask': assignment.network.netmask, 'mask_bits': assignment.network.mask_bits,
                        'gateway': assignment.network.gateway}
@@ -98,7 +100,7 @@ class Host(models.Model):
 
     @property
     def canonical_assignment(self):
-        for assignment in self.addressassignment_set.all():
+        for assignment in self.address_assignments.all():
             if assignment.canonical:
                 return assignment
 
@@ -207,7 +209,7 @@ class Network(models.Model):
     @property
     def unused_addresses(self):
         available = []
-        assigned = [assign.address for assign in self.addressassignment_set.all()]
+        assigned = [assign.address for assign in self.address_assignments.all()]
         for address in self.range:
             if address not in assigned:
                 if address != self.range[0] and address != self.range[-1]:
@@ -217,9 +219,9 @@ class Network(models.Model):
 
 
 class AddressAssignment(models.Model):
-    network = models.ForeignKey('Network')
+    network = models.ForeignKey('Network', related_name='address_assignments')
     address = models.CharField(max_length=15)
-    host = models.ForeignKey('Host')
+    host = models.ForeignKey('Host', related_name='address_assignments')
     canonical = models.BooleanField(default=True, help_text='This address is the canonical (DNS) address for the host')
 
     class Meta:

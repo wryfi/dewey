@@ -1,105 +1,85 @@
-from rest_framework import fields, serializers
+from rest_framework_json_api import serializers
+from rest_framework import serializers as vanilla_serial
 from rest_framework.relations import Hyperlink
-from rest_framework.reverse import reverse
 
-from dewey.serializers import HyperlinkedGenericRelatedField
-
-from .models import Cluster, Host, HostRole
-from hardware.models import NetworkDevice, PowerDistributionUnit, Server
+from .models import AddressAssignment, Cluster, Host, HostRole, Network
+from hardware.models import Server
 
 
-class HostListSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Host
-        fields = ('id', 'hostname', 'environment')
-
-
-class HyperlinkedParentField(HyperlinkedGenericRelatedField):
-    # TODO: implement to_internal_value() method
-    def to_representation(self, value):
-        request = self.context.get('request', None)
-        format = self.context.get('format', None)
-
-        assert request is not None, (
-            "`%s` requires the request in the serializer"
-            " context. Add `context={'request': request}` when instantiating "
-            "the serializer." % self.__class__.__name__
-        )
-
-        if isinstance(value, Server):
-            self.view_name = 'server-detail'
-            self.queryset = Server.objects.all()
-            parent_type = 'server'
-        elif isinstance(value, Host):
-            self.view_name = 'host-detail'
-            self.queryset = Host.objects.all()
-            parent_type = 'host'
-        elif isinstance(value, Cluster):
-            self.view_name = 'cluster-detail'
-            self.queryset = Cluster.objects.all()
-            parent_type = 'cluster'
-        elif isinstance(value, PowerDistributionUnit):
-            self.view_name = 'powerdistributionunit-detail'
-            self.queryset = PowerDistributionUnit.objects.all()
-            parent_type = 'powerdistributionunit'
-        elif isinstance(value, NetworkDevice):
-            self.view_name = 'networkdevice-detail'
-            self.queryset = NetworkDevice.objects.all()
-            parent_type = 'networkdevice'
-        else:
-            raise RuntimeError('Unexpected parent type')
-
-        if format and self.format and self.format != format:
-           format = self.format
-
-        try:
-            url = self.get_url(value, self.view_name, request, format)
-        except NoReverseMatch:
-            msg = (
-                'Could not resolve URL for hyperlinked relationship using '
-                'view name "%s". You may have failed to include the related '
-                'model in your API, or incorrectly configured the '
-                '`lookup_field` attribute on this field.'
-            )
-            if value in ('', None):
-                value_string = {'': 'the empty string', None: 'None'}[value]
-                msg += (
-                    " WARNING: The value of the field on the model instance "
-                    "was %s, which may be why it didn't match any "
-                    "entries in your URL conf." % value_string
-                )
-            raise ImproperlyConfigured(msg % self.view_name)
-
-        if url is None:
-            return None
-
-        name = self.get_name(value)
-        return {'id': value.id, 'kind': parent_type, 'url': Hyperlink(url, name)}
-
-
-class HostDetailSerializer(serializers.HyperlinkedModelSerializer):
-    # TODO: figure out how to make writable!
-    parent = HyperlinkedParentField(read_only=True)
-    virtual_machines = serializers.HyperlinkedRelatedField(read_only=True, many=True, view_name='host-detail')
+class HostDetailSerializer(serializers.ModelSerializer):
+    parent = serializers.ResourceRelatedField(
+        queryset=Host.objects,
+        related_link_view_name='host-parent-list',
+        related_link_url_kwarg='host_pk',
+        self_link_view_name='host-relationships'
+    )
+    roles = serializers.ResourceRelatedField(
+        many=True,
+        queryset=Host.objects,
+        related_link_view_name='host-roles-nested-list',
+        related_link_url_kwarg='host_pk',
+        self_link_view_name='host-relationships'
+    )
+    virtual_machines = serializers.ResourceRelatedField(
+        many=True,
+        queryset=Host.objects,
+        related_link_view_name='host-virtual-machines-list',
+        related_link_url_kwarg='host_pk',
+        self_link_view_name='host-relationships'
+    )
+    address_assignments = serializers.ResourceRelatedField(
+        many=True,
+        queryset=Host.objects,
+        related_link_view_name='host-address-assignments-list',
+        related_link_url_kwarg='host_pk',
+        self_link_view_name='host-relationships'
+    )
 
     class Meta:
         model = Host
         fields = ('hostname', 'shortname', 'domain', 'kind', 'operating_system', 'roles',
-                  'parent', 'virtual_machines', 'environment', 'ip_addresses')
+                  'parent', 'virtual_machines', 'environment', 'address_assignments')
+        read_only_fields = ('shortname', 'domain', 'roles', 'parent', 'virtual_machines'
+                            'environment', 'address_assignments')
 
 
-class HostRoleSerializer(serializers.HyperlinkedModelSerializer):
+class HostRoleSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = HostRole
         fields = ('id', 'name', 'description')
 
 
-class ClusterSerializer(serializers.HyperlinkedModelSerializer):
+class SaltHostSerializer(vanilla_serial.ModelSerializer):
+    roles = vanilla_serial.SerializerMethodField()
+
+    class Meta:
+        model = Host
+        fields = ('id', 'hostname', 'ip_addresses', 'environment', 'roles')
+
+    def get_roles(self, obj):
+         return [role.name for role in obj.roles.all()]
+
+
+class ClusterSerializer(serializers.ModelSerializer):
     kind = serializers.SerializerMethodField()
 
     class Meta:
         model = Cluster
         fields = ('id', 'name', 'description', 'kind', 'members')
 
-    def get_kind(selfself, obj):
+    def get_kind(self, obj):
         return obj.get_kind_display()
+
+
+class NetworkSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Network
+        fields = ('slug', 'description', 'interface_id', 'cidr', 'mask_bits', 'netmask', 'reverse_zone')
+
+
+class AddressAssignmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AddressAssignment
+        fields = ('host', 'address', 'network', 'canonical')
