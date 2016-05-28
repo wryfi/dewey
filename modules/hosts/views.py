@@ -13,7 +13,7 @@ from rest_framework_json_api.views import RelationshipView
 
 from .models import AddressAssignment, Cluster, Host, HostRole, Network
 from .serializers import AddressAssignmentSerializer, ClusterSerializer, HostRoleSerializer, HostDetailSerializer,\
-    NetworkSerializer, SaltHostSerializer
+    NetworkSerializer, SaltHostSerializer, SaltHostSecretsSerializer
 from hardware.models import NetworkDevice, PowerDistributionUnit
 from hardware.serializers import NetworkDeviceDetailSerializer, PowerDistributionUnitDetailSerializer
 
@@ -93,15 +93,25 @@ class StandardApiMixin(object):
     pagination_class = None
 
 
-class SaltHostViewSet(StandardApiMixin, viewsets.ModelViewSet):
+class SaltHostViewSet(StandardApiMixin, viewsets.ReadOnlyModelViewSet):
     queryset = Host.objects.all()
     serializer_class = SaltHostSerializer
     lookup_field = 'hostname'
     lookup_value_regex = '[\w\.-]+\.\w+'
 
 
+class SaltHostSecretsViewSet(StandardApiMixin, viewsets.ReadOnlyModelViewSet):
+    serializer_class = SaltHostSecretsSerializer
+
+    def get_queryset(self):
+        host_hostname = self.kwargs.get('host_hostname', None)
+        if host_hostname:
+            queryset = Host.objects.filter(hostname=host_hostname)
+            return queryset
+
+
 # TODO rewrite as a class-based view and add to api router
-@api_view(http_method_names=['GET'])
+@api_view(http_method_names=['GET', 'HEAD'])
 @renderer_classes([renderers.JSONRenderer, renderers.BrowsableAPIRenderer])
 def salt_discovery_view(request, environment=None):
     discovery = {}

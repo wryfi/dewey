@@ -61,6 +61,13 @@ class SaltHostSerializer(vanilla_serial.ModelSerializer):
          return [role.name for role in obj.roles.all()]
 
 
+class SaltHostSecretsSerializer(vanilla_serial.ModelSerializer):
+
+    class Meta:
+        model = Host
+        fields = ('id', 'hostname', 'salt_secrets')
+
+
 class ClusterSerializer(serializers.ModelSerializer):
     kind = serializers.SerializerMethodField()
 

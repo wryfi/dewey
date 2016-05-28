@@ -28,10 +28,14 @@ hosts_router.register(r'parent', hosts_views.HostParentViewSet, base_name='host-
 hosts_router.register(r'virtual_machines', hosts_views.HostVirtualMachineViewSet, base_name='host-virtual-machines')
 hosts_router.register(r'address_assignments', hosts_views.HostAddressAssignmentViewSet, base_name='host-address-assignments')
 
+salthosts_router = routers.NestedSimpleRouter(router, 'salt/hosts', lookup='host')
+salthosts_router.register(r'secrets', hosts_views.SaltHostSecretsViewSet, base_name='host-secrets')
+
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/', include(router.urls)),
     url(r'^api/', include(hosts_router.urls)),
+    url(r'api/', include(salthosts_router.urls)),
     url(r'^api/hosts/(?P<pk>[^/.]+)/relationships/(?P<related_field>[^/.]+)/$', hosts_views.HostRelationshipView.as_view(), name='host-relationships'),
     url(r'^api/salt/discovery/(?P<environment>\w+)/$', hosts_views.salt_discovery_view, name='salt-discovery'),
     url(r'^hosts/', include(hosts_urls)),

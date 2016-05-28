@@ -34,3 +34,13 @@ class OperatingSystem(enum.Enum):
         ESX: 'VMware ESX/ESXi',
         OTHER: 'other'
     }
+
+
+class MatchField(enum.Enum):
+    HOSTNAME = 1
+    ROLE = 2
+
+    labels = {
+        HOSTNAME: 'hostname',
+        ROLE: 'role'
+    }

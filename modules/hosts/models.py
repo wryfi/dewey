@@ -12,7 +12,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 
-from . import ClusterType, OperatingSystem
+from . import ClusterType, MatchField, OperatingSystem, dotutils
 
 
 class HostRole(models.Model):
@@ -80,6 +80,8 @@ class Host(models.Model):
             if match.groups()[0][0] == '2':
                 return 'dev'
             if match.groups()[0][0] == '3':
+                return 'qa'
+            if match.groups()[0][0] == '4':
                 return 'stage'
             if match.groups()[0][0] == '9':
                 return 'vagrant'
@@ -103,6 +105,33 @@ class Host(models.Model):
         for assignment in self.address_assignments.all():
             if assignment.canonical:
                 return assignment
+
+    @property
+    def rolenames(self):
+        return [role.name for role in self.roles.all()]
+
+    def get_shared_secrets(self):
+        secrets = []
+        for secret in SharedSecret.objects.filter(match_field=MatchField.ROLE):
+            for role in self.rolenames:
+                if re.match(secret.regular_expression, role):
+                    secrets.append((secret.name, secret.secret))
+        for secret in SharedSecret.objects.filter(match_field=MatchField.HOSTNAME):
+            if re.match(secret.regular_expression, self.hostname):
+                secrets.append((secret.name, secret.secret))
+        return secrets
+
+    @property
+    def secrets(self):
+        secrets = [(secret.name, secret.secret) for secret in self.hostsecret_set.all()]
+        for secret in self.get_shared_secrets():
+            secrets.append(secret)
+        return secrets
+
+    @property
+    def salt_secrets(self):
+        secrets = {secret[0]: secret[1] for secret in self.secrets}
+        return dotutils.expand_flattened_dict(secrets)
 
 
 class Cluster(models.Model):
@@ -253,3 +282,38 @@ class ReservedAddressBlock(models.Model):
     @property
     def range(self):
         return iptools.IpRange(self.start_address, self.end_address)
+
+
+class Vault(models.Model):
+    name = models.CharField(max_length=256, help_text='a friendly name for this vault')
+    url = models.URLField(help_text='base URL to vault, e.g. https://vault.sfo.plos.org:8200')
+    transit_key_name = models.CharField(max_length=256)
+    token_path = models.CharField(max_length=256, help_text='filesystem path to valid vault token')
+
+    def __str__(self):
+        return 'Vault: {}'.format(self.name)
+
+
+class Secret(models.Model):
+    name = models.CharField(max_length=256, default='secret')
+    vault = models.ForeignKey('Vault')
+    secret = models.TextField()
+
+    class Meta:
+        abstract = True
+
+
+class HostSecret(Secret):
+    host = models.ForeignKey('Host')
+
+    def __str__(self):
+        return '{} on host {}'.format(self.name, self.host.shortname)
+
+
+class SharedSecret(Secret):
+    # someday this will need to change to something more scalable
+    regular_expression = models.CharField(max_length=256)
+    match_field = enum.EnumField(MatchField)
+
+    def __str__(self):
+        return '{} on {}s matching {}'.format(self.name, self.get_match_field_display(), self.regular_expression)
