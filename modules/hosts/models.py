@@ -1,7 +1,9 @@
-from collections import defaultdict
+import base64
 import iptools
+import json
 import os
 import re
+import requests
 import socket
 import struct
 import subprocess
@@ -14,6 +16,8 @@ from django.db import models
 
 from . import ClusterType, MatchField, OperatingSystem, dotutils
 
+
+VAULT_REGEX = re.compile(r'vault:v1:.*')
 
 class HostRole(models.Model):
     name = models.CharField(max_length=256)
@@ -42,8 +46,8 @@ class Host(models.Model):
     parent = GenericForeignKey('parent_type', 'parent_id')
     virtual_machines = GenericRelation(
         'Host',
-        content_type_field = 'parent_type',
-        object_id_field = 'parent_id'
+        content_type_field='parent_type',
+        object_id_field='parent_id'
     )
 
     def __str__(self):
@@ -141,8 +145,8 @@ class Cluster(models.Model):
     members = models.ManyToManyField('Host')
     virtual_machines = GenericRelation(
         'Host',
-        content_type_field = 'parent_type',
-        object_id_field = 'parent_id'
+        content_type_field='parent_type',
+        object_id_field='parent_id'
     )
 
     def __str__(self):
@@ -258,9 +262,9 @@ class AddressAssignment(models.Model):
 
     def __str__(self):
         if self.canonical:
-            return('{} on {}*'.format(self.address, self.host.hostname))
+            return '{} on {}*'.format(self.address, self.host.hostname)
         else:
-            return('{} on {}'.format(self.address, self.host.hostname))
+            return '{} on {}'.format(self.address, self.host.hostname)
 
     @property
     def ptr_name(self):
@@ -285,22 +289,53 @@ class ReservedAddressBlock(models.Model):
 
 
 class Vault(models.Model):
-    name = models.CharField(max_length=256, help_text='a friendly name for this vault')
+    name = models.CharField(max_length=256, help_text='a friendly name for this vault', unique=True)
     url = models.URLField(help_text='base URL to vault, e.g. https://vault.sfo.plos.org:8200')
     transit_key_name = models.CharField(max_length=256)
-    token_path = models.CharField(max_length=256, help_text='filesystem path to valid vault token')
+    token_variable = models.CharField(max_length=256, help_text='environment variable containing token')
 
     def __str__(self):
         return 'Vault: {}'.format(self.name)
 
+    @property
+    def token(self):
+        return os.environ.get(self.token_variable)
+
 
 class Secret(models.Model):
-    name = models.CharField(max_length=256, default='secret')
+    name = models.CharField(max_length=256, unique=True, help_text='dotted-path key for this secret')
     vault = models.ForeignKey('Vault')
     secret = models.TextField()
 
     class Meta:
         abstract = True
+
+    def _encrypt_secret(self):
+        """
+        This method transforms any plaintext value in the secret field into a vault
+        ciphertext. It should always be called before saving a Secret to avoid
+        writing the unencrypted secret to disk.
+        """
+        if not re.match(VAULT_REGEX, self.secret):
+            auth = {'X-Vault-Token': self.vault.token}
+            endpoint = '/'.join([self.vault.url, 'v1/transit/encrypt', self.vault.transit_key_name])
+            encoded = base64.b64encode(bytes(self.secret, 'utf-8'))
+            request = requests.post(endpoint, headers=auth,
+                                    data=json.dumps({'plaintext': encoded.decode('utf-8')}),
+                                    verify='/etc/ssl/certs')
+            request.raise_for_status()
+            ciphertext = request.json()['data']['ciphertext']
+            self.secret = ciphertext
+        return self.secret
+
+    def save(self, *args, **kwargs):
+        """
+        Override the default save() method to first call _encrypt_secret() on the
+        in-memory representation of the object.
+        """
+        self._encrypt_secret()
+        if re.match(VAULT_REGEX, self.secret):
+            super(Secret, self).save(*args, **kwargs)
 
 
 class HostSecret(Secret):

@@ -1,15 +1,15 @@
 """
 This module is full of little recursive functions that help with
 converting dotted-path notations into nested dicts, and vice
-versa. A dotted-path, or "flattened dict" might look like this:
+versa. A dotted-path, or "flattened" dict might look like this:
 
-    {'aperta.dev.service': 'vault:v1:some...hash'}
+    {'aperta.dev.service': 'vault:v1:asdfhjklkjhfdsa'}
 
 The above example approximates how the data is stored in Dewey.
 
 As an "expanded" or "nested" dict, the same data would be:
 
-    {'aperta': {'dev': {'service': 'vault:v1:some...hash'}}}
+    {'aperta': {'dev': {'service': 'vault:v1:lkjhgfdsasdfghjkl'}}}
 
 The latter format is consistent with the legacy YAML structure
 PLOS has used in its file-based salt-secrets repositories.

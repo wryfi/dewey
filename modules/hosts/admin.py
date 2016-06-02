@@ -30,6 +30,7 @@ class AddrAssignmentAdmin(admin.ModelAdmin):
 
 
 admin.site.register(AddressAssignment, AddrAssignmentAdmin)
+
 for model in apps.get_app_config('hosts').get_models():
     if model != AddressAssignment:
         admin.site.register(model)
