@@ -47,6 +47,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'dewey',
     'djcelery',
+    'environments',
     'hardware',
     'hosts',
     'rest_framework'

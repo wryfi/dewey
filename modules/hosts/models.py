@@ -41,7 +41,7 @@ class Host(models.Model):
     hostname = models.CharField(max_length=256, help_text='FQDN')
     roles = models.ManyToManyField('HostRole', blank=True)
     operating_system = enum.EnumField(OperatingSystem)
-    parent_type = models.ForeignKey(ContentType)
+    parent_type = models.ForeignKey(ContentType, related_name='hosts_host')
     parent_id = models.PositiveIntegerField()
     parent = GenericForeignKey('parent_type', 'parent_id')
     virtual_machines = GenericRelation(
@@ -287,68 +287,3 @@ class ReservedAddressBlock(models.Model):
     def range(self):
         return iptools.IpRange(self.start_address, self.end_address)
 
-
-class Vault(models.Model):
-    name = models.CharField(max_length=256, help_text='a friendly name for this vault', unique=True)
-    url = models.URLField(help_text='base URL to vault, e.g. https://vault.sfo.plos.org:8200')
-    transit_key_name = models.CharField(max_length=256)
-    token_variable = models.CharField(max_length=256, help_text='environment variable containing token')
-
-    def __str__(self):
-        return 'Vault: {}'.format(self.name)
-
-    @property
-    def token(self):
-        return os.environ.get(self.token_variable)
-
-
-class Secret(models.Model):
-    name = models.CharField(max_length=256, unique=True, help_text='dotted-path key for this secret')
-    vault = models.ForeignKey('Vault')
-    secret = models.TextField()
-
-    class Meta:
-        abstract = True
-
-    def _encrypt_secret(self):
-        """
-        This method transforms any plaintext value in the secret field into a vault
-        ciphertext. It should always be called before saving a Secret to avoid
-        writing the unencrypted secret to disk.
-        """
-        if not re.match(VAULT_REGEX, self.secret):
-            auth = {'X-Vault-Token': self.vault.token}
-            endpoint = '/'.join([self.vault.url, 'v1/transit/encrypt', self.vault.transit_key_name])
-            encoded = base64.b64encode(bytes(self.secret, 'utf-8'))
-            request = requests.post(endpoint, headers=auth,
-                                    data=json.dumps({'plaintext': encoded.decode('utf-8')}),
-                                    verify='/etc/ssl/certs')
-            request.raise_for_status()
-            ciphertext = request.json()['data']['ciphertext']
-            self.secret = ciphertext
-        return self.secret
-
-    def save(self, *args, **kwargs):
-        """
-        Override the default save() method to first call _encrypt_secret() on the
-        in-memory representation of the object.
-        """
-        self._encrypt_secret()
-        if re.match(VAULT_REGEX, self.secret):
-            super(Secret, self).save(*args, **kwargs)
-
-
-class HostSecret(Secret):
-    host = models.ForeignKey('Host')
-
-    def __str__(self):
-        return '{} on host {}'.format(self.name, self.host.shortname)
-
-
-class SharedSecret(Secret):
-    # someday this will need to change to something more scalable
-    regular_expression = models.CharField(max_length=256)
-    match_field = enum.EnumField(MatchField)
-
-    def __str__(self):
-        return '{} on {}s matching {}'.format(self.name, self.get_match_field_display(), self.regular_expression)
