@@ -1,7 +1,10 @@
 from rest_framework_json_api import serializers
 from rest_framework import serializers as vanilla_serial
+from rest_framework.relations import Hyperlink
 
-from .models import AddressAssignment, Cluster, Host, HostRole, Network
+from .models import Cluster, Host, Role
+from networks.models import AddressAssignment, Network
+from hardware.models import Server
 
 
 class HostDetailSerializer(serializers.ModelSerializer):
@@ -32,6 +35,11 @@ class HostDetailSerializer(serializers.ModelSerializer):
         related_link_url_kwarg='host_pk',
         self_link_view_name='host-relationships'
     )
+    # TODO: make environment into a proper ResourceRelatedField, as above
+    environment = serializers.SerializerMethodField()
+
+    def get_environment(self, obj):
+        return obj.environment.name
 
     class Meta:
         model = Host
@@ -44,19 +52,23 @@ class HostDetailSerializer(serializers.ModelSerializer):
 class HostRoleSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = HostRole
+        model = Role
         fields = ('id', 'name', 'description')
 
 
 class SaltHostSerializer(vanilla_serial.ModelSerializer):
     roles = vanilla_serial.SerializerMethodField()
+    environment = vanilla_serial.SerializerMethodField()
 
     class Meta:
         model = Host
         fields = ('id', 'hostname', 'ip_addresses', 'environment', 'roles')
 
     def get_roles(self, obj):
-         return [role.name for role in obj.roles.all()]
+        return [role.name for role in obj.roles.all()]
+
+    def get_environment(self, obj):
+        return obj.environment.name
 
 
 class SaltHostSecretsSerializer(vanilla_serial.ModelSerializer):

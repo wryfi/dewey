@@ -10,7 +10,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 from django.db import models
 
 from dewey.utils import dotutils, ProtocolEnum
-from . import ClusterType, OperatingSystem, SafePermissions
+from . import ClusterType, OperatingSystem
 
 
 VAULT_REGEX = re.compile(r'vault:v1:.*')
@@ -216,7 +216,7 @@ class Safe(models.Model):
         return self.vault.environment_name
 
     def __str__(self):
-        return 'safe {}:{}'.format(self.vault.name, self.name)
+        return '{}:{}'.format(self.vault.name, self.name)
 
 
 class SafeAccessControl(models.Model):
@@ -227,10 +227,9 @@ class SafeAccessControl(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     acl_object = GenericForeignKey('content_type', 'object_id')
-    permissions = enum.EnumField(SafePermissions)
 
     def __str__(self):
-        return 'safe acl for {} on {}'.format(self.acl_object, self.safe)
+        return '{} {} acl {}'.format(self.content_type.name, self.acl_object, self.safe)
 
 
 class Secret(models.Model):
@@ -242,7 +241,8 @@ class Secret(models.Model):
         """
         This method transforms any plaintext value in the secret field into a vault
         ciphertext. It should always be called before saving a Secret to avoid
-        writing the unencrypted secret to disk.
+        writing the unencrypted secret to disk; this is handled automatically in most
+        cases by the overridden save() method below.
         """
         if not re.match(VAULT_REGEX, self.secret):
             auth_request = requests.post(
@@ -252,7 +252,6 @@ class Secret(models.Model):
             )
             auth_request.raise_for_status()
             token = auth_request.json()['auth']['client_token']
-            print(token)
             auth = {'X-Vault-Token': token}
             endpoint = '/'.join([self.safe.vault.url, 'v1/transit/encrypt', self.safe.vault.transit_key_name])
             encoded = base64.b64encode(bytes(self.secret, 'utf-8'))
@@ -274,5 +273,9 @@ class Secret(models.Model):
             super(Secret, self).save(*args, **kwargs)
 
     def __str__(self):
-        return 'secret {}:{}:{}:{}'.format(self.safe.environment_name, self.safe.vault.name, self.safe.name, self.name)
+        return 'secret {}:{}:{}'.format(self.safe.vault.name, self.safe.name, self.name)
+
+    class Meta:
+        unique_together = (('name', 'safe'),)
+
 

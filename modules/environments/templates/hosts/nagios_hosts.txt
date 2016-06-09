@@ -1,0 +1,19 @@
+#
+# automatically generated; do not edit
+#
+{% for host in routers %}
+define host{
+    host_name               router-10-5-2-1
+    alias                   router-10-5-2-1
+    address                 10.5.2.1
+    use                     dewey_router
+}
+{% endfor %}
+{% for host in hosts %}
+define host{
+    host_name               {{ host.hostname }}
+    alias                   {{ host.shortname }}
+    address                 {{ host.hostname }}
+    use                     dewey_host
+}
+{% endfor %}

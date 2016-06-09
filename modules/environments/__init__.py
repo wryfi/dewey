@@ -31,13 +31,3 @@ class OperatingSystem(enum.Enum):
         ESX: 'VMware ESX/ESXi',
         OTHER: 'other'
     }
-
-
-class SafePermissions(enum.Enum):
-    READ_ONLY = 1
-
-    labels = {
-        READ_ONLY: 'can read secrets'
-    }
-
-
