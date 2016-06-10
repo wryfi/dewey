@@ -163,6 +163,21 @@ class Cluster(models.Model):
     def __str__(self):
         return 'cluster: {}'.format(self.name)
 
+    def delete(self, *args, **kwargs):
+        """
+        Django's default behavior will cascade deletes here, causing the deletion
+        of a cluster to delete all of that clusters's members and hosts. So throw an
+        error if the cluster has any remaining VMs. Otherwise, delete the members
+        from the object before calling delete on it.
+        """
+        if self.virtual_machines.all():
+            children = [vm.hostname for vm in self.virtual_machines.all()]
+            raise RuntimeError('cannot delete cluster until its hosts have been reassigned: {}'.format(children))
+        for member in self.members.all():
+            self.members.remove(member)
+        self.save()
+        super(Cluster, self).delete(*args, **kwargs)
+
 
 class Vault(models.Model):
     name = models.CharField(max_length=256, help_text='a friendly name for this vault', unique=True)

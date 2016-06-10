@@ -8,6 +8,14 @@ import django.db.models.deletion
 import django_enumfield.db.fields
 import environments
 
+from django.contrib.contenttypes.management import update_contenttypes
+from django.apps import apps
+
+
+def update_environment_contenttypes(*args):
+    environments = apps.get_app_config('environments')
+    update_contenttypes(environments)
+
 
 class Migration(migrations.Migration):
 
@@ -114,4 +122,8 @@ class Migration(migrations.Migration):
             name='secret',
             unique_together=set([('name', 'safe')]),
         ),
+        # we need to run this here for the Hosts migrations to succeed.
+        migrations.RunPython(
+            update_environment_contenttypes
+        )
     ]
