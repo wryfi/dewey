@@ -148,6 +148,17 @@ class Host(models.Model):
             secrets[key] = secret_string
         return dotutils.expand_flattened_dict(secrets)
 
+    def delete(self, *args, **kwargs):
+        """
+        Django's default behavior will cascade deletes here, causing the deletion
+        of a sever to delete all of that server's child hosts. So throw an
+        error if the cluster has any remaining VMs.
+        """
+        if self.virtual_machines.all():
+            children = [vm.hostname for vm in self.virtual_machines.all()]
+            raise RuntimeError('cannot delete host until its VMs have been reassigned: {}'.format(children))
+        super(Host, self).delete(*args, **kwargs)
+
 
 class Cluster(models.Model):
     name = models.CharField(max_length=256)
