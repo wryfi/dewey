@@ -16,8 +16,8 @@ from networks.models import AddressAssignment, Network
 from .serializers import ClusterSerializer, HostRoleSerializer, HostDetailSerializer,\
     SaltHostSerializer, SaltHostSecretsSerializer
 from networks.serializers import AddressAssignmentSerializer
-from hardware.models import NetworkDevice, PowerDistributionUnit
-from hardware.serializers import NetworkDeviceDetailSerializer, PowerDistributionUnitDetailSerializer
+from hardware.models import NetworkDevice, PowerDistributionUnit, Server
+from hardware.serializers import NetworkDeviceDetailSerializer, PowerDistributionUnitDetailSerializer, ServerDetailSerializer
 
 
 class HostViewSet(viewsets.ModelViewSet):
@@ -46,15 +46,25 @@ class HostParentViewSet(viewsets.ModelViewSet):
         Host: HostDetailSerializer,
         Cluster: ClusterSerializer,
         PowerDistributionUnit: PowerDistributionUnitDetailSerializer,
-        NetworkDevice: NetworkDeviceDetailSerializer
+        NetworkDevice: NetworkDeviceDetailSerializer,
+        Server: ServerDetailSerializer
     }
+
+    def get_parent_type(self):
+        host_pk = self.kwargs.get('host_pk', None)
+        if host_pk:
+            host = Host.objects.get(id=host_pk)
+            return host.parent_type.model_class()
+
+    def get_serializer_class(self):
+        if self.kwargs.get('host_pk'):
+            return self.serializer_classes.get(self.get_parent_type())
 
     def get_queryset(self):
         host_pk = self.kwargs.get('host_pk', None)
         if host_pk:
             host = Host.objects.get(id=host_pk)
-            parent_type = host.parent_type.model_class()
-            self.serializer_class = self.serializer_classes.get(parent_type)
+            parent_type = self.get_parent_type()
             queryset = parent_type.objects.filter(id=host.parent_id)
             return queryset
 
@@ -65,7 +75,7 @@ class HostVirtualMachineViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         host_pk = self.kwargs.get('host_pk', None)
-        host_type = ContentType.objects.get(model='host')
+        host_type = ContentType.objects.get(app_label='environments', model='host')
         if host_pk:
             queryset = Host.objects.filter(parent_id=host_pk).filter(parent_type=host_type).exclude(id=host_pk)
             return queryset
