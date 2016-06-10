@@ -123,7 +123,5 @@ class Migration(migrations.Migration):
             unique_together=set([('name', 'safe')]),
         ),
         # we need to run this here for the Hosts migrations to succeed.
-        migrations.RunPython(
-            update_environment_contenttypes
-        )
+        migrations.RunPython(update_environment_contenttypes)
     ]

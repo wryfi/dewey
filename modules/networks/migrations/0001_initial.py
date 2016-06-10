@@ -5,6 +5,14 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 import django.db.models.deletion
 
+from django.contrib.contenttypes.management import update_contenttypes
+from django.apps import apps
+
+
+def update_networks_contenttypes(*args):
+    networks = apps.get_app_config('networks')
+    update_contenttypes(networks)
+
 
 class Migration(migrations.Migration):
 
@@ -76,4 +84,5 @@ class Migration(migrations.Migration):
             name='addressassignment',
             unique_together=set([('network', 'address')]),
         ),
+        migrations.RunPython(update_networks_contenttypes)
     ]
