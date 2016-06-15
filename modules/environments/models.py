@@ -133,19 +133,17 @@ class Host(models.Model):
 
     @property
     def secrets(self):
-        secrets = {}
+        secrets = []
         for safe in self.safes:
             for secret in safe.secret_set.all():
-                secrets[secret.name] = {'secret': secret.secret, 'vault_host': secret.safe.vault.vault_host,
-                                        'transit_key': secret.safe.vault.transit_key_name}
+                secrets.append(secret)
         return secrets
 
     @property
     def salt_secrets(self):
         secrets = {}
-        for key, value in self.secrets.items():
-            secret_string = ':'.join([value['vault_host'], value['transit_key'], value['secret']])
-            secrets[key] = secret_string
+        for secret in self.secrets:
+            secrets[secret.name] = secret.export_format
         return dotutils.expand_flattened_dict(secrets)
 
     def delete(self, *args, **kwargs):
@@ -262,6 +260,10 @@ class Secret(models.Model):
     name = models.CharField(max_length=256, help_text='dotted-path key for this secret')
     safe = models.ForeignKey('Safe')
     secret = models.TextField()
+
+    @property
+    def export_format(self):
+        return '::'.join([self.safe.vault.vault_host, self.safe.vault.transit_key_name, self.secret])
 
     def _encrypt_secret(self):
         """
