@@ -13,6 +13,13 @@ from dewey.utils import dotutils, ProtocolEnum
 from . import ClusterType, OperatingSystem
 
 
+try:
+    import requests.packages.urllib3
+    requests.packages.urllib3.disable_warnings()
+except:
+    pass
+
+
 VAULT_REGEX = re.compile(r'vault:v1:.*')
 
 
