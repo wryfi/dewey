@@ -125,8 +125,17 @@ class Host(models.Model):
                 my_env_role_acls.append(acl)
         all_env_host_acls = self.safe_acls.filter(safe__vault__all_environments=True)
         my_env_host_acls = self.safe_acls.filter(safe__vault__environment=self.environment)
+        all_env_all_host_acls = SafeAccessControl.objects.filter(
+                safe__vault__all_environments=True
+            ).filter(all_hosts=True)
+        my_env_all_host_acls = SafeAccessControl.objects.filter(
+                safe__vault__environment=self.environment
+            ).filter(all_hosts=True)
         # return the safes in the order we want to inherit secrets!
-        for acls in [all_env_role_acls, all_env_host_acls, my_env_role_acls, my_env_host_acls]:
+        for acls in [
+            all_env_all_host_acls, all_env_role_acls, all_env_host_acls,
+            my_env_all_host_acls, my_env_role_acls, my_env_host_acls
+        ]:
             for acl in acls:
                 safes.append(acl.safe)
         return safes
@@ -222,6 +231,14 @@ class Vault(models.Model):
         else:
             return 'unknown'
 
+    def save(self, *args, **kwargs):
+        if self.all_environments:
+            if self.environment:
+                raise RuntimeError('you must choose a specific environment, or all environments, not both')
+        if not self.all_environments:
+            if not self.environment:
+                raise RuntimeError('you must choose either a specific environment, or all environments')
+        super(Vault, self).save(*args, **kwargs)
 
 class Safe(models.Model):
     """
@@ -240,7 +257,7 @@ class Safe(models.Model):
         return self.vault.environment_name
 
     def __str__(self):
-        return '{}:{}'.format(self.vault.name, self.name)
+        return '{} :: {}'.format(self.name, self.vault.name)
 
 
 class SafeAccessControl(models.Model):
@@ -248,12 +265,29 @@ class SafeAccessControl(models.Model):
     SafeAccessControl objects determine what hosts and roles can access a safe
     """
     safe = models.ForeignKey('Safe')
-    content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
+    all_hosts = models.BooleanField(default=False)
+    content_type = models.ForeignKey(ContentType, null=True, blank=True)
+    object_id = models.PositiveIntegerField(null=True, blank=True)
     acl_object = GenericForeignKey('content_type', 'object_id')
 
+    @property
+    def acl_object_name(self):
+        if self.all_hosts:
+            return 'all hosts'
+        else:
+            return '{} {}'.format(self.content_type.name, self.acl_object)
+
+    def save(self, *args, **kwargs):
+        if self.all_hosts:
+            if self.content_type or self.object_id:
+                raise RuntimeError('set either all_hosts, or a specific object, but not both')
+        if not self.all_hosts:
+            if not self.content_type or not self.object_id:
+                raise RuntimeError('you must set either all_hosts or a specific object')
+        super(SafeAccessControl, self).save(*args, **kwargs)
+
     def __str__(self):
-        return '{} {} acl {}'.format(self.content_type.name, self.acl_object, self.safe)
+        return '{} access to {}'.format(self.acl_object_name, self.safe)
 
 
 class Secret(models.Model):
@@ -301,7 +335,7 @@ class Secret(models.Model):
             super(Secret, self).save(*args, **kwargs)
 
     def __str__(self):
-        return '{} ({} :: {})'.format(self.name, self.safe.name, self.safe.vault.name)
+        return '{} :: {} :: {}'.format(self.name, self.safe.name, self.safe.vault.name)
 
     class Meta:
         unique_together = (('name', 'safe'),)
