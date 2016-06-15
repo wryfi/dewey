@@ -299,7 +299,7 @@ class Secret(models.Model):
             super(Secret, self).save(*args, **kwargs)
 
     def __str__(self):
-        return 'secret {}:{}:{}'.format(self.safe.vault.name, self.safe.name, self.name)
+        return '{} ({} :: {})'.format(self.name, self.safe.name, self.safe.vault.name)
 
     class Meta:
         unique_together = (('name', 'safe'),)
