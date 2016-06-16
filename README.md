@@ -2,7 +2,7 @@
 
 <img
   src="artwork/dewey.png"
-  align="left" width="200px" hspace="20px" vspace="15px">
+  align="left" width="200px" hspace="20px" vspace="10px">
 </img>
 
 Meet Dewey, the environment management robot. Originally named for
