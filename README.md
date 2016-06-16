@@ -2,7 +2,7 @@
 
 <img
   src="artwork/dewey.png"
-  align="left" width="200px" hspace="25px" vspace="10px">
+  align="left" width="200px" hspace="25px" vspace="20px">
 </img>
 
 Meet Dewey, the environment management robot. Originally named for
@@ -27,9 +27,9 @@ different environments, with role-based access controls per environment. The
 initial provisioning integration will be with saltstack/salt-cloud, but other
 integrations will be possible.
 
-Unlike OpenNMS and other discovery-based management solutions, Dewey's is
+Unlike OpenNMS and other discovery-based management solutions, Dewey is
 designed around defining what your environments should look like, not
-discovering what exists in your network.
+discovering what's out there.
 
 Dewey is suitable for integrating with configuration management systems like
 saltstack, and salt integration is a major focus of the project. At PLOS, Dewey
