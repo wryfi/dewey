@@ -8,6 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django_enumfield import enum
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.db import models
+from django.conf import settings
 
 from dewey.utils import dotutils, ProtocolEnum
 from . import ClusterType, OperatingSystem
@@ -317,7 +318,7 @@ class Secret(models.Model):
             auth_request = requests.post(
                 '/'.join([self.safe.vault.url, 'v1/auth/userpass/login', self.safe.vault.vault_user]),
                 data=json.dumps({'password': self.safe.vault.password}),
-                verify='/etc/ssl/certs/plos-ca.pem'
+                verify=settings.PLOS_CA_CERTIFICATE
             )
             auth_request.raise_for_status()
             token = auth_request.json()['auth']['client_token']
@@ -326,7 +327,7 @@ class Secret(models.Model):
             encoded = base64.b64encode(bytes(self.secret, 'utf-8'))
             request = requests.post(endpoint, headers=auth,
                                     data=json.dumps({'plaintext': encoded.decode('utf-8')}),
-                                    verify='/etc/ssl/certs/plos-ca.pem')
+                                    verify=settings.PLOS_CA_CERTIFICATE)
             request.raise_for_status()
             ciphertext = request.json()['data']['ciphertext']
             self.secret = ciphertext
