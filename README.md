@@ -1,30 +1,39 @@
 # Dewey
 
 <img
-  src="https://upload.wikimedia.org/wikipedia/commons/0/01/Melvil_Dewey_1891.jpg"
-  width="120px" style="float: left; margin-right: 15px">
+  src="artwork/dewey.png"
+  align="left" width="200px" hspace="25px" vspace="10px">
 </img>
 
-This is Dewey, the PLOS ops inventory management system. Dewey is named for
-Melvil Dewey, the creator of the [Dewey Decimal System](https://en.wikipedia.org/wiki/Dewey_Decimal_Classification) for
-classifying materials in a library.
+Meet Dewey, the environment management robot. Originally named for
+Melvil Dewey, (of the
+[Dewey Decimal System](https://en.wikipedia.org/wiki/Dewey_Decimal_Classification)),
+we decided the bot from [Silent Running](http://www.imdb.com/title/tt0067756/)
+makes a better mascot.
 
-Like Dewey's decimal system, this project is all about cataloging resources and
-classifying them according to their properties. Unlike Dewey, we're cataloging
-computer equipment, hosts, and other technology resources, instead of books.
-
-While Melvil chose to use numeric classifications, we mostly use descriptive
-ones.
+It's also appropriate, since Dewey is a loyal robot, who is seen all alone
+at the end of the movie, caring for the environment (a forest greenhouse on a
+space ship), holding a battered old watering can as he drifts deeper into space.
 
 ## Purpose and Intent
 
-Dewey is designed to be a canonical source of information for what should
-exist in the world of compute infrastructure. Its purpose is not to discover
-what exists in your network, but to be the reference for what should exist.
+Dewey is designed to be the canonical source of information about your computing
+environments. A computing environment consists of hosts, clusters, and other
+resources, and is built on top of networks and hardware. Dewey lets you store,
+model, and manage all of this information, from rack to virtual machine.
+
+On top of this model, Dewey will automate provisioning of virtual machines into
+different environments, with role-based access controls per environment. The
+initial provisioning integration will be with saltstack/salt-cloud, but other
+integrations will be possible.
+
+Unlike OpenNMS and other discovery-based management solutions, Dewey's is
+designed around defining what your environments should look like, not
+discovering what exists in your network.
 
 Dewey is suitable for integrating with configuration management systems like
-saltstack, and extensive salt integration is planned. At PLOS, Dewey provides
-an external pillar for salt, which defines all hosts and their roles.
+saltstack, and salt integration is a major focus of the project. At PLOS, Dewey
+provides an external pillar for salt, which defines all hosts and their roles.
 
 ## Architecture
 
