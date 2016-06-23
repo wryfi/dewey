@@ -1,9 +1,6 @@
 from django_enumfield import enum
 
 
-default_app_config = 'hosts.apps.HostsAppConfig'
-
-
 class ClusterType(enum.Enum):
     ESX = 1
     JUNIPER = 2
@@ -33,14 +30,4 @@ class OperatingSystem(enum.Enum):
         JUNOS: 'JunOS',
         ESX: 'VMware ESX/ESXi',
         OTHER: 'other'
-    }
-
-
-class MatchField(enum.Enum):
-    HOSTNAME = 1
-    ROLE = 2
-
-    labels = {
-        HOSTNAME: 'hostname',
-        ROLE: 'role'
     }

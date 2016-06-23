@@ -11,11 +11,15 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework_json_api.views import RelationshipView
 
-from .models import AddressAssignment, Cluster, Host, HostRole, Network
-from .serializers import AddressAssignmentSerializer, ClusterSerializer, HostRoleSerializer, HostDetailSerializer,\
-    NetworkSerializer, SaltHostSerializer, SaltHostSecretsSerializer
-from hardware.models import NetworkDevice, PowerDistributionUnit
-from hardware.serializers import NetworkDeviceDetailSerializer, PowerDistributionUnitDetailSerializer
+from dewey.utils import dotutils
+from .models import Cluster, Host, Role
+from networks.models import AddressAssignment, Network
+from .serializers import ClusterSerializer, HostRoleSerializer, HostDetailSerializer,\
+    SaltHostSerializer, SaltHostSecretsSerializer
+from networks.serializers import AddressAssignmentSerializer
+from hardware.models import NetworkDevice, PowerDistributionUnit, Server
+from hardware.serializers import NetworkDeviceDetailSerializer, PowerDistributionUnitDetailSerializer, ServerDetailSerializer
+
 
 class HostViewSet(viewsets.ModelViewSet):
     queryset = Host.objects.all()
@@ -27,7 +31,7 @@ class HostRelationshipView(RelationshipView):
 
 
 class HostRoleViewSet(viewsets.ModelViewSet):
-    queryset = HostRole.objects.all()
+    queryset = Role.objects.all()
     serializer_class = HostRoleSerializer
 
     def get_queryset(self):
@@ -43,15 +47,25 @@ class HostParentViewSet(viewsets.ModelViewSet):
         Host: HostDetailSerializer,
         Cluster: ClusterSerializer,
         PowerDistributionUnit: PowerDistributionUnitDetailSerializer,
-        NetworkDevice: NetworkDeviceDetailSerializer
+        NetworkDevice: NetworkDeviceDetailSerializer,
+        Server: ServerDetailSerializer
     }
+
+    def get_parent_type(self):
+        host_pk = self.kwargs.get('host_pk', None)
+        if host_pk:
+            host = Host.objects.get(id=host_pk)
+            return host.parent_type.model_class()
+
+    def get_serializer_class(self):
+        if self.kwargs.get('host_pk'):
+            return self.serializer_classes.get(self.get_parent_type())
 
     def get_queryset(self):
         host_pk = self.kwargs.get('host_pk', None)
         if host_pk:
             host = Host.objects.get(id=host_pk)
-            parent_type = host.parent_type.model_class()
-            self.serializer_class = self.serializer_classes.get(parent_type)
+            parent_type = self.get_parent_type()
             queryset = parent_type.objects.filter(id=host.parent_id)
             return queryset
 
@@ -62,7 +76,7 @@ class HostVirtualMachineViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         host_pk = self.kwargs.get('host_pk', None)
-        host_type = ContentType.objects.get(model='host')
+        host_type = ContentType.objects.get(app_label='environments', model='host')
         if host_pk:
             queryset = Host.objects.filter(parent_id=host_pk).filter(parent_type=host_type).exclude(id=host_pk)
             return queryset
@@ -116,10 +130,10 @@ class SaltHostSecretsViewSet(StandardApiMixin, viewsets.ReadOnlyModelViewSet):
 def salt_discovery_view(request, environment=None):
     discovery = {}
     if environment:
-        for role in HostRole.objects.all():
+        for role in Role.objects.all():
             discovery[role.name] = []
             for host in role.hosts:
-                if host.environment == environment:
+                if host.environment.name == environment:
                     discovery[role.name].append(host.hostname)
     return Response(discovery)
 
@@ -129,9 +143,27 @@ class ClusterViewSet(viewsets.ModelViewSet):
     serializer_class = ClusterSerializer
 
 
-class NetworkViewSet(viewsets.ModelViewSet):
-    queryset = Network.objects.all()
-    serializer_class = NetworkSerializer
+@api_view(http_method_names=['GET', 'HEAD'])
+@renderer_classes([renderers.JSONRenderer, renderers.BrowsableAPIRenderer])
+def role_secrets(request, environment, role):
+    safes = []
+    secrets = []
+    secrets_dict = {}
+    role = Role.objects.get(name=role)
+    if environment == 'all':
+        env_acls = SafeAccessControl.objects.filter(safe__vault__all_environments=True)
+        for acl in env_acls.filter(content_type=ContentType.objects.get_for_model(Role)).filter(object_id=role.id):
+            safes.append(acl.safe)
+    else:
+        for safe_acl in role.safe_acls.all():
+            if safe_acl.safe.environment_name == environment:
+                safes.append(safe_acl.safe)
+    for safe in safes:
+        for secret in safe.secret_set.all():
+            secrets.append(secret)
+    for secret in secrets:
+        secrets_dict[secret.name] = secret.export_format
+    return Response(dotutils.expand_flattened_dict(secrets_dict))
 
 
 def nagios_hosts(request):
@@ -148,7 +180,7 @@ def nagios_hosts(request):
 
 
 def nagios_hostgroups(request):
-    roles = HostRole.objects.all()
+    roles = Role.objects.all()
     return render(request, 'hosts/nagios_hostgroups.txt', {'roles': roles}, content_type='text/plain')
 
 
@@ -174,4 +206,3 @@ def nagios_hostgroups_md5(request):
         request.raise_for_status()
         checksum = md5(request.content).hexdigest()
         return HttpResponse(checksum, content_type='text/plain')
-
