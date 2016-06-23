@@ -17,7 +17,7 @@ from django.db import models
 from . import ClusterType, MatchField, OperatingSystem, dotutils
 
 
-VAULT_REGEX = re.compile(r'vault:v1:.*')
+VAULT_REGEX = re.compile(r'vault:v\d:.*')
 
 class HostRole(models.Model):
     name = models.CharField(max_length=256)
