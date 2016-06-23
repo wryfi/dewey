@@ -13,7 +13,7 @@ from dewey.utils import dotutils, ProtocolEnum
 from . import ClusterType, OperatingSystem
 
 
-VAULT_REGEX = re.compile(r'vault:v1:.*')
+VAULT_REGEX = re.compile(r'vault:v\d:.*')
 
 
 class Environment(models.Model):
