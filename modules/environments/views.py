@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework_json_api.views import RelationshipView
 
+from dewey.utils import dotutils
 from .models import Cluster, Host, Role
 from networks.models import AddressAssignment, Network
 from .serializers import ClusterSerializer, HostRoleSerializer, HostDetailSerializer,\
@@ -142,6 +143,29 @@ class ClusterViewSet(viewsets.ModelViewSet):
     serializer_class = ClusterSerializer
 
 
+@api_view(http_method_names=['GET', 'HEAD'])
+@renderer_classes([renderers.JSONRenderer, renderers.BrowsableAPIRenderer])
+def role_secrets(request, environment, role):
+    safes = []
+    secrets = []
+    secrets_dict = {}
+    role = Role.objects.get(name=role)
+    if environment == 'all':
+        env_acls = SafeAccessControl.objects.filter(safe__vault__all_environments=True)
+        for acl in env_acls.filter(content_type=ContentType.objects.get_for_model(Role)).filter(object_id=role.id):
+            safes.append(acl.safe)
+    else:
+        for safe_acl in role.safe_acls.all():
+            if safe_acl.safe.environment_name == environment:
+                safes.append(safe_acl.safe)
+    for safe in safes:
+        for secret in safe.secret_set.all():
+            secrets.append(secret)
+    for secret in secrets:
+        secrets_dict[secret.name] = secret.export_format
+    return Response(dotutils.expand_flattened_dict(secrets_dict))
+
+
 def nagios_hosts(request):
     hosts = Host.objects.all()
     routers = []
@@ -182,4 +206,3 @@ def nagios_hostgroups_md5(request):
         request.raise_for_status()
         checksum = md5(request.content).hexdigest()
         return HttpResponse(checksum, content_type='text/plain')
-
