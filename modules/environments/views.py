@@ -12,7 +12,7 @@ from rest_framework.decorators import api_view, renderer_classes
 from rest_framework_json_api.views import RelationshipView
 
 from dewey.utils import dotutils
-from .models import Cluster, Host, Role
+from .models import Cluster, Host, Role, SafeAccessControl
 from networks.models import AddressAssignment, Network
 from .serializers import ClusterSerializer, HostRoleSerializer, HostDetailSerializer,\
     SaltHostSerializer, SaltHostSecretsSerializer
@@ -147,7 +147,6 @@ class ClusterViewSet(viewsets.ModelViewSet):
 @renderer_classes([renderers.JSONRenderer, renderers.BrowsableAPIRenderer])
 def role_secrets(request, environment, role):
     safes = []
-    secrets = []
     secrets_dict = {}
     role = Role.objects.get(name=role)
     if environment == 'all':
@@ -158,11 +157,11 @@ def role_secrets(request, environment, role):
         for safe_acl in role.safe_acls.all():
             if safe_acl.safe.environment_name == environment:
                 safes.append(safe_acl.safe)
+    for acl in SafeAccessControl.objects.filter(all_hosts=True):
+        safes.append(acl.safe)
     for safe in safes:
         for secret in safe.secret_set.all():
-            secrets.append(secret)
-    for secret in secrets:
-        secrets_dict[secret.name] = secret.export_format
+            secrets_dict[secret.name] = secret.export_format
     return Response(dotutils.expand_flattened_dict(secrets_dict))
 
 
