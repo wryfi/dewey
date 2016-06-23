@@ -31,14 +31,21 @@ class Command(BaseCommand):
         with open(self.file) as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
-                safe = Safe.objects.get(id=row['safe'])
-                if re.match(r'.*::.*::vault:v\d:.*', row['secret']):
-                    imported_secret = row['secret'].split('::')[-1]
-                else:
-                    imported_secret = row['secret']
                 try:
-                    secret = Secret.objects.get(name=row['name'], safe=safe)
-                    secret.secret = imported_secret
-                except Secret.DoesNotExist:
-                    secret = Secret(name=row['name'], safe=safe, secret=imported_secret)
-                secret.save()
+                    safe = Safe.objects.get(id=row['safe'])
+                except Safe.DoesNotExist:
+                    self.stdout.write(
+                        'safe matching id {} not found, {} will not be imported'.format(row['safe'], row['name'])
+                    )
+                    safe = None
+                if safe:
+                    if re.match(r'.*::.*::vault:v\d:.*', row['secret']):
+                        imported_secret = row['secret'].split('::')[-1]
+                    else:
+                        imported_secret = row['secret']
+                    try:
+                        secret = Secret.objects.get(name=row['name'], safe=safe)
+                        secret.secret = imported_secret
+                    except Secret.DoesNotExist:
+                        secret = Secret(name=row['name'], safe=safe, secret=imported_secret)
+                    secret.save()
