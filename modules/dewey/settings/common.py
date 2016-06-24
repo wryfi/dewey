@@ -213,3 +213,5 @@ NAGIOS_NETWORKS = ['soma-servers']
 TASKS_ENABLED = True
 
 APPEND_SLASH = True
+
+PLOS_CA_CERTIFICATE = '/etc/ssl/certs/plos-ca.pem'

@@ -38,5 +38,6 @@ urlpatterns = [
     url(r'^api/', include(salthosts_router.urls)),
     url(r'^api/hosts/(?P<pk>[^/.]+)/relationships/(?P<related_field>[^/.]+)/$', enviro_views.HostRelationshipView.as_view(), name='host-relationships'),
     url(r'^api/salt/discovery/(?P<environment>\w+)/$', enviro_views.salt_discovery_view, name='salt-discovery'),
+    url(r'^api/salt/secrets/(?P<environment>[\w-]+)/(?P<role>[\w-]+)/$', enviro_views.role_secrets, name='role-secrets'),
     url(r'^hosts/', include(enviro_urls)),
 ]

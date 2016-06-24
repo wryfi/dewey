@@ -72,8 +72,11 @@ def flatten_dict(nested):
     flattened = {}
     strings = extract_string_values(nested)
     for string in strings:
-        dotted_path = '.'.join(find_keys(nested, string))
-        flattened[dotted_path] = string
+        try:
+            dotted_path = '.'.join(find_keys(nested, string))
+            flattened[dotted_path] = string
+        except TypeError:
+            pass
     return flattened
 
 
