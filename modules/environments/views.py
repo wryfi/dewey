@@ -12,7 +12,7 @@ from rest_framework.decorators import api_view, renderer_classes
 from rest_framework_json_api.views import RelationshipView
 
 from dewey.utils import dotutils
-from .models import Cluster, Host, Role, SafeAccessControl
+from .models import Cluster, Environment, Host, Role, SafeAccessControl
 from networks.models import AddressAssignment, Network
 from .serializers import ClusterSerializer, HostRoleSerializer, HostDetailSerializer,\
     SaltHostSerializer, SaltHostSecretsSerializer
@@ -147,18 +147,30 @@ class ClusterViewSet(viewsets.ModelViewSet):
 @renderer_classes([renderers.JSONRenderer, renderers.BrowsableAPIRenderer])
 def role_secrets(request, environment, role):
     safes = []
+    my_env_role_acls = []
+    my_env_all_host_acls = []
+    all_env_all_host_acls = []
+    all_env_role_acls = []
     secrets_dict = {}
     role = Role.objects.get(name=role)
     if environment == 'all':
         env_acls = SafeAccessControl.objects.filter(safe__vault__all_environments=True)
-        for acl in env_acls.filter(content_type=ContentType.objects.get_for_model(Role)).filter(object_id=role.id):
-            safes.append(acl.safe)
+        all_env_all_host_acls = env_acls.filter(all_hosts=True)
+        all_env_role_acls = env_acls.filter(
+            content_type=ContentType.objects.get_for_model(Role)
+        ).filter(
+            object_id=role.id
+        )
     else:
+        environment = Environment.objects.get(name=environment)
         for safe_acl in role.safe_acls.all():
-            if safe_acl.safe.environment_name == environment:
-                safes.append(safe_acl.safe)
-    for acl in SafeAccessControl.objects.filter(all_hosts=True):
-        safes.append(acl.safe)
+            if safe_acl.safe.environment == environment:
+                my_env_role_acls.append(safe_acl)
+        all_host_acls = SafeAccessControl.objects.filter(all_hosts=True)
+        my_env_all_host_acls = all_host_acls.filter(safe__vault__environment=environment)
+    for acls in [all_env_all_host_acls, all_env_role_acls, my_env_all_host_acls, my_env_role_acls]:
+        for acl in acls:
+            safes.append(acl.safe)
     for safe in safes:
         for secret in safe.secret_set.all():
             secrets_dict[secret.name] = secret.export_format
