@@ -1,6 +1,7 @@
 from hashlib import md5
 import requests
 from django.contrib.contenttypes.models import ContentType
+from django.shortcuts import get_object_or_404
 
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -148,26 +149,21 @@ class ClusterViewSet(viewsets.ModelViewSet):
 def role_secrets(request, environment, role):
     safes = []
     my_env_role_acls = []
-    my_env_all_host_acls = []
-    all_env_all_host_acls = []
-    all_env_role_acls = []
     secrets_dict = {}
-    role = Role.objects.get(name=role)
-    if environment == 'all':
-        env_acls = SafeAccessControl.objects.filter(safe__vault__all_environments=True)
-        all_env_all_host_acls = env_acls.filter(all_hosts=True)
-        all_env_role_acls = env_acls.filter(
-            content_type=ContentType.objects.get_for_model(Role)
-        ).filter(
-            object_id=role.id
-        )
-    else:
-        environment = Environment.objects.get(name=environment)
-        for safe_acl in role.safe_acls.all():
-            if safe_acl.safe.environment == environment:
-                my_env_role_acls.append(safe_acl)
-        all_host_acls = SafeAccessControl.objects.filter(all_hosts=True)
-        my_env_all_host_acls = all_host_acls.filter(safe__vault__environment=environment)
+    role = get_object_or_404(Role, name=role)
+    environment = get_object_or_404(Environment, name=environment)
+    all_env_acls = SafeAccessControl.objects.filter(safe__vault__all_environments=True)
+    all_env_all_host_acls = all_env_acls.filter(all_hosts=True)
+    all_env_role_acls = all_env_acls.filter(
+        content_type=ContentType.objects.get_for_model(Role)
+    ).filter(
+        object_id=role.id
+    )
+    for safe_acl in role.safe_acls.all():
+        if safe_acl.safe.environment == environment:
+            my_env_role_acls.append(safe_acl)
+    all_host_acls = SafeAccessControl.objects.filter(all_hosts=True)
+    my_env_all_host_acls = all_host_acls.filter(safe__vault__environment=environment)
     for acls in [all_env_all_host_acls, all_env_role_acls, my_env_all_host_acls, my_env_role_acls]:
         for acl in acls:
             safes.append(acl.safe)
