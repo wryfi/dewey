@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='hostrole',
             name='name',
-            field=models.SlugField(unique=True),
+            field=models.SlugField(),
         ),
     ]

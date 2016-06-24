@@ -1,7 +1,9 @@
-from collections import defaultdict
+import base64
 import iptools
+import json
 import os
 import re
+import requests
 import socket
 import struct
 import subprocess
@@ -12,8 +14,10 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 
-from . import ClusterType, OperatingSystem
+from . import ClusterType, MatchField, OperatingSystem, dotutils
 
+
+VAULT_REGEX = re.compile(r'vault:v\d:.*')
 
 class HostRole(models.Model):
     name = models.CharField(max_length=256)
@@ -37,13 +41,13 @@ class Host(models.Model):
     hostname = models.CharField(max_length=256, help_text='FQDN')
     roles = models.ManyToManyField('HostRole', blank=True)
     operating_system = enum.EnumField(OperatingSystem)
-    parent_type = models.ForeignKey(ContentType)
+    parent_type = models.ForeignKey(ContentType, related_name='hosts_host')
     parent_id = models.PositiveIntegerField()
     parent = GenericForeignKey('parent_type', 'parent_id')
     virtual_machines = GenericRelation(
         'Host',
-        content_type_field = 'parent_type',
-        object_id_field = 'parent_id'
+        content_type_field='parent_type',
+        object_id_field='parent_id'
     )
 
     def __str__(self):
@@ -80,6 +84,8 @@ class Host(models.Model):
             if match.groups()[0][0] == '2':
                 return 'dev'
             if match.groups()[0][0] == '3':
+                return 'qa'
+            if match.groups()[0][0] == '4':
                 return 'stage'
             if match.groups()[0][0] == '9':
                 return 'vagrant'
@@ -104,6 +110,33 @@ class Host(models.Model):
             if assignment.canonical:
                 return assignment
 
+    @property
+    def rolenames(self):
+        return [role.name for role in self.roles.all()]
+
+    def get_shared_secrets(self):
+        secrets = []
+        for secret in SharedSecret.objects.filter(match_field=MatchField.ROLE):
+            for role in self.rolenames:
+                if re.match(secret.regular_expression, role):
+                    secrets.append((secret.name, secret.secret))
+        for secret in SharedSecret.objects.filter(match_field=MatchField.HOSTNAME):
+            if re.match(secret.regular_expression, self.hostname):
+                secrets.append((secret.name, secret.secret))
+        return secrets
+
+    @property
+    def secrets(self):
+        secrets = [(secret.name, secret.secret) for secret in self.hostsecret_set.all()]
+        for secret in self.get_shared_secrets():
+            secrets.append(secret)
+        return secrets
+
+    @property
+    def salt_secrets(self):
+        secrets = {secret[0]: secret[1] for secret in self.secrets}
+        return dotutils.expand_flattened_dict(secrets)
+
 
 class Cluster(models.Model):
     name = models.CharField(max_length=256)
@@ -112,8 +145,8 @@ class Cluster(models.Model):
     members = models.ManyToManyField('Host')
     virtual_machines = GenericRelation(
         'Host',
-        content_type_field = 'parent_type',
-        object_id_field = 'parent_id'
+        content_type_field='parent_type',
+        object_id_field='parent_id'
     )
 
     def __str__(self):
@@ -229,9 +262,9 @@ class AddressAssignment(models.Model):
 
     def __str__(self):
         if self.canonical:
-            return('{} on {}*'.format(self.address, self.host.hostname))
+            return '{} on {}*'.format(self.address, self.host.hostname)
         else:
-            return('{} on {}'.format(self.address, self.host.hostname))
+            return '{} on {}'.format(self.address, self.host.hostname)
 
     @property
     def ptr_name(self):
@@ -253,3 +286,4 @@ class ReservedAddressBlock(models.Model):
     @property
     def range(self):
         return iptools.IpRange(self.start_address, self.end_address)
+

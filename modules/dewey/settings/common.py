@@ -47,8 +47,10 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'dewey',
     'djcelery',
+    'environments',
     'hardware',
     'hosts',
+    'networks',
     'rest_framework'
 )
 
@@ -211,3 +213,5 @@ NAGIOS_NETWORKS = ['soma-servers']
 TASKS_ENABLED = True
 
 APPEND_SLASH = True
+
+PLOS_CA_CERTIFICATE = '/etc/ssl/certs/plos-ca.pem'
