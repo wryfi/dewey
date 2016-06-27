@@ -1,9 +1,0 @@
-{% for role in roles %}
-{% if role.hosts %}
-define hostgroup{
-    hostgroup_name                  {{ role.name }}
-    alias                           {{ role.name }}
-    members                         {{ role.hosts|join:"," }}
-}
-{% endif %}
-{% endfor %}

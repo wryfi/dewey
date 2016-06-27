@@ -1,8 +1,10 @@
+import csv
 from hashlib import md5
 import requests
+import time
+
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
-
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
@@ -13,7 +15,7 @@ from rest_framework.decorators import api_view, renderer_classes
 from rest_framework_json_api.views import RelationshipView
 
 from dewey.utils import dotutils
-from .models import Cluster, Environment, Host, Role, SafeAccessControl
+from .models import Cluster, Environment, Host, Role, SafeAccessControl, Secret
 from networks.models import AddressAssignment, Network
 from .serializers import ClusterSerializer, HostRoleSerializer, HostDetailSerializer,\
     SaltHostSerializer, SaltHostSecretsSerializer
@@ -171,6 +173,17 @@ def role_secrets(request, environment, role):
         for secret in safe.secret_set.all():
             secrets_dict[secret.name] = secret.export_format
     return Response(dotutils.expand_flattened_dict(secrets_dict))
+
+
+def export_secrets(request):
+    now = int(time.time())
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="secrets_{}.csv"'.format(now)
+    writer = csv.writer(response)
+    writer.writerow(['name', 'safe', 'secret'])
+    for secret in Secret.objects.all():
+        writer.writerow([secret.name, secret.safe.id, secret.export_format])
+    return response
 
 
 def nagios_hosts(request):
