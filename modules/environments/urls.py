@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 
-from hosts import views
+from environments import views
 
 urlpatterns  = [
     url(r'^nagios/hosts/$', views.nagios_hosts, name='nagios_hosts'),
