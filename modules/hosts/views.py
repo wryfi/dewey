@@ -135,7 +135,11 @@ class NetworkViewSet(viewsets.ModelViewSet):
 
 
 def nagios_hosts(request):
-    hosts = Host.objects.all()
+    hosts = []
+    for host in Host.objects.all():
+        # TODO remove this temporary filter after sorting out sfo monitoring
+        if host.domain == 'soma.plos.org':
+            hosts.append(host)
     routers = []
     for slug in settings.NAGIOS_NETWORKS:
         try:
