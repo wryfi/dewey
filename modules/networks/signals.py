@@ -27,6 +27,6 @@ def delete_dns_records_receiver(sender, **kwargs):
 def delete_host_address_assignments_receiver(sender, **kwargs):
     if settings.TASKS_ENABLED:
         host = kwargs['instance']
-        if len(host.address_assignments) > 0:
-            for assignment in host.address_assignments:
+        if len(host.address_assignments.all()) > 0:
+            for assignment in host.address_assignments.all():
                 assignment.delete()
