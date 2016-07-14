@@ -187,7 +187,10 @@ def export_secrets(request):
 
 
 def nagios_hosts(request):
-    hosts = Host.objects.all()
+    hosts = []
+    for host in Host.objects.all():
+        if host.domain == 'soma.plos.org':
+            hosts.append(host)
     routers = []
     for slug in settings.NAGIOS_NETWORKS:
         try:
