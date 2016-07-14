@@ -49,6 +49,15 @@ class Role(models.Model):
     def hosts(self):
         return self.host_set.all()
 
+    # TODO remove this temporary filter added while sorting out sfo monitoring
+    @property
+    def soma_hosts(self):
+        hosts = []
+        for host in self.host_set.all():
+            if host.domain == 'soma.plos.org':
+                hosts.append(host)
+        return hosts
+
 
 class Host(models.Model):
     """
