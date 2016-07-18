@@ -9,6 +9,7 @@ from django_enumfield import enum
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 
 from dewey.utils import dotutils, ProtocolEnum
 from . import ClusterType, OperatingSystem
@@ -28,6 +29,7 @@ class Environment(models.Model):
     name = models.SlugField(help_text='a short name for this environment')
     hostname_regex = models.CharField(help_text='regex that defines valid host names for this env', max_length=128)
     description = models.TextField(help_text='(optional) description of the environment', blank=True)
+    monitored = models.BooleanField(help_text='should new hosts in this environment be monitored by default?')
 
     def __str__(self):
         return 'environment: {}'.format(self.name)
@@ -49,14 +51,9 @@ class Role(models.Model):
     def hosts(self):
         return self.host_set.all()
 
-    # TODO remove this temporary filter added while sorting out sfo monitoring
     @property
-    def soma_hosts(self):
-        hosts = []
-        for host in self.host_set.all():
-            if host.domain == 'soma.plos.org':
-                hosts.append(host)
-        return hosts
+    def monitored_hosts(self):
+        return [host for host in self.host_set.all() if host.monitored]
 
 
 class Host(models.Model):
@@ -172,6 +169,15 @@ class Host(models.Model):
             secrets[secret.name] = secret.export_format
         return dotutils.expand_flattened_dict(secrets)
 
+    @property
+    def monitored(self):
+        monitored = self.environment.monitored
+        for mexcept in self.hostmonitoringexception_set.all():
+            now = timezone.now()
+            if mexcept.start <= now <= mexcept.end:
+                monitored = mexcept.monitored
+        return monitored
+
     def delete(self, *args, **kwargs):
         """
         Django's default behavior will cascade deletes here, causing the deletion
@@ -182,6 +188,20 @@ class Host(models.Model):
             children = [vm.hostname for vm in self.virtual_machines.all()]
             raise RuntimeError('cannot delete host until its VMs have been reassigned: {}'.format(children))
         super(Host, self).delete(*args, **kwargs)
+
+
+class HostMonitoringException(models.Model):
+    host = models.ForeignKey('Host', help_text='host to create exception for')
+    monitored = models.BooleanField(help_text='force monitored (True) or unmonitored (False)')
+    start = models.DateTimeField(help_text='when should this exception begin?')
+    end = models.DateTimeField(help_text='when should this exception end?')
+
+    def __str__(self):
+        text = 'monitor {} from {} to {}'.format(self.host.hostname, self.start.date(), self.end.date())
+        if self.monitored:
+            return text
+        else:
+            return ' '.join(['do not', text])
 
 
 class Cluster(models.Model):
