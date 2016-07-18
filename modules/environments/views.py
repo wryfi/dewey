@@ -189,7 +189,7 @@ def export_secrets(request):
 def nagios_hosts(request):
     hosts = []
     for host in Host.objects.all():
-        if host.domain == 'soma.plos.org':
+        if host.monitored:
             hosts.append(host)
     routers = []
     for slug in settings.NAGIOS_NETWORKS:
@@ -203,7 +203,7 @@ def nagios_hosts(request):
 
 
 def nagios_hostgroups(request):
-    roles = Role.objects.all()
+    roles = [role for role in Role.objects.all() if role.monitored_hosts]
     return render(request, 'hosts/nagios_hostgroups.txt', {'roles': roles}, content_type='text/plain')
 
 

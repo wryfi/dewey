@@ -3,7 +3,7 @@
 define hostgroup{
     hostgroup_name                  {{ role.name }}
     alias                           {{ role.name }}
-    members                         {{ role.soma_hosts|join:"," }}
+    members                         {{ role.monitored_hosts|join:"," }}
 }
 {% endif %}
 {% endfor %}
