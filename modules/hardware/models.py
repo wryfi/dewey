@@ -5,7 +5,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 
 from . import RackDepth, RackOrientation, SwitchInterconnect, SwitchSpeed
-from hosts.models import Host
+from environments.models import Host
 
 
 class Datacenter(models.Model):
