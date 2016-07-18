@@ -49,7 +49,6 @@ INSTALLED_APPS = (
     'djcelery',
     'environments',
     'hardware',
-    'hosts',
     'networks',
     'rest_framework'
 )
