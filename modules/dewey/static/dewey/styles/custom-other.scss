@@ -6,3 +6,7 @@ body {
   height: 100%;
   @include gradient-radial();
 }
+
+.container-bare {
+  padding-top: 3rem;
+}

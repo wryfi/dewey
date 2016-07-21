@@ -1,7 +1,9 @@
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.views.generic.base import RedirectView
 from django.views.generic import TemplateView
 from django.contrib.auth import views as auth_views
+from django.conf import settings
 
 from rest_framework_nested import routers
 
@@ -36,16 +38,12 @@ salthosts_router.register(r'secrets', enviro_views.SaltHostSecretsViewSet, base_
 
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='dewey/index.html'), name='index'),
-    url(
-        r'^auth/login/$',
-        auth_views.login,
-        {
+    url(r'^accounts/login/$', auth_views.login, {
             'template_name': 'dewey/login.html',
             'authentication_form': CrispyAuthenticationForm
-        },
-        name='login'
-    ),
-    url(r'auth/password/reset/request/$', TemplateView.as_view(template_name='dewey/index.html'), name='password_reset'),
+        }, name='login'),
+    url(r'^accounts/logout/$', auth_views.logout, {'template_name': 'dewey/logout.html'}, name='logout'),
+    url(r'^accounts/password/reset/request/$', RedirectView.as_view(url=settings.PASSWORD_RESET_URL, permanent=False), name='password_reset'),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/', include(router.urls)),
     url(r'^api/', include(hosts_router.urls)),

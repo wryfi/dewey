@@ -2,22 +2,24 @@
 
 {% load crispy_forms_tags %}
 
-{% block title %}please log in{% endblock %}
+{% block title %}<title>please log in</title>{% endblock %}
+
+{% block navigation %}{% endblock %}
 
 {% block content_container %}
-    <div class="container">
-    <div class="row">
-        <div class="col-xs-12 col-md-6 col-md-offset-3 pull-left">
-            <div class="card">
-                <div class="card-header text-xs-center">Please Authenticate</div>
-                <div class="card-block">
-                    {% crispy form %}
-                </div>
-                <div class="card-footer text-xs-center">
-                    <a href="{% url "password_reset" %}">Request Password Reset</a>
+    <div class="container container-bare">
+        <div class="row">
+            <div class="col-xs-12 col-md-6 col-md-offset-3 pull-left">
+                <div class="card">
+                    <div class="card-header text-xs-center">Please Authenticate</div>
+                    <div class="card-block">
+                        {% crispy form %}
+                    </div>
+                    <div class="card-footer text-xs-center">
+                        <a href="{% url "password_reset" %}">Request Password Reset</a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     </div>
 {% endblock %}
