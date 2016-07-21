@@ -45,6 +45,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'compressor',
     'dewey',
     'djcelery',
     'environments',
@@ -118,6 +119,18 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    # other finders..
+    'compressor.finders.CompressorFinder',
+)
+
+COMPRESS_PRECOMPILERS = (
+    ('text/scss', 'sassc {infile} {outfile}'),
+    ('text/sass', 'sassc {infile} {outfile}')
+)
 
 
 # Logging configuration
@@ -216,3 +229,5 @@ APPEND_SLASH = True
 PLOS_CA_CERTIFICATE = '/etc/ssl/certs/plos-ca.pem'
 
 HOST_MONITORING_DELAY = 7200
+
+

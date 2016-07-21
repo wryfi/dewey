@@ -31,3 +31,4 @@ requests==2.10.0
 simplegeneric==0.8.1
 six==1.10.0
 traitlets==4.2.1
+django-compressor==2.0

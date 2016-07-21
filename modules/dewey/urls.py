@@ -1,5 +1,6 @@
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.views.generic import TemplateView
 
 from rest_framework_nested import routers
 
@@ -32,6 +33,7 @@ salthosts_router = routers.NestedSimpleRouter(router, 'salt/hosts', lookup='host
 salthosts_router.register(r'secrets', enviro_views.SaltHostSecretsViewSet, base_name='host-secrets')
 
 urlpatterns = [
+    url(r'^$', TemplateView.as_view(template_name='dewey/index.html'), name='index'),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/', include(router.urls)),
     url(r'^api/', include(hosts_router.urls)),
