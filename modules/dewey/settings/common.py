@@ -45,6 +45,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'crispy_forms',
     'compressor',
     'dewey',
     'djcelery',
@@ -120,6 +121,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+LOGIN_REDIRECT_URL = 'index'
+
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
@@ -132,6 +135,7 @@ COMPRESS_PRECOMPILERS = (
     ('text/sass', 'sassc {infile} {outfile}')
 )
 
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 # Logging configuration
 

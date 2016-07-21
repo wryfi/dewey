@@ -3,24 +3,37 @@
 
 <!DOCTYPE html>
 <html lang="en">
-<head>{% block head %}
+{% block head %}<head>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
 
-    <title>{% block title %}{% endblock %}</title>
+    {% block title %}<title>dewey</title>{% endblock %}
     {% compress css %}
         {% block compressed_styles %}
             <link type="text/scss" rel="stylesheet" href="{% static "dewey/styles/custom-bootstrap.scss" %}" />
         {% endblock %}
     {% endcompress %}
 
-{% endblock head %}</head>
+</head>{% endblock head %}
 
-<body>{% block body %}
+{% block body %}<body>
 
-{% endblock body %}</body>
+    {% block navigation %}
+        {% comment %} {% include "dewey/_navigation.html" %} {% endcomment %}
+    {% endblock %}
+
+    {% block content_container %}<div class="container-fluid">
+        {% comment %}{% include "dewey/_messages.html" %}{% endcomment %}
+        <div class="row">
+            <div class="col-xs-12">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>{% endblock content_container %}
+
+</body>{% endblock body %}
 
 {% block script %}
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
