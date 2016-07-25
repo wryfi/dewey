@@ -1,0 +1,59 @@
+{% extends "dewey/__base.html" %}
+{% load dewey_utils %}
+{% load static %}
+
+{% block content_container %}<div class="container-fluid">
+
+    <div class="row content-row">
+        {% include "environments/_hosts_side_navigation.html" %}
+        <div class="col-xs-12 col-md-8 col-xl-9 side-content">
+            <div class="row">
+                {% for host in object_list %}
+                    <div class="col-xs-12 col-md-6 col-xl-4">
+                        <div class="card host-card">
+                            <div class="card-header">{{ host.hostname }}</div>
+                            <div class="card-block card-text">
+                                <dl class="row">
+                                    <dt class="col-xs-4">type</dt>
+                                    <dd class="col-xs-8">{{ host.kind }}</dd>
+
+                                    <dt class="col-xs-4">env</dt>
+                                    <dd class="col-xs-8">{{ host.environment.name }}</dd>
+
+                                    {% if host.rolenames %}
+                                        <dt class="col-xs-4">roles</dt>
+                                        <dd class="col-xs-8">{{ host.rolenames|join:", " }}</dd>
+                                    {% endif %}
+
+                                    <dt class="col-xs-4">parent</dt>
+                                    {% if host.parent|get_type == 'Cluster' %}
+                                        <dd class="col-xs-8">{{ host.parent.name }}</dd>
+                                    {% elif host.parent|get_type == 'Host' %}
+                                        <dd class="col-xs-8">{{ host.parent.hostname }}</dd>
+                                    {% else %}
+                                        <dd class="col-xs-8">{{ host.parent.manufacturer }} {{ host.parent.model }}</dd>
+                                    {% endif %}
+                                </dl>
+                            </div>
+                            <div class="card-footer">
+                                <a href="#" class="card-link">host details</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+</div>{% endblock content_container %}
+
+{% block script %}
+{{ block.super }}
+<script src="{% static "dewey/javascript/vendor/jquery.matchHeight-min.js" %}"></script>
+<script type="text/javascript">
+    $(function() {
+        $('.host-card .card-block').matchHeight();
+        $('.navigation-card .card-block').matchHeight();
+    });
+</script>
+{% endblock %}

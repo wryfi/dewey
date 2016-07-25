@@ -3,10 +3,19 @@ html {
 }
 
 body {
-  height: 100%;
   @include gradient-radial();
+  background-attachment: fixed;
+  padding-top: 5rem;
 }
 
-.container-bare {
-  padding-top: 3rem;
+.navigation-card {
+  background-color: rgba(0, 0, 0, 0.2);
+  border: 1px solid black;
+  .card-header {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  dl {
+    margin-right: 0;
+    margin-left: 0;
+  }
 }

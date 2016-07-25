@@ -10,7 +10,7 @@ from rest_framework_nested import routers
 from .forms import CrispyAuthenticationForm
 from hardware import views as hardware_views
 from environments import urls as enviro_urls
-from environments import views as enviro_views
+from environments.views import rest as enviro_views
 from networks import views as networks_views
 
 router = routers.DefaultRouter()
@@ -52,5 +52,6 @@ urlpatterns = [
     url(r'^api/salt/discovery/(?P<environment>\w+)/$', enviro_views.salt_discovery_view, name='salt-discovery'),
     url(r'^api/salt/secrets/(?P<environment>[\w]+)/(?P<role>[\w.-]+)/$', enviro_views.role_secrets, name='role-secrets'),
     url(r'^hosts/', include(enviro_urls)),
+    url(r'^environments/', include(enviro_urls)),
     url(r'^export/secrets', enviro_views.export_secrets, name='export-secrets'),
 ]

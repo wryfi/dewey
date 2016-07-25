@@ -3,24 +3,46 @@
 {% block content %}
 
 
-        <div class="row">
-            <div class="col-sm-4 col-xs-12">
-                <div class="card card-primary card-block card-inverse">
-                    <div class="card-text">
-                        <p>ok!</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-4 col-xs-12">
-                <div class="card card-block">
-                    <p>warning!</p>
-                </div>
-            </div>
-            <div class="col-sm-4 col-xs-12">
-                <div class="card card-block card-danger">
-                    <p>danger!</p>
+    <div class="row">
+        <div class="col-sm-4 col-xs-12">
+            <div class="card card-primary card-block card-inverse">
+                <div class="card-text">
+                    <p>ok!</p>
                 </div>
             </div>
         </div>
+        <div class="col-sm-4 col-xs-12">
+            <div class="card card-block">
+                <p>warning!</p>
+            </div>
+        </div>
+        <div class="col-sm-4 col-xs-12">
+            <div class="card card-block card-danger">
+                <p>danger!</p>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <dl class="dl-horizontal">
+                <dt class="col-md-3">something</dt>
+                <dd class="col-md-9">it has a definition</dd>
+            </dl>
+        </div>
+
+        <div class="bs-example col-xs-12">
+            <h2>Horizontal Definition Lists</h2>
+            <dl class="row">
+                <dt class="col-md-3">User Agent</dt>
+                <dd class="col-md-9">An HTML user agent is any device that interprets HTML documents.</dd>
+                <dt>Client-side Scripting</dt>
+                <dd>Client-side scripting generally refers to the category of computer programs on the web that are
+                    executed client-side i.e. by the user's web browser.
+                </dd>
+                <dt>Document Tree</dt>
+                <dd>The tree of elements encoded in the source document.</dd>
+            </dl>
+        </div>
+
+    </div>
+
 
 {% endblock content %}
