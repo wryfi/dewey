@@ -21,17 +21,35 @@
             <div class="card card-inverse navigation-card"><!-- card -->
                 <div class="card-header"><h4 class="card-title">Hosts Filters</h4></div>
                 <div class="card-block card-text"><!-- card block -->
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false">
-                            environment: all
-                        </button>
-                        <div class="dropdown-menu">
-                            {% for environment in environments %}
-                            <a class="dropdown-item" href="#">environment: {{ environment.name }}</a>
-                            {% endfor %}
+
+                    <form class="form form-horizontal host-filter-form">
+
+                        <p><label for="env-select">Environment</label>
+                            <select id="env-select" name="env-select" form="host-filter-form">
+                                <option value="all">all</option>
+                                {% for environment in environments %}
+                                <option value="{{ environment.name }}">{{ environment.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+
+                        <p><label for="role-select">Role</label>
+                            <select id="role-select" name="role-select" form="host-filter-form">
+                                <option value="any">any</option>
+                                {% for role in roles %}
+                                <option value="{{ role.name }}">{{ role.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+
+                    </form>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button id="filter-button" class="btn btn-primary">Filter</button>
                         </div>
                     </div>
+
                 </div><!-- end card block -->
             </div><!-- end card -->
         </div><!-- end filter-card column -->

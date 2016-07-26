@@ -25,8 +25,9 @@ class HostListView(SortMixin, ListView):
 
     def get_context_data(self, *args, **kwargs):
         context = super(HostListView, self).get_context_data(*args, **kwargs)
-        context.update({'environments': Environment.objects.all()})
+        context.update({'environments': Environment.objects.order_by('name')})
         context.update({'host_count': Host.objects.all().count()})
+        context.update({'roles': Role.objects.order_by('name')})
         return context
 
     def get_queryset(self, *args, **kwargs):

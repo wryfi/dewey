@@ -52,8 +52,46 @@
 <script src="{% static "dewey/javascript/vendor/jquery.matchHeight-min.js" %}"></script>
 <script type="text/javascript">
     $(function() {
+        // function to grab parameters out of URL
+        $.get_url_param = function(parameter) {
+            var url = window.location.search.substring(1);
+            var url_vars = url.split('&');
+            for (var i = 0; i < url_vars.length; i++) {
+                var parameter_name = url_vars[i].split('=');
+                if (parameter_name[0] == parameter) {
+                    return parameter_name[1];
+                }
+            }
+        };
+
+        // set card blocks to equal heights
         $('.host-card .card-block').matchHeight();
         $('.navigation-card .card-block').matchHeight();
+
+        // set the filter options based on the url parameters
+        var environment = $.get_url_param('environment');
+        var roles = $.get_url_param('roles');
+        if (typeof environment === 'undefined') {
+            $('#env-select').val('all');
+        } else {
+            $('#env-select').val(environment);
+        }
+        if (typeof roles === 'undefined') {
+            $('#role-select').val('any');
+        } else {
+            var selectroles = roles.split(':')[0];
+            $('#role-select').val(selectroles);
+        }
+
+        // filter results when the button is clicked
+        $('#filter-button').click(function() {
+            var envselect = $('#env-select')[0];
+            var roleselect = $('#role-select')[0];
+            var url_params = {'environment': envselect.value, 'roles': roleselect.value};
+            var params = jQuery.param(url_params);
+            var dest_url = document.location.protocol + '//' + window.location.host + window.location.pathname + '?' + params
+            $(location).attr('href', dest_url);
+        })
     });
 </script>
 {% endblock %}

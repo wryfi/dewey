@@ -6,16 +6,20 @@ body {
   @include gradient-radial();
   background-attachment: fixed;
   padding-top: 5rem;
+  padding-bottom: 5rem;
 }
 
 .navigation-card {
   background-color: rgba(0, 0, 0, 0.2);
   border: 1px solid black;
   .card-header {
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.3);
   }
   dl {
     margin-right: 0;
     margin-left: 0;
+  }
+  select {
+    color: black;
   }
 }
