@@ -45,6 +45,6 @@ class HostListView(SortMixin, ListView):
                         role_list.append(Role.objects.get(name=role))
                     except Role.DoesNotExist:
                         pass
-                queryset = queryset.filter(roles__in=role_list)
+                queryset = queryset.filter(roles__in=role_list).distinct()
         return queryset
 
