@@ -1,5 +1,6 @@
+from django.shortcuts import get_object_or_404
 from django.views.generic.list import ListView
-from django.utils import timezone
+from django.views.generic.detail import DetailView
 
 from dewey.views import SortMixin, FilterMixin
 from environments.models import Environment, Host, Role
@@ -48,3 +49,10 @@ class HostListView(SortMixin, ListView):
                 queryset = queryset.filter(roles__in=role_list).distinct()
         return queryset
 
+
+class HostDetailView(DetailView):
+    model = Host
+    template_name = 'environments/host_detail.html'
+
+    def get_object(self):
+        return get_object_or_404(Host, hostname=self.kwargs['hostname'])

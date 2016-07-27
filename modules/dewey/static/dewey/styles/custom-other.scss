@@ -22,4 +22,17 @@ body {
   select {
     color: black;
   }
+  .active a:link, .active a:visited {
+    color: white;
+  }
+}
+
+.secret-modal .modal-body {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-all;
+}
+
+.host-card ul {
+  margin-bottom: 0.5rem;
 }

@@ -122,7 +122,7 @@ class Host(models.Model):
 
     @property
     def rolenames(self):
-        return [role.name for role in self.roles.all()]
+        return sorted([role.name for role in self.roles.all()])
 
     @property
     def safes(self):
@@ -160,7 +160,7 @@ class Host(models.Model):
         for safe in self.safes:
             for secret in safe.secret_set.all():
                 secrets.append(secret)
-        return secrets
+        return sorted(secrets, key=lambda sec: sec.name)
 
     @property
     def salt_secrets(self):
