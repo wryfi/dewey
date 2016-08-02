@@ -16,6 +16,10 @@
         {% endblock %}
     {% endcompress %}
 
+    {% block headscript %}
+        <script src="https://use.fontawesome.com/6903ff4537.js"></script>
+    {% endblock %}
+
     <link rel="apple-touch-icon" sizes="180x180" href="{% static "dewey/icons/apple-touch-icon.png" %}">
     <link rel="icon" type="image/png" href="{% static "dewey/icons/favicon-32x32.png" %}" sizes="32x32">
     <link rel="icon" type="image/png" href="{% static "dewey/icons/favicon-16x16.png" %}" sizes="16x16">
@@ -33,10 +37,8 @@
 
     {% block content_container %}<div class="container-fluid">
         {% comment %}{% include "dewey/_messages.html" %}{% endcomment %}
-        <div class="row">
-            <div class="col-xs-12">
-                {% block content %}{% endblock %}
-            </div>
+        <div class="row content-row">
+            {% block content %}{% endblock %}
         </div>
     </div>{% endblock content_container %}
 

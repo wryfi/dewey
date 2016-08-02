@@ -3,7 +3,7 @@ from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 
 from dewey.views import SortMixin, FilterMixin
-from environments.models import Environment, Host, Role
+from environments.models import Environment, Host, Role, Safe, Secret
 
 import logging
 
@@ -56,3 +56,16 @@ class HostDetailView(DetailView):
 
     def get_object(self):
         return get_object_or_404(Host, hostname=self.kwargs['hostname'])
+
+
+class SecretListView(ListView):
+    model = Secret
+    template_name = 'environments/secrets.html'
+
+
+class SafeDetailView(DetailView):
+    model = Safe
+    template_name = 'environments/safe_detail.html'
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(Safe, name=self.kwargs['name'])

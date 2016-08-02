@@ -36,3 +36,15 @@ body {
 .host-card ul {
   margin-bottom: 0.5rem;
 }
+
+@include media-breakpoint-down(sm) {
+  .navbar-nav .nav-item + .nav-item {
+    margin-left: 0;
+  }
+  .navbar-nav .nav-item {
+    float: none;
+  }
+  #collapsenav {
+    clear: both;
+  }
+}

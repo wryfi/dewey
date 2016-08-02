@@ -13,13 +13,16 @@
                         <div class="card-block card-text">
                             <ul class="list-group list-group-flush" id="toc">
                                 <li class="list-group-item toc-item" id="toc-item-general">
-                                    <a href="#general">general</a>
+                                    <a href="#general"><i class="fa fa-cog"></i> general</a>
+                                </li>
+                                <li class="list-group-item toc-item" id="toc-item-monitoring">
+                                    <a href="#monitoring"><i class="fa fa-bell"></i> monitoring</a>
                                 </li>
                                 <li class="list-group-item toc-item" id="toc-item-safes">
-                                    <a href="#safes">safes</a>
+                                    <a href="#safes"><i class="fa fa-shield"></i> safes</a>
                                 </li>
                                 <li class="list-group-item toc-item" id="toc-item-secrets">
-                                    <a href="#secrets">secrets</a>
+                                    <a href="#secrets"><i class="fa fa-lock"></i> secrets</a>
                                 </li>
                             </ul>
                         </div><!-- end card block -->
@@ -36,38 +39,41 @@
                 <h3 class="card-header">{{ object.hostname }}</h3>
                 <div class="card-block card-text">
                     <dl class="row">
-                        <dt class="col-sm-3">fqdn</dt>
-                        <dd class="col-sm-9">{{ object.hostname }}</dd>
+                        <dt class="col-xs-4">fqdn</dt>
+                        <dd class="col-xs-8">{{ object.hostname }}</dd>
 
-                        <dt class="col-sm-3">location</dt>
-                        <dd class="col-sm-9">{{ object.domain }}</dd>
+                        <dt class="col-xs-4">location</dt>
+                        <dd class="col-xs-8">{{ object.domain }}</dd>
 
-                        <dt class="col-sm-3">environment</dt>
-                        <dd class="col-sm-9">{{ object.environment.name }}</dd>
+                        <dt class="col-xs-4">env</dt>
+                        <dd class="col-xs-8">{{ object.environment.name }}</dd>
 
-                        <dt class="col-sm-3">roles</dt>
-                        <dd class="col-sm-9">
+                        {% if host.roles|length > 0 %}
+                        <dt class="col-xs-4">roles</dt>
+                        <dd class="col-xs-8">
                             <ul class="list-unstyled">
                                 {% for role in host.rolenames %}
                                 <li>{{ role }}</li>
                                 {% endfor %}
                             </ul>
                         </dd>
-
-                        <dt class="col-sm-3">parent</dt>
-                        {% if host.parent|get_type == 'Cluster' %}
-                            <dd class="col-sm-9">{{ host.parent.name }}</dd>
-                        {% elif host.parent|get_type == 'Host' %}
-                            <dd class="col-sm-9">{{ host.parent.hostname }}</dd>
-                        {% else %}
-                            <dd class="col-sm-9">{{ host.parent.manufacturer }} {{ host.parent.model }}</dd>
                         {% endif %}
 
-                        <dt class="col-sm-3">os</dt>
-                        <dd class="col-sm-9">{{ host.get_operating_system_display }}</dd>
+                        <dt class="col-xs-4">parent</dt>
+                        {% if host.parent|get_type == 'Cluster' %}
+                            <dd class="col-xs-8">{{ host.parent.name }}</dd>
+                        {% elif host.parent|get_type == 'Host' %}
+                            <dd class="col-xs-8">{{ host.parent.hostname }}</dd>
+                        {% else %}
+                            <dd class="col-xs-8">{{ host.parent.manufacturer }} {{ host.parent.model }}</dd>
+                        {% endif %}
 
-                        <dt class="col-sm-3">addresses</dt>
-                        <dd class="col-sm-9">
+                        <dt class="col-xs-4">os</dt>
+                        <dd class="col-xs-8">{{ host.get_operating_system_display }}</dd>
+
+                        {% if host.ip_addresses|length > 0 %}
+                        <dt class="col-xs-4">addresses</dt>
+                        <dd class="col-xs-8">
                             <ul class="list-unstyled">
                             {% for interface, addresses in host.ip_addresses.items %}
                                 {% for address in addresses %}
@@ -75,11 +81,39 @@
                                 {% endfor %}
                             {% endfor %}
                             </ul>
-
                         </dd>
-
-
+                        {% endif %}
                     </dl>
+                </div>
+            </div>
+
+            <div class="card" id="monitoring-card"><a name="monitoring"></a>
+                <h4 class="card-header">monitoring of {{ host.shortname }}</h4>
+                <div class="card-block card-text">
+                    {% if host.monitored %}
+                        <p class="lead">
+                            <i class="fa fa-bell"></i> Monitoring is currently enabled for this host
+                            {% if host.environment.monitored %}(via {{ host.environment.name }}){% endif %}
+                        </p>
+                    {% else %}
+                        <p class="lead">
+                        <i class="fa fa-bell-slash"></i> Monitoring is disabled for this host
+                            {% if not host.environment.monitored %}(via {{ host.environment.name }}){% endif %}
+                        </p>
+                    {% endif %}
+
+                    {% if host.hostmonitoringexception_set.all %}
+                        <h5>monitoring exceptions</h5>
+                        <ul class="list-unstyled">
+                            {% for exception in host.hostmonitoringexception_set.all %}
+                                {% if not exception.monitored %}
+                                    <li>Do not monitor from {{ exception.start }} to {{ exception.end }}</li>
+                                {% else %}
+                                    <li>Monitor from {{ exception.start }} to {{ exception.end }}</li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
                 </div>
             </div>
 
@@ -103,38 +137,9 @@
             <div class="card" id="secrets-card"><a name="secrets"></a>
                 <h4 class="card-header">secrets for {{ object.shortname }}</h4>
                 <div class="card-block card-text">
-
-                    {% for secret in object.secrets %}
-                        <div class="modal fade secret-modal" id="secret-modal-{{ secret.id }}" tabindex="-1" role="dialog">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                        <h4 class="modal-title">{{ secret.name }}</h4>
-                                    </div>
-                                    <div class="modal-body ciphertext" id="secret-{{ secret.id }}-ciphertext">
-                                        {{ secret.secret }}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card secret-card">
-                            <div class="card-header">{{ secret.name }}</div>
-                            <div class="card-block card-text">
-                                <dl class="row">
-                                    <dt class="col-sm-3">safe</dt>
-                                    <dd class="col-sm-9">{{ secret.safe.name }}</dd>
-                                    <dt class="col-sm-3">vault</dt>
-                                    <dd class="col-sm-9">{{ secret.safe.vault.name }}</dd>
-                                    <dt class="col-sm-3">ciphertext</dt>
-                                    <dd class="col-sm-9"><button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#secret-modal-{{ secret.id }}">view</button></dd>
-                                </dl>
-                            </div>
-                        </div>
-                    {% endfor %}
-
+                    {% with secrets=host.secrets %}
+                        {% include "environments/_child_secrets_list.html" %}
+                    {% endwith %}
                 </div>
             </div>
             <h2></h2>

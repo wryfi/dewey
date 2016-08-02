@@ -1,0 +1,76 @@
+{% extends "dewey/__base.html" %}
+{% load dewey_utils %}
+
+{% block content %}
+    <div class="col-xs-12 col-md-4 col-xl-3 side-navigation">
+    </div>
+
+    <div class="col-xs-12 col-md-8 col-xl-9 content">
+        <div class="card safe-card" id="general-card"><a name="general"></a>
+            <h3 class="card-header">{{ safe.name }}</h3>
+            <div class="card-block card-text">
+                <dl class="row">
+                    <dt class="col-xs-4">name</dt>
+                    <dd class="col-xs-8">{{ safe.name }}</dd>
+
+                    <dt class="col-xs-4">vault</dt>
+                    <dd class="col-xs-8">{{ safe.vault.name }}</dd>
+
+                    <dt class="col-xs-4">env</dt>
+                    {% if safe.vault.environment %}
+                    <dd class="col-xs-8">{{ safe.vault.environment.name }}</dd>
+                    {% else %}
+                    <dd class="col-xs-8">all</dd>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+
+        <div class="card safe-access-card" id="access-card"><a name="access"></a>
+            <h4 class="card-header">access to {{ safe.name }}</h4>
+            <div class="card-block card-text">
+                {% if safe.vault.environment %}
+                    <p>
+                        Secrets in this vault are <strong>restricted</strong> to hosts in the
+                        <strong>{{ safe.vault.environment.name }} environment</strong>.
+                    </p>
+                    <P>
+                        The following hosts and roles within {{ safe.vault.environment.name }}
+                        have access to this safe:</p>
+                {% else %}
+                    <p>Secrets in this vault are available to hosts in <strong>any environment</strong>.</p>
+                    <p>The following hosts and roles have access to this safe:</p>
+                {% endif %}
+                <ul>
+                    {% if safe.access.all %}
+                        <li>all hosts/roles</li>
+                    {% else %}
+                        {% for host in safe.access.hosts %}
+                            <li>host: {{ host.hostname }}</li>
+                        {% endfor %}
+                        {% for role in safe.access.roles %}
+                            <li>role: {{ role.name }}</li>
+                        {% endfor %}
+                    {% endif %}
+                </ul>
+            {% if not safe.access.all %}
+                <p>
+                    <button class="btn btn-primary btn-sm">add role</button>
+                    <button class="btn btn-primary btn-sm">add host</button>
+                </p>
+            {% endif %}
+            </div>
+
+        </div>
+
+        <div class="card safe-card" id="secrets-card"><a name="secrets"></a>
+            <h4 class="card-header">secrets in {{ safe.name }}</h4>
+            <div class="card-block card-text">
+                {% with secrets=safe.secret_set.all %}
+                    {% include "environments/_child_secrets_list.html" %}
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}

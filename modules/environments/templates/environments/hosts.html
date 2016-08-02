@@ -2,52 +2,48 @@
 {% load dewey_utils %}
 {% load static %}
 
-{% block content_container %}<div class="container-fluid">
+{% block content %}
+    <div class="col-xs-12 col-md-4 col-xl-3 side-navigation">
+        {% include "environments/_hosts_side_navigation.html" %}
+    </div>
+    <div class="col-xs-12 col-md-8 col-xl-9 content">
+        <div class="row">
+            {% for host in object_list %}
+                <div class="col-xs-12 col-md-6 col-xl-4">
+                    <div class="card host-card">
+                        <div class="card-header">{{ host.hostname }}</div>
+                        <div class="card-block card-text">
+                            <dl class="row">
+                                <dt class="col-xs-4">type</dt>
+                                <dd class="col-xs-8">{{ host.kind }}</dd>
 
-    <div class="row content-row">
-        <div class="col-xs-12 col-md-4 col-xl-3 side-navigation">
-            {% include "environments/_hosts_side_navigation.html" %}
-        </div>
-        <div class="col-xs-12 col-md-8 col-xl-9 content">
-            <div class="row">
-                {% for host in object_list %}
-                    <div class="col-xs-12 col-md-6 col-xl-4">
-                        <div class="card host-card">
-                            <div class="card-header">{{ host.hostname }}</div>
-                            <div class="card-block card-text">
-                                <dl class="row">
-                                    <dt class="col-xs-4">type</dt>
-                                    <dd class="col-xs-8">{{ host.kind }}</dd>
+                                <dt class="col-xs-4">env</dt>
+                                <dd class="col-xs-8">{{ host.environment.name }}</dd>
 
-                                    <dt class="col-xs-4">env</dt>
-                                    <dd class="col-xs-8">{{ host.environment.name }}</dd>
+                                {% if host.rolenames %}
+                                    <dt class="col-xs-4">roles</dt>
+                                    <dd class="col-xs-8">{{ host.rolenames|join:", " }}</dd>
+                                {% endif %}
 
-                                    {% if host.rolenames %}
-                                        <dt class="col-xs-4">roles</dt>
-                                        <dd class="col-xs-8">{{ host.rolenames|join:", " }}</dd>
-                                    {% endif %}
-
-                                    <dt class="col-xs-4">parent</dt>
-                                    {% if host.parent|get_type == 'Cluster' %}
-                                        <dd class="col-xs-8">{{ host.parent.name }}</dd>
-                                    {% elif host.parent|get_type == 'Host' %}
-                                        <dd class="col-xs-8">{{ host.parent.hostname }}</dd>
-                                    {% else %}
-                                        <dd class="col-xs-8">{{ host.parent.manufacturer }} {{ host.parent.model }}</dd>
-                                    {% endif %}
-                                </dl>
-                            </div>
-                            <div class="card-footer">
-                                <a href="#" class="card-link">host details</a>
-                            </div>
+                                <dt class="col-xs-4">parent</dt>
+                                {% if host.parent|get_type == 'Cluster' %}
+                                    <dd class="col-xs-8">{{ host.parent.name }}</dd>
+                                {% elif host.parent|get_type == 'Host' %}
+                                    <dd class="col-xs-8">{{ host.parent.hostname }}</dd>
+                                {% else %}
+                                    <dd class="col-xs-8">{{ host.parent.manufacturer }} {{ host.parent.model }}</dd>
+                                {% endif %}
+                            </dl>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url "host_detail" hostname=host.hostname %}" class="card-link">host details</a>
                         </div>
                     </div>
-                {% endfor %}
-            </div>
+                </div>
+            {% endfor %}
         </div>
     </div>
-
-</div>{% endblock content_container %}
+{% endblock content %}
 
 {% block script %}
 {{ block.super }}

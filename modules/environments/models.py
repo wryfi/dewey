@@ -294,6 +294,20 @@ class Safe(models.Model):
     def environment_name(self):
         return self.vault.environment_name
 
+    @property
+    def access(self):
+        access = {'all': False, 'roles': [], 'hosts': []}
+        for control in self.safeaccesscontrol_set.all():
+            if control.all_hosts:
+                access['all'] = True
+                return access
+            else:
+                if type(control.acl_object) == Host:
+                    access['hosts'].append(control.acl_object)
+                elif type(control.acl_object) == Role:
+                    access['roles'].append(control.acl_object)
+        return access
+
     def __str__(self):
         return '{} :: {}'.format(self.name, self.vault.name)
 
