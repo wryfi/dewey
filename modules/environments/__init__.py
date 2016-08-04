@@ -1,6 +1,9 @@
 from django_enumfield import enum
 
 
+default_app_config = 'environments.apps.EnvironmentsConfig'
+
+
 class ClusterType(enum.Enum):
     ESX = 1
     JUNIPER = 2
