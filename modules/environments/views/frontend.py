@@ -1,9 +1,13 @@
-from django.shortcuts import get_object_or_404
-from django.views.generic.list import ListView
+from django.contrib.contenttypes.models import ContentType
 from django.views.generic.detail import DetailView
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from django.views.generic.list import ListView
+from django.core.urlresolvers import reverse
 
 from dewey.views import SortMixin, FilterMixin
-from environments.models import Environment, Host, Role, Safe, Secret
+from environments.models import Environment, Host, Role, Safe, SafeAccessControl, Secret
+from ..forms import HostSafeAccessForm, RoleSafeAccessForm
 
 import logging
 
@@ -69,3 +73,49 @@ class SafeDetailView(DetailView):
 
     def get_object(self, queryset=None):
         return get_object_or_404(Safe, name=self.kwargs['name'])
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(SafeDetailView, self).get_context_data(*args, **kwargs)
+        context.update({'host_access_form': HostSafeAccessForm(initial={'safe': self.object.id})})
+        context.update({'role_access_form': RoleSafeAccessForm(initial={'safe': self.object.id})})
+        return context
+
+
+def delete_safe_access(request, *args, **kwargs):
+    if request.method == 'POST':
+        safe = get_object_or_404(Safe, id=request.POST.get('safe'))
+        if request.POST.get('role'):
+            role = get_object_or_404(Role, name=request.POST.get('role'))
+            access_list = SafeAccessControl.objects.filter(safe=safe).filter(object_id=role.id).filter(content_type=ContentType.objects.get_for_model(Role))
+        elif request.POST.get('host'):
+            host = get_object_or_404(Host, hostname=request.POST.get('host'))
+            access_list = SafeAccessControl.objects.filter(safe=safe).filter(object_id=host.id).filter(content_type=ContentType.objects.get_for_model(Host))
+        redirect_url = request.POST.get('redirect', reverse('secrets'))
+        for control in access_list:
+            control.delete()
+        messages.add_message(request, messages.SUCCESS, 'removed control(s) from {}'.format(safe.name))
+        return redirect(redirect_url)
+
+
+def create_safe_access(request, *args, **kwargs):
+    if request.method == 'POST':
+        safe = get_object_or_404(Safe, id=request.POST.get('safe'))
+        redirect_url = request.POST.get('redirect', reverse('safe_detail', kwargs={'name': safe.name}))
+        if request.POST.get('role'):
+            contenttype = ContentType.objects.get_for_model(Role)
+            acl_object = get_object_or_404(Role, id=request.POST.get('role'))
+        elif request.POST.get('host'):
+            contenttype = ContentType.objects.get_for_model(Host)
+            acl_object = get_object_or_404(Host, id=request.POST.get('host'))
+        try:
+            control, created = SafeAccessControl.objects.get_or_create(
+                safe=safe, content_type=contenttype, object_id=acl_object.id
+            )
+            if created:
+                message, level = 'added access control', messages.SUCCESS
+            else:
+                message, level = 'access control already exists', messages.WARNING
+            messages.add_message(request, level, message)
+        except NameError:
+            messages.add_message(request, messages.ERROR, 'host or role was not provided')
+        return redirect(redirect_url)
