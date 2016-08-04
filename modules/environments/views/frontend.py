@@ -81,6 +81,14 @@ class SafeDetailView(DetailView):
         return context
 
 
+class SecretDetailView(DetailView):
+    model = Secret
+    template_name = 'environments/secret_detail.html'
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(Secret, name=self.kwargs['name'])
+
+
 def delete_safe_access(request, *args, **kwargs):
     if request.method == 'POST':
         safe = get_object_or_404(Safe, id=request.POST.get('safe'))

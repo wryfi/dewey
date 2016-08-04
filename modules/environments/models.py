@@ -295,7 +295,11 @@ class Safe(models.Model):
         return self.vault.environment_name
 
     @property
-    def access(self):
+    def access_controls(self):
+        """
+        Provides a representation of the access control objects associated
+        with this safe. Does not take environment into consideration.
+        """
         access = {'all': False, 'roles': [], 'hosts': []}
         for control in self.safeaccesscontrol_set.all():
             if control.all_hosts:
@@ -377,6 +381,23 @@ class Secret(models.Model):
             self.secret = ciphertext
         return self.secret
 
+    @property
+    def hosts(self):
+        """
+        returns a list of hosts that have access to this secret
+        """
+        if self.safe.access_controls['all']:
+            if self.safe.vault.all_environments:
+                hosts = Host.objects.all()
+            else:
+                hosts = Host.objects.filter(environment=self.safe.environment)
+        else:
+            hosts = [host for host in self.safe.access_controls['hosts'] if host.environment == self.safe.environment]
+            for role in self.safe.access_controls['roles']:
+                for host in role.hosts.filter(environment=self.safe.environment):
+                    hosts.append(host)
+        return sorted(set(hosts), key=lambda host: host.hostname)
+
     def save(self, *args, **kwargs):
         """
         Override the default save() method to first call _encrypt_secret() on the
@@ -391,5 +412,4 @@ class Secret(models.Model):
 
     class Meta:
         unique_together = (('name', 'safe'),)
-
 

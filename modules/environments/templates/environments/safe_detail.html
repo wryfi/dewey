@@ -1,14 +1,10 @@
-{% extends "dewey/__base.html" %}
+{% extends "dewey/__two_column.html" %}
 {% load dewey_utils %}
 {% load static %}
 {% load crispy_forms_tags %}
 
 
-{% block content %}
-    <div class="col-xs-12 col-md-4 col-xl-3 side-navigation">
-    </div>
-
-    <div class="col-xs-12 col-md-8 col-xl-9 content">
+{% block right_column %}
         <div class="card safe-card" id="general-card"><a name="general"></a>
             <h3 class="card-header">{{ safe.name }}</h3>
             <div style="display: none" id="safe-id">{{ safe.id }}</div>
@@ -144,9 +140,7 @@
                 {% endwith %}
             </div>
         </div>
-    </div>
-
-{% endblock content %}
+{% endblock right_column %}
 
 {% block script %}
 {{ block.super }}
