@@ -13,6 +13,6 @@ urlpatterns  = [
     url(r'^safes/detail/(?P<name>[\w.-]+)/$', frontend_views.SafeDetailView.as_view(), name='safe_detail'),
     url(r'^safes/access/delete/$', frontend_views.delete_safe_access, name='safe_access_delete'),
     url(r'^safes/access/create/$', frontend_views.create_safe_access, name='safe_access_create'),
-    url(r'^secrets/detail/(?P<name>[\w.-]+)/$', frontend_views.SecretDetailView.as_view(), name='secret_detail'),
+    url(r'^secrets/detail/(?P<safe>[\w.-]+)/(?P<name>[\w.-]+)/$', frontend_views.SecretDetailView.as_view(), name='secret_detail'),
     url(r'^secrets/list/$', frontend_views.SecretListView.as_view(), name='secrets'),
 ]

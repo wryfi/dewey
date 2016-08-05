@@ -66,6 +66,12 @@ class SecretListView(ListView):
     model = Secret
     template_name = 'environments/secrets.html'
 
+    def get_context_data(self, *args, **kwargs):
+        context = super(SecretListView, self).get_context_data(*args, **kwargs)
+        context.update({'secrets_count': Secret.objects.count()})
+        context.update({'safes_count': Safe.objects.count()})
+        return context
+
 
 class SafeDetailView(DetailView):
     model = Safe
@@ -86,7 +92,8 @@ class SecretDetailView(DetailView):
     template_name = 'environments/secret_detail.html'
 
     def get_object(self, queryset=None):
-        return get_object_or_404(Secret, name=self.kwargs['name'])
+        safe = get_object_or_404(Safe, name=self.kwargs['safe'])
+        return get_object_or_404(Secret, name=self.kwargs['name'], safe=safe)
 
 
 def delete_safe_access(request, *args, **kwargs):

@@ -163,9 +163,19 @@ class Host(models.Model):
         return sorted(secrets, key=lambda sec: sec.name)
 
     @property
+    def effective_secrets(self):
+        secrets = {}
+        effective = []
+        for secret in self.secrets:
+            secrets[secret.name] = secret
+        for name, secret in secrets.items():
+            effective.append(secret)
+        return sorted(effective, key=lambda sec: sec.name)
+
+    @property
     def salt_secrets(self):
         secrets = {}
-        for secret in self.secrets:
+        for secret in self.effective_secrets:
             secrets[secret.name] = secret.export_format
         return dotutils.expand_flattened_dict(secrets)
 
@@ -283,7 +293,7 @@ class Safe(models.Model):
     a Safe is a collection of secrets encrypted with a specific Vault
     which has an ACL defining what hosts and roles can access its secrets
     """
-    name = models.CharField(max_length=256, help_text='name for this collection of secrets')
+    name = models.CharField(max_length=256, help_text='name for this collection of secrets', unique=True)
     vault = models.ForeignKey('Vault')
 
     @property
@@ -394,8 +404,12 @@ class Secret(models.Model):
         else:
             hosts = [host for host in self.safe.access_controls['hosts'] if host.environment == self.safe.environment]
             for role in self.safe.access_controls['roles']:
-                for host in role.hosts.filter(environment=self.safe.environment):
-                    hosts.append(host)
+                if self.safe.vault.all_environments:
+                    for host in role.hosts.all():
+                        hosts.append(host)
+                else:
+                    for host in role.hosts.filter(environment=self.safe.environment):
+                        hosts.append(host)
         return sorted(set(hosts), key=lambda host: host.hostname)
 
     def save(self, *args, **kwargs):

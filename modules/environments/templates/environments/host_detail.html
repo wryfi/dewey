@@ -125,7 +125,7 @@
                         <dd class="col-md-9">
                         <ul class="list-unstyled">
                             {% for safe in host.safes %}
-                                <li>{{ safe.name }}</li>
+                                <li><a href="{% url "safe_detail" safe.name %}">{{ safe.name }}</a></li>
                             {% endfor %}
                         </ul>
                         </dd>
@@ -134,15 +134,48 @@
                 </div>
             </div>
 
+            <div class="all-secrets-modal modal" id="all-secrets" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                                <span aria-hidden="true">x</span>
+                            </button>
+                            <h4 class="modal-title">all secrets for {{ host.hostname }}</h4>
+                        </div>
+                        <div class="modal-body" id="all-secrets-modal-body">
+                            {% for secret in host.secrets %}
+                                <dl class="row">
+                                    <dt class="col-sm-6">
+                                        <a href="{% url "secret_detail" secret.safe.name secret.name %}">
+                                            {{ secret.name }}
+                                        </a>
+                                    </dt>
+                                    <dd>
+                                        <a href="{% url "safe_detail" secret.safe.name %}">
+                                            {{ secret.safe.name }}
+                                        </a>
+                                    </dd>
+                                </dl>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="card" id="secrets-card"><a name="secrets"></a>
-                <h4 class="card-header">secrets for {{ object.shortname }}</h4>
+                <h4 class="card-header">effective secrets for {{ object.shortname }}</h4>
                 <div class="card-block card-text">
-                    {% with secrets=host.secrets %}
+                    {% with secrets=host.effective_secrets %}
                         {% include "environments/_child_secrets_list.html" %}
                     {% endwith %}
                 </div>
+                <div class="card-footer">
+                    <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#all-secrets">
+                        all secrets
+                    </button>
+                </div>
             </div>
-            <h2></h2>
         </div><!-- end content -->
 
     </div>
