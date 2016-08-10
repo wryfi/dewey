@@ -124,7 +124,7 @@
                         <dt class="col-md-3">safes</dt>
                         <dd class="col-md-9">
                         <ul class="list-unstyled">
-                            {% for safe in host.safes %}
+                            {% for safe in host.distinct_safes %}
                                 <li><a href="{% url "safe_detail" safe.name %}">{{ safe.name }}</a></li>
                             {% endfor %}
                         </ul>
@@ -139,14 +139,14 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-label="close">
-                                <span aria-hidden="true">x</span>
+                                <span aria-hidden="true">&times;</span>
                             </button>
                             <h4 class="modal-title">all secrets for {{ host.hostname }}</h4>
                         </div>
                         <div class="modal-body" id="all-secrets-modal-body">
                             {% for secret in host.secrets %}
                                 <dl class="row">
-                                    <dt class="col-sm-6">
+                                    <dt class="col-sm-9">
                                         <a href="{% url "secret_detail" secret.safe.name secret.name %}">
                                             {{ secret.name }}
                                         </a>

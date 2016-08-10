@@ -155,6 +155,11 @@ class Host(models.Model):
         return safes
 
     @property
+    def distinct_safes(self):
+        unique = set(self.safes)
+        return sorted(unique, key=lambda safe: safe.name)
+
+    @property
     def secrets(self):
         secrets = []
         for safe in self.safes:
@@ -307,8 +312,8 @@ class Safe(models.Model):
     @property
     def access_controls(self):
         """
-        Provides a representation of the access control objects associated
-        with this safe. Does not take environment into consideration.
+        Provides a dict representation of the access control objects associated
+        with this safe, keyed by type. Does NOT take environment into consideration.
         """
         access = {'all': False, 'roles': [], 'hosts': []}
         for control in self.safeaccesscontrol_set.all():
@@ -324,6 +329,9 @@ class Safe(models.Model):
 
     def __str__(self):
         return '{} :: {}'.format(self.name, self.vault.name)
+
+    class Meta:
+        unique_together = ('name', 'vault')
 
 
 class SafeAccessControl(models.Model):
@@ -373,6 +381,7 @@ class Secret(models.Model):
         cases by the overridden save() method below.
         """
         if not re.match(VAULT_REGEX, self.secret):
+            #print(self.__dict__)
             auth_request = requests.post(
                 '/'.join([self.safe.vault.url, 'v1/auth/userpass/login', self.safe.vault.vault_user]),
                 data=json.dumps({'password': self.safe.vault.password}),
@@ -386,6 +395,7 @@ class Secret(models.Model):
             request = requests.post(endpoint, headers=auth,
                                     data=json.dumps({'plaintext': encoded.decode('utf-8')}),
                                     verify=settings.PLOS_CA_CERTIFICATE)
+            print(request.text)
             request.raise_for_status()
             ciphertext = request.json()['data']['ciphertext']
             self.secret = ciphertext

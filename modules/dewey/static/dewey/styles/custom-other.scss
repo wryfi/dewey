@@ -12,7 +12,7 @@ body {
 .navigation-card {
   background-color: rgba(0, 0, 0, 0.2);
   border: 1px solid black;
-  .card-header {
+  .card-header, .card-footer {
     background-color: rgba(0, 0, 0, 0.3);
   }
   dl {
