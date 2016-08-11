@@ -412,7 +412,10 @@ class Secret(models.Model):
             else:
                 hosts = Host.objects.filter(environment=self.safe.environment)
         else:
-            hosts = [host for host in self.safe.access_controls['hosts'] if host.environment == self.safe.environment]
+            hosts = []
+            for host in self.safe.access_controls['hosts']:
+                if self.safe.vault.all_environments or host.environment == self.safe.environment:
+                    hosts.append(host)
             for role in self.safe.access_controls['roles']:
                 if self.safe.vault.all_environments:
                     for host in role.hosts.all():
@@ -430,6 +433,14 @@ class Secret(models.Model):
         self._encrypt_secret()
         if re.match(VAULT_REGEX, self.secret):
             super(Secret, self).save(*args, **kwargs)
+
+    @property
+    def sls_reference(self):
+        out = '{{ pillar[\'secrets\']'
+        for part in self.name.split('.'):
+            out = out + '[\'' + part + '\']'
+        out = out + ' }}'
+        return out
 
     def __str__(self):
         return '{} :: {} :: {}'.format(self.name, self.safe.name, self.safe.vault.name)

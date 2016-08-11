@@ -2,7 +2,7 @@ from django import forms
 
 from crispy_forms.layout import Field, Layout, Submit, Div
 
-from .models import Host, Role, SafeAccessControl, Safe, Secret
+from .models import Host, Role, SafeAccessControl, Safe, Secret, Vault
 from dewey.forms import CrispyMixin
 
 
@@ -92,3 +92,66 @@ class CreateSecretForm(CrispyMixin, SecretMixin, forms.ModelForm):
     class Meta:
         model = Secret
         fields = ('name', 'secret')
+
+
+class AddSecretForm(CrispyMixin, SecretMixin, forms.ModelForm):
+    safe = forms.CharField(widget=forms.HiddenInput)
+
+    def __init__(self, *args, **kwargs):
+        super(AddSecretForm, self).__init__(*args, **kwargs)
+        self.helper.form_action = 'secrets'
+        self.helper.layout = Layout(
+            Field('name'),
+            Field('secret'),
+            Field('safe'),
+            Div(
+                Submit('submit', 'save', css_class='btn btn-primary btn-sm'),
+                css_class='col-md-9 offset-md-3'
+            )
+        )
+
+    class Meta:
+        model = Secret
+        fields = ('name', 'secret')
+
+
+class SafeUpdateForm(CrispyMixin, forms.ModelForm):
+    name = forms.CharField()
+    verb = forms.CharField(widget=forms.HiddenInput, initial='update')
+
+    def __init__(self, *args, **kwargs):
+        super(SafeUpdateForm, self).__init__(*args, **kwargs)
+        self.helper.layout = Layout(
+            Field('name'),
+            Field('verb'),
+            Div(
+                Submit('submit', 'save', css_class='btn btn-sm btn-primary'),
+                css_class='col-md-9 offset-md-3'
+            )
+        )
+
+    class Meta:
+        model = Safe
+        fields = ('name',)
+
+
+class SafeCreateForm(CrispyMixin, forms.ModelForm):
+    name = forms.CharField()
+    vault = forms.ChoiceField(choices=Vault.objects.order_by('name').values_list('id', 'name'))
+    verb = forms.CharField(widget=forms.HiddenInput, initial='update')
+
+    def __init__(self, *args, **kwargs):
+        super(SafeCreateForm, self).__init__(*args, **kwargs)
+        self.helper.layout = Layout(
+            Field('name'),
+            Field('vault'),
+            Field('verb'),
+            Div(
+                Submit('submit', 'save', css_class='btn btn-sm btn-primary'),
+                css_class='col-md-9 offset-md-3'
+            )
+        )
+
+    class Meta:
+        model = Safe
+        fields = ('name',)

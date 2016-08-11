@@ -2,17 +2,17 @@
 
     <div class="col-xs-12 col-xm-6 col-md-12">
 
-        {% with title='Secrets' %}
+        {% with title='Safes' %}
             {% include "environments/_secrets_overview_card.html" %}
         {% endwith %}
 
-        {% include "environments/_secret_create_modal.html" %}
+        {% include "environments/_safe_create_modal.html" %}
 
         <div class="card card-inverse navigation-card">
             <div class="card-header"><h4 classs="card-title">Actions</h4></div>
             <div class="card-block card-text">
-                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#create-secret-modal">
-                    <i class="fa fa-lock"></i> add secret
+                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#create-safe-modal"><i class="fa fa-shield"></i> add
+                    safe
                 </button>
             </div>
         </div>
