@@ -5,7 +5,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, Field, HTML, Layout, Submit
 
 
-class CrispyMixin(object):
+class CrispyMixin(forms.Form):
     def __init__(self, *args, **kwargs):
         super(CrispyMixin, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)

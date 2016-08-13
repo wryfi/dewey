@@ -381,7 +381,6 @@ class Secret(models.Model):
         cases by the overridden save() method below.
         """
         if not re.match(VAULT_REGEX, self.secret):
-            #print(self.__dict__)
             auth_request = requests.post(
                 '/'.join([self.safe.vault.url, 'v1/auth/userpass/login', self.safe.vault.vault_user]),
                 data=json.dumps({'password': self.safe.vault.password}),
@@ -395,7 +394,6 @@ class Secret(models.Model):
             request = requests.post(endpoint, headers=auth,
                                     data=json.dumps({'plaintext': encoded.decode('utf-8')}),
                                     verify=settings.PLOS_CA_CERTIFICATE)
-            print(request.text)
             request.raise_for_status()
             ciphertext = request.json()['data']['ciphertext']
             self.secret = ciphertext

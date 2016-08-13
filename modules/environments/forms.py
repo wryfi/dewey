@@ -1,4 +1,5 @@
 from django import forms
+from django.shortcuts import get_object_or_404
 
 from crispy_forms.layout import Field, Layout, Submit, Div
 
@@ -48,16 +49,16 @@ class RoleSafeAccessForm(CrispyMixin, forms.Form):
         fields = ('safe', 'acl_object')
 
 
-class SecretMixin(object):
+class SecretMixin(forms.Form):
     name = forms.CharField()
     secret = forms.CharField(widget=forms.Textarea)
 
 
-class UpdateSecretForm(CrispyMixin, SecretMixin, forms.ModelForm):
+class SecretUpdateForm(CrispyMixin, SecretMixin, forms.ModelForm):
     verb = forms.CharField(widget=forms.HiddenInput, initial='update')
 
     def __init__(self, *args, **kwargs):
-        super(UpdateSecretForm, self).__init__(*args, **kwargs)
+        super(SecretUpdateForm, self).__init__(*args, **kwargs)
         self.helper.layout = Layout(
             Field('name'),
             Field('secret'),
@@ -73,42 +74,45 @@ class UpdateSecretForm(CrispyMixin, SecretMixin, forms.ModelForm):
         fields = ('name', 'secret')
 
 
-class CreateSecretForm(CrispyMixin, SecretMixin, forms.ModelForm):
-    safe = forms.ChoiceField(choices=Safe.objects.order_by('name').values_list('id', 'name'))
+class SecretCreateMixin(SecretMixin, CrispyMixin):
+    redirect = forms.CharField(widget=forms.HiddenInput, required=False)
 
     def __init__(self, *args, **kwargs):
-        super(CreateSecretForm, self).__init__(*args, **kwargs)
+        super(SecretCreateMixin, self).__init__(*args, **kwargs)
         self.helper.form_action = 'secrets'
         self.helper.layout = Layout(
             Field('name'),
             Field('safe'),
             Field('secret'),
+            Field('redirect'),
             Div(
                 Submit('submit', 'save', css_class='btn btn-sm btn-default'),
                 css_class='col-md-9 offset-md-3'
             )
         )
 
+    def clean(self):
+        cleaned = super(SecretCreateMixin, self).clean()
+        safe = get_object_or_404(Safe, id=self.data.get('safe'))
+        if Secret.objects.filter(name=cleaned['name'], safe=safe):
+            raise forms.ValidationError('secret with that name already exists in {}'.format(safe.name))
+        return cleaned
+
     class Meta:
         model = Secret
         fields = ('name', 'secret')
 
 
-class AddSecretForm(CrispyMixin, SecretMixin, forms.ModelForm):
-    safe = forms.CharField(widget=forms.HiddenInput)
+class SecretCreateForm(SecretCreateMixin, forms.ModelForm):
+    safe = forms.ChoiceField(choices=Safe.objects.order_by('name').values_list('id', 'name'))
 
-    def __init__(self, *args, **kwargs):
-        super(AddSecretForm, self).__init__(*args, **kwargs)
-        self.helper.form_action = 'secrets'
-        self.helper.layout = Layout(
-            Field('name'),
-            Field('secret'),
-            Field('safe'),
-            Div(
-                Submit('submit', 'save', css_class='btn btn-primary btn-sm'),
-                css_class='col-md-9 offset-md-3'
-            )
-        )
+    class Meta:
+        model = Secret
+        fields = ('name', 'secret')
+
+
+class SecretAddForm(SecretCreateMixin, forms.ModelForm):
+    safe = forms.CharField(widget=forms.HiddenInput)
 
     class Meta:
         model = Secret
@@ -142,6 +146,7 @@ class SafeCreateForm(CrispyMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(SafeCreateForm, self).__init__(*args, **kwargs)
+        self.helper.form_action = 'safe_list'
         self.helper.layout = Layout(
             Field('name'),
             Field('vault'),

@@ -36,17 +36,20 @@
 
         <div class="col-xs-12 col-md-8 col-xl-9 content">
             <div class="card host-card" id="general-card"><a name="general"></a>
-                <h3 class="card-header">{{ object.hostname }}</h3>
+                <h3 class="card-header">{{ host.hostname }}</h3>
                 <div class="card-block card-text">
                     <dl class="row">
                         <dt class="col-xs-4">fqdn</dt>
-                        <dd class="col-xs-8">{{ object.hostname }}</dd>
+                        <dd class="col-xs-8">{{ host.hostname }}</dd>
+
+                        <dt class="col-xs-4">type</dt>
+                        <dd class="col-xs-8">{{ host.kind }}</dd>
 
                         <dt class="col-xs-4">location</dt>
-                        <dd class="col-xs-8">{{ object.domain }}</dd>
+                        <dd class="col-xs-8">{{ host.domain }}</dd>
 
                         <dt class="col-xs-4">env</dt>
-                        <dd class="col-xs-8">{{ object.environment.name }}</dd>
+                        <dd class="col-xs-8">{{ host.environment.name }}</dd>
 
                         {% if host.roles|length > 0 %}
                         <dt class="col-xs-4">roles</dt>
@@ -164,7 +167,7 @@
             </div>
 
             <div class="card" id="secrets-card"><a name="secrets"></a>
-                <h4 class="card-header">effective secrets for {{ object.shortname }}</h4>
+                <h4 class="card-header">effective secrets for {{ host.shortname }}</h4>
                 <div class="card-block card-text">
                     {% with secrets=host.effective_secrets %}
                         {% include "environments/_child_secrets_list.html" %}

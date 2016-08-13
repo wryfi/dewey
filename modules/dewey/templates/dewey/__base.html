@@ -50,6 +50,13 @@
     {% block script %}
         <script>window.jQuery || document.write('<script src="{% static "dewey/javascript/vendor/jquery-2.2.4.min.js" %}"><\/script>')</script>
         <script src="{% static "dewey/javascript/vendor/bootstrap.min.js" %}"></script>
+        <script type="text/javascript">
+            $(function () {
+                // if a modal has a form error, show the modal!
+                $('.modal form div.alert').closest('.modal').modal({show: true});
+                $('.modal .help-block').closest('.modal').modal({show: true});
+            })
+        </script>
     {% endblock script %}
 {% endcompress %}
 

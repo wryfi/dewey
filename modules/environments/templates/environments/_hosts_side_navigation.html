@@ -6,7 +6,7 @@
             <div class="card-block card-text">
                 <dl class="row">
                     <dt class="col-xs-3 col-md-6 col-xl-4">Total</dt>
-                    <dd class="col-xs-9 col-md-6 col-xl-8">{{ host_count }}</dd>
+                    <dd class="col-xs-9 col-md-6 col-xl-8">{{ hosts_count }}</dd>
                     {% for environment in environments %}
                     <dt class="col-xs-3 col-md-6 col-xl-4">{{ environment.name }}</dt>
                     <dd class="col-xs-9 col-md-6 col-xl-8">{{ environment.host_set.all.count }}</dd>

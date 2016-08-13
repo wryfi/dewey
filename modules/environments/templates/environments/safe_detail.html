@@ -72,14 +72,14 @@
         <div class="card-block card-text">
             {% if safe.vault.environment %}
                 <p>
-                    Secrets in this vault are <strong>restricted</strong> to hosts in the
+                    Secrets in this safe are <strong>restricted</strong> to hosts in the
                     <strong>{{ safe.vault.environment.name }} environment</strong>.
                 </p>
                 <P>
                     The following hosts and roles within {{ safe.vault.environment.name }}
                     have access to this safe:</p>
             {% else %}
-                <p>Secrets in this vault are available to hosts in <strong>any environment</strong>.</p>
+                <p>Secrets in this safe are available to hosts in <strong>any environment</strong>.</p>
                 <p>The following hosts and roles have access to this safe:</p>
             {% endif %}
             <div class="access-list">
