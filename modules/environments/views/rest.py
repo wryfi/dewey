@@ -15,9 +15,9 @@ from rest_framework.decorators import api_view, renderer_classes
 from rest_framework_json_api.views import RelationshipView
 
 from dewey.utils import dotutils
-from .models import Cluster, Environment, Host, Role, SafeAccessControl, Secret
+from environments.models import Cluster, Environment, Host, Role, SafeAccessControl, Secret
 from networks.models import AddressAssignment, Network
-from .serializers import ClusterSerializer, HostRoleSerializer, HostDetailSerializer,\
+from environments.serializers import ClusterSerializer, HostRoleSerializer, HostDetailSerializer,\
     SaltHostSerializer, SaltHostSecretsSerializer
 from networks.serializers import AddressAssignmentSerializer
 from hardware.models import NetworkDevice, PowerDistributionUnit, Server
@@ -27,6 +27,7 @@ from hardware.serializers import NetworkDeviceDetailSerializer, PowerDistributio
 class HostViewSet(viewsets.ModelViewSet):
     queryset = Host.objects.all()
     serializer_class = HostDetailSerializer
+    http_method_names = ['get', 'head', 'options']
 
 
 class HostRelationshipView(RelationshipView):

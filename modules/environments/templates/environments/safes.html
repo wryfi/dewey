@@ -1,0 +1,36 @@
+{% extends "dewey/__two_column.html" %}
+
+{% block left_column %}
+{% include "environments/_safes_side_navigation.html" %}
+{% endblock left_column %}
+
+{% block right_column %}
+
+    <div class="row">
+    {% for safe in safes %}
+        <div class="col-xs-12 col-md-6 col-xl-4">
+            <div class="card">
+                <div class="card-header">{{ safe.name }}</div>
+                <div class="card-block card-text">
+                    <dl class="row">
+                        <dt class="col-sm-3">vault</dt>
+                        <dd class="col-sm-9">{{ safe.vault.name }}</dd>
+
+                        <dt class="col-sm-3">env</dt>
+                        <dd class="col-sm-9">{{ safe.environment_name }}</dd>
+
+                        <dt class="col-sm-3">secrets</dt>
+                        <dd class="col-sm-9">{{ safe.secret_set.count }}</dd>
+
+                    </dl>
+                </div>
+                <div class="card-footer">
+                    <a href="{% url "safe_detail" safe.name %}">details</a>
+                </div>
+            </div>
+        </div>
+
+    {% endfor %}
+    </div>
+
+{% endblock right_column %}

@@ -1,0 +1,13 @@
+{% extends "dewey/__base.html" %}
+
+{% block content %}
+
+    <div class="col-xs-12 col-md-4 col-xl-3 side-navigation">
+        {% block left_column %}{% endblock %}
+    </div>
+
+    <div class="col-xs-12 col-md-8 col-xl-9 content">
+        {% block right_column %}{% endblock %}
+    </div>
+
+{% endblock content %}
