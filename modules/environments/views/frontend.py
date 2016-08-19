@@ -1,12 +1,9 @@
 from django.contrib.contenttypes.models import ContentType
-from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
-from django.views.generic.list import ListView
+from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 
-from dewey.views import SortMixin, FilterMixin
 from ..models import Environment, Host, Role, Safe, SafeAccessControl, Secret, Vault
 from ..forms import SecretAddForm, SecretCreateForm, HostSafeAccessForm, RoleSafeAccessForm, SafeUpdateForm, \
     SecretUpdateForm, SafeCreateForm
@@ -46,7 +43,7 @@ def host_detail(request, *args, **kwargs):
 
 
 def secrets_list(request, *args, **kwargs):
-    form = SecretCreateForm(request.POST or None)
+    form = SecretCreateForm(request.POST or None, user=request.user)
     context = {
         'secrets': Secret.objects.order_by('name'),
         'secrets_count': Secret.objects.count(),
@@ -63,16 +60,14 @@ def secrets_list(request, *args, **kwargs):
             if form.cleaned_data.get('redirect'):
                 return redirect(form.cleaned_data['redirect'])
             return redirect(reverse('secret_detail', kwargs={'safe': secret.safe.name, 'name': secret.name}))
-        else:
-            print(form)
     return render(request, 'environments/secrets.html', context)
 
 
 def secret_detail(request, *args, **kwargs):
     safe = get_object_or_404(Safe, name=kwargs['safe'])
     secret = get_object_or_404(Secret, name=kwargs['name'], safe=safe)
-    update_form = SecretUpdateForm(request.POST or None, instance=secret)
-    create_form = SecretCreateForm(request.POST or None)
+    update_form = SecretUpdateForm(request.POST or None, instance=secret, user=request.user)
+    create_form = SecretCreateForm()
     context = {
         'secrets_count': Secret.objects.count(),
         'safes_count': Safe.objects.count(),
@@ -83,6 +78,8 @@ def secret_detail(request, *args, **kwargs):
     if request.method == 'POST':
         if request.POST.get('verb') == 'update':
             if update_form.is_valid():
+                if safe.environment_name not in groups or safe.environment_name != 'all':
+                    return forms.ValidationError('permission denied')
                 update_form.save()
                 messages.add_message(request, messages.SUCCESS, 'updated secret {}'.format(secret.name))
                 return redirect(reverse('secret_detail', kwargs={'name': secret.name, 'safe': safe.name}))
@@ -112,19 +109,22 @@ def safes_list(request, *args, **kwargs):
     return render(request, 'environments/safes.html', context)
 
 
+# TODO: refactor some forms to call REST API via javascript
 def safe_detail(request, *args, **kwargs):
     safe = get_object_or_404(Safe, name=kwargs['name'])
     update_form = SafeUpdateForm(request.POST or None, instance=safe)
-    create_form = SafeCreateForm(request.POST or None)
+    create_form = SafeCreateForm(prefix='create')
     context = {
         'secrets_count': Secret.objects.count(),
         'safes_count': Safe.objects.count(),
         'safe': safe,
         'safe_update_form': update_form,
         'safe_create_form': create_form,
-        'host_access_form': HostSafeAccessForm(initial={'safe': safe.id}),
+        'host_access_form': HostSafeAccessForm(initial={'safe': safe.id}, user=request.user),
         'role_access_form': RoleSafeAccessForm(initial={'safe': safe.id}),
-        'secret_form': SecretAddForm(initial={'safe': safe.id, 'redirect': reverse('safe_detail', kwargs={'name': safe.name})}),
+        'secret_form': SecretAddForm(
+            initial={'safe': safe.id, 'redirect': reverse('safe_detail', kwargs={'name': safe.name})},
+            prefix='add-secret'),
     }
     if request.method == 'POST':
         if request.POST.get('verb') == 'update':
@@ -141,9 +141,16 @@ def safe_detail(request, *args, **kwargs):
     return render(request, 'environments/safe_detail.html', context)
 
 
+# TODO: this view doesn't use the forms api like everything else;
+# it returns an ugly 403 instead of a pretty validation error when access is denied
+# this should really be a javascript call to an API endpoint
 def delete_safe_access(request, *args, **kwargs):
     if request.method == 'POST':
         safe = get_object_or_404(Safe, id=request.POST.get('safe'))
+        groups = [group.name for group in request.user.groups.all()]
+        if safe.environment_name not in groups and safe.environment_name != 'all':
+            if not request.user.is_superuser:
+                raise PermissionDenied
         if request.POST.get('role'):
             role = get_object_or_404(Role, name=request.POST.get('role'))
             access_list = SafeAccessControl.objects.filter(safe=safe).filter(object_id=role.id).filter(
@@ -159,9 +166,16 @@ def delete_safe_access(request, *args, **kwargs):
         return redirect(redirect_url)
 
 
+# TODO: this view doesn't use the forms api like everything else;
+# it returns an ugly 403 instead of a pretty validation error when access is denied
+# this should really be a javascript call to an API endpoint
 def create_safe_access(request, *args, **kwargs):
     if request.method == 'POST':
         safe = get_object_or_404(Safe, id=request.POST.get('safe'))
+        groups = [group.name for group in request.user.groups.all()]
+        if safe.environment_name not in groups and safe.environment_name != 'all':
+            if not request.user.is_superuser:
+                raise PermissionDenied
         redirect_url = request.POST.get('redirect', reverse('safe_detail', kwargs={'name': safe.name}))
         if request.POST.get('role'):
             contenttype = ContentType.objects.get_for_model(Role)

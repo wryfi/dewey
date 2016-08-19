@@ -64,6 +64,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'dewey.middleware.login_required.LoginRequiredMiddleware',
 )
 
 ROOT_URLCONF = 'dewey.urls'
@@ -235,3 +236,7 @@ PLOS_CA_CERTIFICATE = '/etc/ssl/certs/plos-ca.pem'
 HOST_MONITORING_DELAY = 7200
 
 PASSWORD_RESET_URL = 'https://developer.plos.org/jira/secure/CreateIssueDetails!init.jspa?pid=10101&issuetype=10404&summary=dewey+password+reset'
+
+LOGIN_EXEMPT_URLS = (
+    r'^api/.*',
+)

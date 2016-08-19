@@ -12,6 +12,7 @@ class HostSafeAccessForm(CrispyMixin, forms.Form):
     host = forms.ChoiceField(choices=Host.objects.order_by('hostname').values_list('id', 'hostname'))
 
     def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
         super(HostSafeAccessForm, self).__init__(*args, **kwargs)
         self.helper.form_action = 'safe_access_create'
         self.helper.layout = Layout(
@@ -22,6 +23,15 @@ class HostSafeAccessForm(CrispyMixin, forms.Form):
                 css_class='col-md-9 offset-md-3'
             ),
         )
+
+    def clean(self):
+        cleaned = super(HostSafeAccessForm, self).clean()
+        safe = self.instance.acl_object
+        groups = [group.name for group in self.user.groups.all()]
+        if safe.environment_name not in groups or safe.environment_name != 'all':
+            if not self.user.is_superuser:
+                return forms.ValidationError('permission denied')
+        return cleaned
 
     class Meta:
         model = SafeAccessControl
@@ -58,6 +68,7 @@ class SecretUpdateForm(CrispyMixin, SecretMixin, forms.ModelForm):
     verb = forms.CharField(widget=forms.HiddenInput, initial='update')
 
     def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
         super(SecretUpdateForm, self).__init__(*args, **kwargs)
         self.helper.layout = Layout(
             Field('name'),
@@ -69,6 +80,15 @@ class SecretUpdateForm(CrispyMixin, SecretMixin, forms.ModelForm):
             )
         )
 
+    def clean(self):
+        cleaned = super(SecretUpdateForm, self).clean()
+        environment = self.instance.safe.environment_name
+        groups = [group.name for group in self.user.groups.all()]
+        if environment not in groups and environment != 'all':
+            if not self.user.is_superuser:
+                raise forms.ValidationError('permission denied')
+        return cleaned
+
     class Meta:
         model = Secret
         fields = ('name', 'secret')
@@ -78,6 +98,7 @@ class SecretCreateMixin(SecretMixin, CrispyMixin):
     redirect = forms.CharField(widget=forms.HiddenInput, required=False)
 
     def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
         super(SecretCreateMixin, self).__init__(*args, **kwargs)
         self.helper.form_action = 'secrets'
         self.helper.layout = Layout(
@@ -96,6 +117,10 @@ class SecretCreateMixin(SecretMixin, CrispyMixin):
         safe = get_object_or_404(Safe, id=self.data.get('safe'))
         if Secret.objects.filter(name=cleaned['name'], safe=safe):
             raise forms.ValidationError('secret with that name already exists in {}'.format(safe.name))
+        groups = [group.name for group in self.user.groups.all()]
+        if safe.environment_name not in groups and safe.environment_name != 'all':
+            if not self.user.is_superuser:
+                raise forms.ValidationError('permission denied')
         return cleaned
 
     class Meta:

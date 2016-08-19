@@ -11,21 +11,22 @@ from .forms import CrispyAuthenticationForm
 from hardware import views as hardware_views
 from environments import urls as enviro_urls
 from environments.views import rest as enviro_views
+from environments.views import frontend as enviro_frontend
 from networks import views as networks_views
 
 router = routers.DefaultRouter()
 # for hostname lookups in URLs to work reliably, we abandon format suffixes
-router.include_format_suffixes = False
-router.register(r'clusters', enviro_views.ClusterViewSet)
-router.register(r'host-roles', enviro_views.HostRoleViewSet)
+#router.include_format_suffixes = False
+#router.register(r'clusters', enviro_views.ClusterViewSet)
+#router.register(r'host-roles', enviro_views.HostRoleViewSet)
 router.register(r'hosts', enviro_views.HostViewSet)
-router.register(r'network-devices', hardware_views.NetworkDeviceViewSet)
-router.register(r'networks', networks_views.NetworkViewSet)
-router.register(r'pdus', hardware_views.PowerDistributionUnitViewSet)
+#router.register(r'network-devices', hardware_views.NetworkDeviceViewSet)
+#router.register(r'networks', networks_views.NetworkViewSet)
+#router.register(r'pdus', hardware_views.PowerDistributionUnitViewSet)
 router.register(r'salt/hosts', enviro_views.SaltHostViewSet, base_name='salt-hosts')
-router.register(r'servers', hardware_views.ServerViewSet)
-router.register(r'pdus', hardware_views.PowerDistributionUnitViewSet)
-router.register(r'network-devices', hardware_views.NetworkDeviceViewSet)
+#router.register(r'servers', hardware_views.ServerViewSet)
+#router.register(r'pdus', hardware_views.PowerDistributionUnitViewSet)
+#router.register(r'network-devices', hardware_views.NetworkDeviceViewSet)
 
 hosts_router = routers.NestedSimpleRouter(router, r'hosts', lookup='host')
 hosts_router.register(r'roles', enviro_views.HostRoleViewSet, base_name='host-roles-nested')
@@ -37,7 +38,7 @@ salthosts_router = routers.NestedSimpleRouter(router, 'salt/hosts', lookup='host
 salthosts_router.register(r'secrets', enviro_views.SaltHostSecretsViewSet, base_name='host-secrets')
 
 urlpatterns = [
-    url(r'^$', TemplateView.as_view(template_name='dewey/index.html'), name='index'),
+    url(r'^$', enviro_frontend.hosts_list, name='index'),
     url(r'^accounts/login/$', auth_views.login, {
             'template_name': 'dewey/login.html',
             'authentication_form': CrispyAuthenticationForm

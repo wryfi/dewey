@@ -27,6 +27,7 @@ from hardware.serializers import NetworkDeviceDetailSerializer, PowerDistributio
 class HostViewSet(viewsets.ModelViewSet):
     queryset = Host.objects.all()
     serializer_class = HostDetailSerializer
+    http_method_names = ['get', 'head', 'options']
 
 
 class HostRelationshipView(RelationshipView):
