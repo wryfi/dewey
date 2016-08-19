@@ -40,7 +40,7 @@ class Environment(models.Model):
 
 
 class Role(models.Model):
-    name = models.CharField(max_length=256, help_text='matches salt state name')
+    name = models.CharField(max_length=256, help_text='matches salt state name', unique=True)
     description = models.CharField(max_length=256, blank=True)
     safe_acls = GenericRelation('SafeAccessControl')
 
