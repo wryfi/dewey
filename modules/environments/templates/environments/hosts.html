@@ -1,0 +1,95 @@
+{% extends "dewey/__base.html" %}
+{% load dewey_utils %}
+{% load static %}
+
+{% block content %}
+    <div class="col-xs-12 col-md-4 col-xl-3 side-navigation">
+        {% include "environments/_hosts_side_navigation.html" %}
+    </div>
+    <div class="col-xs-12 col-md-8 col-xl-9 content">
+        <div class="row">
+            {% for host in hosts %}
+                <div class="col-xs-12 col-md-6 col-xl-4">
+                    <div class="card host-card">
+                        <div class="card-header">{{ host.hostname }}</div>
+                        <div class="card-block card-text">
+                            <dl class="row">
+                                <dt class="col-xs-4">type</dt>
+                                <dd class="col-xs-8">{{ host.kind }}</dd>
+
+                                <dt class="col-xs-4">env</dt>
+                                <dd class="col-xs-8">{{ host.environment.name }}</dd>
+
+                                {% if host.rolenames %}
+                                    <dt class="col-xs-4">roles</dt>
+                                    <dd class="col-xs-8">{{ host.rolenames|join:", " }}</dd>
+                                {% endif %}
+
+                                <dt class="col-xs-4">parent</dt>
+                                {% if host.parent|get_type == 'Cluster' %}
+                                    <dd class="col-xs-8">{{ host.parent.name }}</dd>
+                                {% elif host.parent|get_type == 'Host' %}
+                                    <dd class="col-xs-8">{{ host.parent.hostname }}</dd>
+                                {% else %}
+                                    <dd class="col-xs-8">{{ host.parent.manufacturer }} {{ host.parent.model }}</dd>
+                                {% endif %}
+                            </dl>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url "host_detail" hostname=host.hostname %}" class="card-link">host details</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock content %}
+
+{% block script %}
+{{ block.super }}
+<script src="{% static "dewey/javascript/vendor/jquery.matchHeight-min.js" %}"></script>
+<script type="text/javascript">
+    $(function() {
+        // function to grab parameters out of URL
+        $.get_url_param = function(parameter) {
+            var url = window.location.search.substring(1);
+            var url_vars = url.split('&');
+            for (var i = 0; i < url_vars.length; i++) {
+                var parameter_name = url_vars[i].split('=');
+                if (parameter_name[0] == parameter) {
+                    return parameter_name[1];
+                }
+            }
+        };
+
+        // set card blocks to equal heights
+        $('.host-card .card-block').matchHeight();
+        $('.navigation-card .card-block').matchHeight();
+
+        // set the filter options based on the url parameters
+        var environment = $.get_url_param('environment');
+        var roles = $.get_url_param('roles');
+        if (typeof environment === 'undefined') {
+            $('#env-select').val('all');
+        } else {
+            $('#env-select').val(environment);
+        }
+        if (typeof roles === 'undefined') {
+            $('#role-select').val('any');
+        } else {
+            var selectroles = roles.split(':')[0];
+            $('#role-select').val(selectroles);
+        }
+
+        // filter results when the button is clicked
+        $('#filter-button').click(function() {
+            var envselect = $('#env-select')[0];
+            var roleselect = $('#role-select')[0];
+            var url_params = {'environment': envselect.value, 'roles': roleselect.value};
+            var params = jQuery.param(url_params);
+            var dest_url = document.location.protocol + '//' + window.location.host + window.location.pathname + '?' + params
+            $(location).attr('href', dest_url);
+        })
+    });
+</script>
+{% endblock %}

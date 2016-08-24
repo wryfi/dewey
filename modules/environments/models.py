@@ -122,7 +122,7 @@ class Host(models.Model):
 
     @property
     def rolenames(self):
-        return [role.name for role in self.roles.all()]
+        return sorted([role.name for role in self.roles.all()])
 
     @property
     def safes(self):
@@ -155,17 +155,32 @@ class Host(models.Model):
         return safes
 
     @property
+    def distinct_safes(self):
+        unique = set(self.safes)
+        return sorted(unique, key=lambda safe: safe.name)
+
+    @property
     def secrets(self):
         secrets = []
         for safe in self.safes:
             for secret in safe.secret_set.all():
                 secrets.append(secret)
-        return secrets
+        return sorted(secrets, key=lambda sec: sec.name)
+
+    @property
+    def effective_secrets(self):
+        secrets = {}
+        effective = []
+        for secret in self.secrets:
+            secrets[secret.name] = secret
+        for name, secret in secrets.items():
+            effective.append(secret)
+        return sorted(effective, key=lambda sec: sec.name)
 
     @property
     def salt_secrets(self):
         secrets = {}
-        for secret in self.secrets:
+        for secret in self.effective_secrets:
             secrets[secret.name] = secret.export_format
         return dotutils.expand_flattened_dict(secrets)
 
@@ -283,7 +298,7 @@ class Safe(models.Model):
     a Safe is a collection of secrets encrypted with a specific Vault
     which has an ACL defining what hosts and roles can access its secrets
     """
-    name = models.CharField(max_length=256, help_text='name for this collection of secrets')
+    name = models.CharField(max_length=256, help_text='name for this collection of secrets', unique=True)
     vault = models.ForeignKey('Vault')
 
     @property
@@ -294,8 +309,29 @@ class Safe(models.Model):
     def environment_name(self):
         return self.vault.environment_name
 
+    @property
+    def access_controls(self):
+        """
+        Provides a dict representation of the access control objects associated
+        with this safe, keyed by type. Does NOT take environment into consideration.
+        """
+        access = {'all': False, 'roles': [], 'hosts': []}
+        for control in self.safeaccesscontrol_set.all():
+            if control.all_hosts:
+                access['all'] = True
+                return access
+            else:
+                if type(control.acl_object) == Host:
+                    access['hosts'].append(control.acl_object)
+                elif type(control.acl_object) == Role:
+                    access['roles'].append(control.acl_object)
+        return access
+
     def __str__(self):
         return '{} :: {}'.format(self.name, self.vault.name)
+
+    class Meta:
+        unique_together = ('name', 'vault')
 
 
 class SafeAccessControl(models.Model):
@@ -363,6 +399,30 @@ class Secret(models.Model):
             self.secret = ciphertext
         return self.secret
 
+    @property
+    def hosts(self):
+        """
+        returns a list of hosts that have access to this secret
+        """
+        if self.safe.access_controls['all']:
+            if self.safe.vault.all_environments:
+                hosts = Host.objects.all()
+            else:
+                hosts = Host.objects.filter(environment=self.safe.environment)
+        else:
+            hosts = []
+            for host in self.safe.access_controls['hosts']:
+                if self.safe.vault.all_environments or host.environment == self.safe.environment:
+                    hosts.append(host)
+            for role in self.safe.access_controls['roles']:
+                if self.safe.vault.all_environments:
+                    for host in role.hosts.all():
+                        hosts.append(host)
+                else:
+                    for host in role.hosts.filter(environment=self.safe.environment):
+                        hosts.append(host)
+        return sorted(set(hosts), key=lambda host: host.hostname)
+
     def save(self, *args, **kwargs):
         """
         Override the default save() method to first call _encrypt_secret() on the
@@ -372,10 +432,17 @@ class Secret(models.Model):
         if re.match(VAULT_REGEX, self.secret):
             super(Secret, self).save(*args, **kwargs)
 
+    @property
+    def sls_reference(self):
+        out = '{{ pillar[\'secrets\']'
+        for part in self.name.split('.'):
+            out = out + '[\'' + part + '\']'
+        out = out + ' }}'
+        return out
+
     def __str__(self):
         return '{} :: {} :: {}'.format(self.name, self.safe.name, self.safe.vault.name)
 
     class Meta:
         unique_together = (('name', 'safe'),)
-
 

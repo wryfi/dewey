@@ -1,0 +1,56 @@
+<div class="row">
+
+    <div class="col-xs-12 col-sm-6 col-md-12"><!-- navigation-card column -->
+        <div class="card card-inverse navigation-card"><!-- card -->
+            <div class="card-header"><h4 class="card-title">Hosts Overview</h4></div>
+            <div class="card-block card-text">
+                <dl class="row">
+                    <dt class="col-xs-3 col-md-6 col-xl-4">Total</dt>
+                    <dd class="col-xs-9 col-md-6 col-xl-8">{{ hosts_count }}</dd>
+                    {% for environment in environments %}
+                    <dt class="col-xs-3 col-md-6 col-xl-4">{{ environment.name }}</dt>
+                    <dd class="col-xs-9 col-md-6 col-xl-8">{{ environment.host_set.all.count }}</dd>
+                    {% endfor %}
+                </dl>
+            </div><!-- end card block -->
+        </div><!-- end card -->
+    </div><!-- end navigation card column -->
+
+    <div class="col-xs-12 col-sm-6 col-md-12"><!-- filter-card column -->
+        <div class="card card-inverse navigation-card"><!-- card -->
+            <div class="card-header"><h4 class="card-title">Hosts Filters</h4></div>
+            <div class="card-block card-text"><!-- card block -->
+
+                <form class="form form-horizontal host-filter-form">
+
+                    <p><label for="env-select">Environment</label>
+                        <select id="env-select" name="env-select" form="host-filter-form">
+                            <option value="all">all</option>
+                            {% for environment in environments %}
+                            <option value="{{ environment.name }}">{{ environment.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </p>
+
+                    <p><label for="role-select">Role</label>
+                        <select id="role-select" name="role-select" form="host-filter-form">
+                            <option value="any">any</option>
+                            {% for role in roles %}
+                            <option value="{{ role.name }}">{{ role.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </p>
+
+                </form>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <button id="filter-button" class="btn btn-primary">Filter</button>
+                    </div>
+                </div>
+
+            </div><!-- end card block -->
+        </div><!-- end card -->
+    </div><!-- end filter-card column -->
+
+</div><!-- end row -->
