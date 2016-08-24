@@ -1,0 +1,59 @@
+html {
+  height: 100%;
+}
+
+body {
+  @include gradient-radial();
+  background-attachment: fixed;
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+}
+
+.navigation-card {
+  background-color: rgba(0, 0, 0, 0.2);
+  border: 1px solid black;
+  .card-header, .card-footer {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+  dl {
+    margin-right: 0;
+    margin-left: 0;
+  }
+  select {
+    color: black;
+  }
+  .active a:link, .active a:visited {
+    color: white;
+  }
+}
+
+.secret-modal .modal-body {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-all;
+}
+
+.host-card ul {
+  margin-bottom: 0.5rem;
+}
+
+@include media-breakpoint-down(sm) {
+  .navbar-nav .nav-item + .nav-item {
+    margin-left: 0;
+  }
+  .navbar-nav .nav-item {
+    float: none;
+  }
+  #collapsenav {
+    clear: both;
+  }
+}
+
+.card-header {
+  font-weight: bold;
+}
+
+.alert ul {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
