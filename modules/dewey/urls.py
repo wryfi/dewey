@@ -15,6 +15,7 @@ from environments.views import frontend as enviro_frontend
 from networks import views as networks_views
 
 router = routers.DefaultRouter()
+router.trailing_slash = r'/?'
 # for hostname lookups in URLs to work reliably, we abandon format suffixes
 #router.include_format_suffixes = False
 #router.register(r'clusters', enviro_views.ClusterViewSet)
