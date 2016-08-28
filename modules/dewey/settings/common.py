@@ -239,5 +239,6 @@ PASSWORD_RESET_URL = 'https://developer.plos.org/jira/secure/CreateIssueDetails!
 
 LOGIN_EXEMPT_URLS = (
     r'^api/.*',
+    r'^environments/nagios/.*',
     r'^hosts/nagios/.*',
 )
