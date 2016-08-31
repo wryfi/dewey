@@ -75,11 +75,10 @@ def secret_detail(request, *args, **kwargs):
         'secret': secret,
         'secret_create_form': create_form
     }
+    groups = [group.name for group in request.user.groups.all()]
     if request.method == 'POST':
         if request.POST.get('verb') == 'update':
             if update_form.is_valid():
-                if safe.environment_name not in groups or safe.environment_name != 'all':
-                    return forms.ValidationError('permission denied')
                 update_form.save()
                 messages.add_message(request, messages.SUCCESS, 'updated secret {}'.format(secret.name))
                 return redirect(reverse('secret_detail', kwargs={'name': secret.name, 'safe': safe.name}))
