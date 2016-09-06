@@ -1,0 +1,17 @@
+{% load crispy_forms_tags %}
+
+    <div class="modal fade update-safe-modal" id="update-safe-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">{{ action }} {{ safe.name }}</h4>
+                </div>
+                <div class="modal-body">
+                    {% crispy safe_update_form %}
+                </div>
+            </div>
+        </div>
+    </div>

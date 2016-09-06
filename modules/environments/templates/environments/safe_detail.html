@@ -1,0 +1,226 @@
+{% extends "dewey/__two_column.html" %}
+{% load dewey_utils %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+
+{% block left_column %}
+    {% include "environments/_safes_side_navigation.html" %}
+{% endblock %}
+
+{% block right_column %}
+
+    <div class="modal fade delete-safe-modal" id="delete-safe-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">confirm deletion</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete {{ safe.name }} and all ({{ safe.secret_set.count }}) of its secrets?</p>
+                    <p>
+                        <button class="btn btn-sm btn-danger" id="delete-safe">
+                            <i class="fa fa-trash"></i> Delete
+                        </button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% with action="update" %}
+    {% include "environments/_safe_edit_modal.html" %}
+    {% endwith %}
+
+    <div class="card safe-card" id="general-card"><a name="general"></a>
+        <h3 class="card-header">{{ safe.name }}</h3>
+        <div style="display: none" id="safe-id">{{ safe.id }}</div>
+        <div class="card-block card-text">
+            <dl class="row">
+                <dt class="col-xs-4">name</dt>
+                <dd class="col-xs-8">{{ safe.name }}</dd>
+
+                <dt class="col-xs-4">vault</dt>
+                <dd class="col-xs-8" id="vault-name">{{ safe.vault.name }}</dd>
+
+                <dt class="col-xs-4">env</dt>
+                {% if safe.vault.environment %}
+                <dd class="col-xs-8">{{ safe.vault.environment.name }}</dd>
+                {% else %}
+                <dd class="col-xs-8">all</dd>
+                {% endif %}
+
+                <dt class="col-xs-4">secrets</dt>
+                <dd class="col-xs-8">{{ safe.secret_set.count }}</dd>
+            </dl>
+        </div>
+        <div class="card-footer">
+            <button class="btn-sm btn-primary btn" data-toggle="modal" data-target="#update-safe-modal"><i
+                    class="fa fa-pencil-square-o"></i> Edit
+            </button>
+            <button class="btn-sm btn-danger btn" data-toggle="modal" data-target="#delete-safe-modal"><i
+                    class="fa fa-trash"></i> Delete
+            </button>
+        </div>
+    </div>
+
+    <div class="card safe-access-card" id="access-card"><a name="access"></a>
+        <h4 class="card-header">access to {{ safe.name }}</h4>
+        <div class="card-block card-text">
+            {% if safe.vault.environment %}
+                <p>
+                    Secrets in this safe are <strong>restricted</strong> to hosts in the
+                    <strong>{{ safe.vault.environment.name }} environment</strong>.
+                </p>
+                <P>
+                    The following hosts and roles within {{ safe.vault.environment.name }}
+                    have access to this safe:</p>
+            {% else %}
+                <p>Secrets in this safe are available to hosts in <strong>any environment</strong>.</p>
+                <p>The following hosts and roles have access to this safe:</p>
+            {% endif %}
+            <div class="access-list">
+                <p>
+                    {% if safe.access_controls.all %}
+                        <span class="tag tag-pill tag-default"><i class="fa fa-asterisk"></i> all hosts/roles</span>
+                    {% else %}
+                        {% for host in safe.access_controls.hosts|dictsort:"hostname" %}
+                            <span class="tag tag-pill tag-default"><i
+                                    class="fa fa-tv"></i> {{ host.hostname }}</span>
+                        {% endfor %}
+                        {% for role in safe.access_controls.roles|dictsort:"name" %}
+                            <span class="tag tag-pill tag-default"><i class="fa fa-tag"></i> {{ role.name }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        {% if not safe.access_controls.all %}
+            <div class="card-footer">
+
+                <div class="modal fade add-role-modal" id="add-role-safe" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <h4 class="modal-title">add role to {{ safe.name }}</h4>
+                            </div>
+                            <div class="modal-body">
+                                {% crispy role_access_form %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade add-host-modal" id="add-host-safe" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <h4 class="modal-title">add a host to {{ safe.name }}</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="alert alert-danger">
+                                    <i class="fa fa-warning"></i>
+                                    STOP! You should probably add a role instead!
+                                </div>
+                                {% crispy host_access_form %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#add-role-safe">
+                    <i class="fa fa-tag"></i> add role
+                </button>
+                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#add-host-safe">
+                    <i class="fa fa-tv"></i> add host
+                </button>
+
+                {% if safe.access_controls.hosts %}
+                    <div class="btn-group" style="display: inline-block">
+                        <button type="button" class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-tv"></i> remove host
+                        </button>
+                        <div class="dropdown-menu">
+                            {% for host in safe.access_controls.hosts|dictsort:"hostname" %}
+                                <a class="dropdown-item remove-host" id="{{ host.hostname }}"
+                                   class="remove-host">{{ host.hostname }}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if safe.access_controls.roles %}
+                    <div class="btn-group" style="display: inline-block">
+                        <button type="button" class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-tag"></i> remove role
+                        </button>
+                        <div class="dropdown-menu">
+                            {% for role in safe.access_controls.roles|dictsort:"name" %}
+                                <a class="dropdown-item remove-role" id="{{ role.name }}">{{ role.name }}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
+            </div><!-- end card-footer -->
+        {% endif %}
+    </div><!-- end safe-access card -->
+
+    {% include "environments/_secret_edit_modal.html" %}
+
+    <div class="card safe-card" id="secrets-card"><a name="secrets"></a>
+        <h4 class="card-header">secrets in {{ safe.name }}</h4>
+        <div class="card-block card-text">
+            {% with secrets=safe.secret_set.all %}
+                {% include "environments/_child_secrets_list.html" %}
+            {% endwith %}
+        </div>
+        <div class="card-footer">
+            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#update-secret-modal"><i class="fa fa-lock"></i> add secret</button>
+        </div>
+    </div>
+
+{% endblock right_column %}
+
+{% block script %}
+{{ block.super }}
+<script type="text/javascript" src="{% static "dewey/javascript/pseudoform.js" %}"></script>
+<script type="text/javascript">
+    $(function () {
+        $('.remove-role').click(function (event) {
+            event.preventDefault();
+            var parameters = {
+                "role": $(this)[0].id, "safe": $('#safe-id').text(),
+                "csrfmiddlewaretoken": "{{ csrf_token }}", "redirect": window.location
+            };
+            $.pseudoform("{% url "safe_access_delete" %}", parameters);
+        });
+
+        $('.remove-host').click(function(event){
+            event.preventDefault();
+            var parameters = {
+                "host": $(this)[0].id, "safe": $('#safe-id').text(),
+                "csrfmiddlewaretoken": "{{ csrf_token }}", "redirect": window.location
+            };
+            $.pseudoform("{% url "safe_access_delete" %}", parameters);
+        });
+        $('#delete-safe').click(function(event){
+            event.preventDefault();
+            var parameters = { "name": "{{ safe.name }}", "verb": "delete", "csrfmiddlewaretoken": "{{ csrf_token }}" };
+            $.pseudoform("{% url "safe_detail" safe.name %}", parameters);
+        });
+    });
+</script>
+{% endblock %}

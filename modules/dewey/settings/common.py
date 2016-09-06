@@ -45,10 +45,13 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'crispy_forms',
+    'compressor',
     'dewey',
     'djcelery',
+    'environments',
     'hardware',
-    'hosts',
+    'networks',
     'rest_framework'
 )
 
@@ -61,6 +64,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'dewey.middleware.login_required.LoginRequiredMiddleware',
 )
 
 ROOT_URLCONF = 'dewey.urls'
@@ -118,6 +122,21 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+LOGIN_REDIRECT_URL = 'index'
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    # other finders..
+    'compressor.finders.CompressorFinder',
+)
+
+COMPRESS_PRECOMPILERS = (
+    ('text/scss', 'sassc {infile} {outfile}'),
+    ('text/sass', 'sassc {infile} {outfile}')
+)
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 # Logging configuration
 
@@ -211,3 +230,15 @@ NAGIOS_NETWORKS = ['soma-servers']
 TASKS_ENABLED = True
 
 APPEND_SLASH = True
+
+PLOS_CA_CERTIFICATE = '/etc/ssl/certs/plos-ca.pem'
+
+HOST_MONITORING_DELAY = 14400
+
+PASSWORD_RESET_URL = 'https://developer.plos.org/jira/secure/CreateIssueDetails!init.jspa?pid=10101&issuetype=10404&summary=dewey+password+reset'
+
+LOGIN_EXEMPT_URLS = (
+    r'^api/.*',
+    r'^environments/nagios/.*',
+    r'^hosts/nagios/.*',
+)

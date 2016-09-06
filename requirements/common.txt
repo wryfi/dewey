@@ -24,8 +24,12 @@ pickleshare==0.7.2
 psycopg2==2.6.1
 ptyprocess==0.5.1
 pytz==2016.4
+PyYAML==3.11
+python-gnupg==0.3.8
 redis==2.10.5
 requests==2.10.0
 simplegeneric==0.8.1
 six==1.10.0
 traitlets==4.2.1
+django-compressor==2.0
+django-crispy-forms==1.6.0

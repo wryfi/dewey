@@ -1,0 +1,63 @@
+{% load static %}
+{% load compress %}
+
+<!DOCTYPE html>
+<html lang="en">
+{% block head %}<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    {% block title %}<title>dewey</title>{% endblock %}
+    {% compress css %}
+        {% block compressed_styles %}
+            <link type="text/scss" rel="stylesheet" href="{% static "dewey/styles/custom-bootstrap.scss" %}" />
+        {% endblock %}
+    {% endcompress %}
+
+    {% block headscript %}
+    {% endblock %}
+
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static "dewey/icons/apple-touch-icon.png" %}">
+    <link rel="icon" type="image/png" href="{% static "dewey/icons/favicon-32x32.png" %}" sizes="32x32">
+    <link rel="icon" type="image/png" href="{% static "dewey/icons/favicon-16x16.png" %}" sizes="16x16">
+    <link rel="manifest" href="{% static "dewey/icons/manifest.json" %}">
+    <link rel="mask-icon" href="{% static "dewey/icons/safari-pinned-tab.svg" %}"color="#5bbad5">
+    <meta name="theme-color" content="#ffffff">
+
+</head>{% endblock head %}
+
+{% block body %}<body>
+
+    {% block navigation %}
+        {% include "dewey/_navigation.html" %}
+    {% endblock %}
+
+    {% block content_container %}<div class="container-fluid">
+        {% include "dewey/_messages.html" %}
+        <div class="row content-row">
+            {% block content %}{% endblock %}
+        </div>
+    </div>{% endblock content_container %}
+
+</body>{% endblock body %}
+
+{% block script_nocompress %}
+    <script>window.jQuery || document.write('<script src="{% static "dewey/javascript/vendor/jquery-2.2.4.min.js" %}"><\/script>')</script>
+    <script src="{% static "dewey/javascript/vendor/bootstrap.min.js" %}"></script>
+{% endblock %}
+
+{% compress js %}
+    {% block script %}
+        <script type="text/javascript">
+            $(function () {
+                // if a modal has a form error, show the modal!
+                $('.modal form div.alert').closest('.modal').modal({show: true});
+                $('.modal .help-block').closest('.modal').modal({show: true});
+            })
+        </script>
+    {% endblock script %}
+{% endcompress %}
+
+</html>
