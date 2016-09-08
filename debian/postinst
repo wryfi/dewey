@@ -25,7 +25,7 @@ case "$1" in
       echo "   /etc/default/dewey to match. Then restart dewey:"
       echo ""
       echo "     for service in {dewey,dewey-worker,dewey-scheduler}; do"
-      echo "       service \$service restart;" 
+      echo "       service \$service restart;"
       echo "     done"
       echo ""
       echo " * Fixing permissions on /opt/dewey"
@@ -39,7 +39,11 @@ case "$1" in
       su -c "/usr/bin/dewey-manage.sh migrate" dewey || true
 
       echo ""
-      echo " * you should now (re)start dewey, dewey-scheduler, and dewey-worker services"
+      echo " * (re)starting services"
+
+      for service in {dewey,dewey-worker,dewey-scheduler}; do
+        service $service restart
+      done
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
