@@ -19,9 +19,9 @@ set -e
 
 case "$1" in
     remove|deconfigure)
-      service dewey-scheduler stop
-      service dewey-worker stop
-      service dewey stop
+      service dewey-scheduler stop || true
+      service dewey-worker stop || true
+      service dewey stop || true
     ;;
 
     failed-upgrade)
