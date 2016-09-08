@@ -20,7 +20,7 @@ MarkupSafe==0.23
 netifaces==0.10.4
 pexpect==4.0.1
 pickleshare==0.7.2
--e git+https://github.com/PLOS/plop.git@18d9a01a584c844bbfee1b591d6d5b08eb31a8a5#egg=plop-master
+-e git+https://github.com/PLOS/plop.git@v0.0.12#egg=plop
 psycopg2==2.6.1
 ptyprocess==0.5.1
 pytz==2016.4
