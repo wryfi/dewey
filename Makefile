@@ -7,8 +7,8 @@ all:
 
 install:
 	[ -f .gitmodules ] || git submodule init
-	git submodule update
-	cd lib && git fetch && git pull origin master && cd ..
+	git submodule update --init
+	cd lib && git fetch && git pull origin master && git lfs pull && cd ..
 	mkdir -p $(FINAL_PATH) $(DESTDIR)/usr/bin $(DESTDIR)/etc/init $(DESTDIR)/etc/default
 	[ -d $(FINAL_PATH)/.virtualenv ] || virtualenv -p python3 $(FINAL_PATH)/.virtualenv
 	. $(FINAL_PATH)/.virtualenv/bin/activate && pip --version | grep 8.1 || pip install --upgrade pip
