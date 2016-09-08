@@ -1,6 +1,6 @@
 amqp==1.4.9
 anyjson==0.3.3
-appnope==0.1.0
+appnope==0.1.0;sys.platform=='darwin'
 backports.shutil-get-terminal-size==1.0.0
 billiard==3.3.0.23
 celery==3.1.23
@@ -20,7 +20,7 @@ MarkupSafe==0.23
 netifaces==0.10.4
 pexpect==4.0.1
 pickleshare==0.7.2
--e git+https://github.com/PLOS/plop.git@v0.0.12#egg=plop
+plop==0.0.12
 psycopg2==2.6.1
 ptyprocess==0.5.1
 pytz==2016.4

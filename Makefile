@@ -1,22 +1,23 @@
 SHELL = /bin/bash
-INSTALL_PATH = /opt/dewey
-FINAL_PATH = $(DESTDIR)$(INSTALL_PATH)
+INSTALL_PATH=/opt/dewey
 
-all: virtualenv
+install: FINAL_PATH = $(DESTDIR)$(INSTALL_PATH)
 
-virtualenv:
-	mkdir -p $(FINAL_PATH)
-	virtualenv -p python3 $(FINAL_PATH)/.virtualenv
-	. $(FINAL_PATH)/.virtualenv/bin/activate && pip install -r requirements/common.txt
-	echo '[ -f /etc/default/dewey ] && . /etc/default/dewey' >> $(FINAL_PATH)/.virtualenv/bin/activate
+all:
 
 install:
-	mkdir -p $(FINAL_PATH)
+	[ -f .gitmodules ] || git submodule init
+	git submodule update
+	cd lib && git fetch && git pull origin master && cd ..
+	mkdir -p $(FINAL_PATH) $(DESTDIR)/usr/bin $(DESTDIR)/etc/init $(DESTDIR)/etc/default
+	[ -d $(FINAL_PATH)/.virtualenv ] || virtualenv -p python3 $(FINAL_PATH)/.virtualenv
+	. $(FINAL_PATH)/.virtualenv/bin/activate && pip --version | grep 8.1 || pip install --upgrade pip
+	. $(FINAL_PATH)/.virtualenv/bin/activate && pip install --no-index --find-links lib/python -r requirements/production.txt
+	echo '[ -f /etc/default/dewey ] && . /etc/default/dewey' >> $(FINAL_PATH)/.virtualenv/bin/activate
 	cp -R artwork bin README.md requirements $(FINAL_PATH)
-	rsync --exclude=*.pyc --exclude=__pycache__ -r modules/ $(FINAL_PATH)/modules/
-	mkdir -p $(DESTDIR)/etc/init 
-	for file in `ls etc/init`; do cp etc/init/$$file $(DESTDIR)/etc/init; done 
+	rsync --exclude=*.pyc --exclude=__pycache__ -rl modules/ $(FINAL_PATH)/modules/
+	rsync -rl bin/ $(DESTDIR)/usr/bin/
+	cp etc/defaults $(DESTDIR)/etc/default/dewey
+	for file in `ls etc/init/*.conf`; do cp $$file $(DESTDIR)/etc/init; done 
+	for file in `ls lib/misc/*.tar.gz`; do tar xzf $$file -C $(DESTDIR); done
 
-clean:
-	rm -rf $(DESTDIR)/opt
-	rm -rf $(DESTDIR)/etc

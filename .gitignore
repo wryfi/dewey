@@ -2,4 +2,6 @@
 .idea
 *.log
 .*.swp
-
+debian/dewey
+debian/files
+debian/changelog

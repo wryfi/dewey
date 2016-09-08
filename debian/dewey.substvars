@@ -1,0 +1,2 @@
+shlibs:Depends=dewey, libc6 (>= 2.17), libexpat1 (>= 2.1~beta3), libgcc1 (>= 1:4.1.1), libpq5 (>= 9.3~), libstdc++6 (>= 4.8), libtinfo5, libyaml-0-2, zlib1g (>= 1:1.2.0)
+misc:Depends=
