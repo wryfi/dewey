@@ -41,9 +41,10 @@ case "$1" in
       echo ""
       echo " * (re)starting services"
 
-      for service in {dewey,dewey-worker,dewey-scheduler}; do
-        service $service restart
-      done
+      service dewey restart
+      service dewey-worker restart
+      service dewey-scheduler restart
+
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
