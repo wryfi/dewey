@@ -1,6 +1,0 @@
-start on started networking and runlevel [2345]
-stop on runlevel [016]
-respawn
-script
-  exec start-stop-daemon --start -d /opt/dewey -c dewey:dewey --exec /opt/dewey/dewey/bin/run-celery.sh beat
-end script
