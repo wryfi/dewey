@@ -41,9 +41,9 @@ case "$1" in
       echo ""
       echo " * (re)starting services"
 
-      service dewey restart
-      service dewey-worker restart
-      service dewey-scheduler restart
+      service dewey restart || true
+      service dewey-worker restart || true
+      service dewey-scheduler restart || true
 
     ;;
 
