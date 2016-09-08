@@ -9,11 +9,11 @@ from dewey.forms import CrispyMixin
 
 class HostSafeAccessForm(CrispyMixin, forms.Form):
     safe = forms.CharField(widget=forms.HiddenInput)
-    host = forms.ChoiceField(choices=Host.objects.order_by('hostname').values_list('id', 'hostname'))
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         super(HostSafeAccessForm, self).__init__(*args, **kwargs)
+        self.fields['host'] = forms.ChoiceField(choices=Host.objects.order_by('hostname').values_list('id', 'hostname'))
         self.helper.form_action = 'safe_access_create'
         self.helper.layout = Layout(
             Field('safe'),
@@ -40,10 +40,10 @@ class HostSafeAccessForm(CrispyMixin, forms.Form):
 
 class RoleSafeAccessForm(CrispyMixin, forms.Form):
     safe = forms.CharField(widget=forms.HiddenInput)
-    role = forms.ChoiceField(choices=Role.objects.order_by('name').values_list('id', 'name'))
 
     def __init__(self, *args, **kwargs):
         super(RoleSafeAccessForm, self).__init__(*args, **kwargs)
+        self.fields['role'] = forms.ChoiceField(choices=Role.objects.order_by('name').values_list('id', 'name'))
         self.helper.form_action = 'safe_access_create'
         self.helper.layout = Layout(
             Field('role'),
@@ -129,7 +129,9 @@ class SecretCreateMixin(SecretMixin, CrispyMixin):
 
 
 class SecretCreateForm(SecretCreateMixin, forms.ModelForm):
-    safe = forms.ChoiceField(choices=Safe.objects.order_by('name').values_list('id', 'name'))
+    def __init__(self, *args, **kwargs):
+        super(SecretCreateForm, self).__init__(*args, **kwargs)
+        self.fields['safe'] = forms.ChoiceField(choices=Safe.objects.order_by('name').values_list('id', 'name'))
 
     class Meta:
         model = Secret
@@ -166,11 +168,11 @@ class SafeUpdateForm(CrispyMixin, forms.ModelForm):
 
 class SafeCreateForm(CrispyMixin, forms.ModelForm):
     name = forms.CharField()
-    vault = forms.ChoiceField(choices=Vault.objects.order_by('name').values_list('id', 'name'))
     verb = forms.CharField(widget=forms.HiddenInput, initial='update')
 
     def __init__(self, *args, **kwargs):
         super(SafeCreateForm, self).__init__(*args, **kwargs)
+        self.fields['vault'] = forms.ChoiceField(choices=Vault.objects.order_by('name').values_list('id', 'name'))
         self.helper.form_action = 'safe_list'
         self.helper.layout = Layout(
             Field('name'),

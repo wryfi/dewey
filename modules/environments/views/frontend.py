@@ -112,7 +112,7 @@ def safes_list(request, *args, **kwargs):
 def safe_detail(request, *args, **kwargs):
     safe = get_object_or_404(Safe, name=kwargs['name'])
     update_form = SafeUpdateForm(request.POST or None, instance=safe)
-    create_form = SafeCreateForm(prefix='create')
+    create_form = SafeCreateForm()
     context = {
         'secrets_count': Secret.objects.count(),
         'safes_count': Safe.objects.count(),
@@ -122,8 +122,8 @@ def safe_detail(request, *args, **kwargs):
         'host_access_form': HostSafeAccessForm(initial={'safe': safe.id}, user=request.user),
         'role_access_form': RoleSafeAccessForm(initial={'safe': safe.id}),
         'secret_form': SecretAddForm(
-            initial={'safe': safe.id, 'redirect': reverse('safe_detail', kwargs={'name': safe.name})},
-            prefix='add-secret'),
+            initial={'safe': safe.id, 'redirect': reverse('safe_detail', kwargs={'name': safe.name})}
+        ),
     }
     if request.method == 'POST':
         if request.POST.get('verb') == 'update':
