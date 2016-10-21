@@ -12,7 +12,7 @@ from hardware import views as hardware_views
 from environments import urls as enviro_urls
 from environments.views import rest as enviro_views
 from environments.views import frontend as enviro_frontend
-from networks import views as networks_views
+from networks import urls as networks_urls
 
 router = routers.DefaultRouter()
 router.trailing_slash = r'/?'
@@ -56,4 +56,12 @@ urlpatterns = [
     url(r'^hosts/', include(enviro_urls)),
     url(r'^environments/', include(enviro_urls)),
     url(r'^export/secrets', enviro_views.export_secrets, name='export-secrets'),
+    url(r'networks/', include(networks_urls)),
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns += [
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    ]
+

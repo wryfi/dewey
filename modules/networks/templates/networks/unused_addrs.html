@@ -1,0 +1,23 @@
+<html>
+
+<head><title>Unused IPs</title></head>
+
+<body>
+
+<h2>Available Addresses</h2>
+
+{% for network, addrs in networks.items %}
+<table style="float: left; margin-right: 30px;">
+  <tr>
+    <th>{{ network }}</th>
+  </tr>
+  {% for addr in addrs %}
+  <tr><td>{{ addr }}</td></tr>
+  {% endfor %}
+</table>
+{% endfor %}
+
+</body>
+
+</html>
+

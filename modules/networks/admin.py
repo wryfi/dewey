@@ -27,6 +27,7 @@ class CustomAddrAssignmentForm(forms.ModelForm):
 
 class AddrAssignmentAdmin(admin.ModelAdmin):
     form = CustomAddrAssignmentForm
+    change_form_template = 'networks/admin/change_form.html'
 
 
 admin.site.register(AddressAssignment, AddrAssignmentAdmin)
