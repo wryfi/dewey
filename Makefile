@@ -13,7 +13,6 @@ install:
 	[ -d $(FINAL_PATH)/.virtualenv ] || virtualenv -p python3 $(FINAL_PATH)/.virtualenv
 	. $(FINAL_PATH)/.virtualenv/bin/activate && pip --version | grep 8.1 || pip install --upgrade pip
 	. $(FINAL_PATH)/.virtualenv/bin/activate && pip install --no-index --find-links lib/python -r requirements/production.txt
-	virtualenv --relocatable $(FINAL_PATH)/.virtualenv
 	echo '[ -f /etc/default/dewey ] && . /etc/default/dewey' >> $(FINAL_PATH)/.virtualenv/bin/activate
 	cp -R artwork bin README.md requirements $(FINAL_PATH)
 	rsync --exclude=*.pyc --exclude=__pycache__ -rl modules/ $(FINAL_PATH)/modules/
@@ -21,4 +20,5 @@ install:
 	cp etc/defaults $(DESTDIR)/etc/default/dewey
 	for file in `ls etc/init/*.conf`; do cp $$file $(DESTDIR)/etc/init; done
 	for file in `ls lib/misc/*.tar.gz`; do tar xzf $$file -C $(DESTDIR); done
-
+	virtualenv --relocatable $(FINAL_PATH)/.virtualenv
+	sed -i 's/^VIRTUAL_ENV.*$$/VIRTUAL_ENV="$(INSTALL_PATH)/.virtualenv"/' opt/dewey/.virtualenv/bin/activate
