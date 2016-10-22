@@ -19,6 +19,6 @@ install:
 	cp etc/defaults $(DESTDIR)/etc/default/dewey
 	for file in `ls etc/init/*.conf`; do cp $$file $(DESTDIR)/etc/init; done
 	for file in `ls lib/misc/*.tar.gz`; do tar xzf $$file -C $(DESTDIR); done
-	virtualenv --relocatable $(FINAL_PATH)/.virtualenv
+	virtualenv -p python3 --relocatable $(FINAL_PATH)/.virtualenv
 	echo '[ -f /etc/default/dewey ] && . /etc/default/dewey' >> $(FINAL_PATH)/.virtualenv/bin/activate
 	sed -i 's/^VIRTUAL_ENV.*$$/VIRTUAL_ENV="\/opt\/dewey\/.virtualenv"/' $(FINAL_PATH)/.virtualenv/bin/activate
