@@ -61,8 +61,10 @@ class SaltHostSerializer(vanilla_serial.ModelSerializer):
     environment = vanilla_serial.SerializerMethodField()
 
     class Meta:
+        # TODO: remove environment and roles fields
+        # after salt is transitioned to using grains field
         model = Host
-        fields = ('id', 'hostname', 'ip_addresses', 'environment', 'roles')
+        fields = ('id', 'hostname', 'ip_addresses', 'environment', 'roles', 'grains')
 
     def get_roles(self, obj):
         return [role.name for role in obj.roles.all()]
