@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 
 from crispy_forms.layout import Field, Layout, Submit, Div
 
-from .models import Host, Role, SafeAccessControl, Safe, Secret, Vault
+from .models import Host, Grain, Role, SafeAccessControl, Safe, Secret, Vault
 from dewey.forms import CrispyMixin
 
 
@@ -187,3 +187,28 @@ class SafeCreateForm(CrispyMixin, forms.ModelForm):
     class Meta:
         model = Safe
         fields = ('name',)
+
+
+class GrainCreateForm(CrispyMixin, forms.ModelForm):
+    host = forms.CharField(widget=forms.HiddenInput)
+    name = forms.CharField()
+    value = forms.CharField()
+
+    def __init__(self, *args, **kwargs):
+        super(GrainCreateForm, self).__init__(*args, **kwargs)
+        self.helper.layout = Layout(
+            Field('name'),
+            Field('value'),
+            Div(
+                Submit('submit', 'save', css_class='btn btn-sm btn-primary'),
+                css_class='col-md-9 offset-md-3'
+            )
+        )
+
+    class Meta:
+        model = Grain
+        fields = ['host', 'name', 'value']
+
+    def clean_host(self):
+        host_id = self.cleaned_data['host']
+        return Host.objects.get(id=host_id)

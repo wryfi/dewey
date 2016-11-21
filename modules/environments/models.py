@@ -193,16 +193,32 @@ class Host(models.Model):
                 monitored = mexcept.monitored
         return monitored
 
+    @property
+    def grains(self):
+        grains = {grain.name: grain.value for grain in self.grain_set.all()}
+        grains['environment'] = self.environment.name
+        grains['roles'] = self.rolenames
+        return grains
+
     def delete(self, *args, **kwargs):
         """
         Django's default behavior will cascade deletes here, causing the deletion
-        of a sever to delete all of that server's child hosts. So throw an
+        of a sever to delete all of that server's child hosts. So instead throw an
         error if the cluster has any remaining VMs.
         """
         if self.virtual_machines.all():
             children = [vm.hostname for vm in self.virtual_machines.all()]
             raise RuntimeError('cannot delete host until its VMs have been reassigned: {}'.format(children))
         super(Host, self).delete(*args, **kwargs)
+
+
+class Grain(models.Model):
+    host = models.ForeignKey('Host', help_text='host to assign grain to')
+    name = models.CharField(max_length=256, help_text='the name of the grain')
+    value = models.CharField(max_length=256, help_text='the value for the grain')
+
+    def __str__(self):
+        return json.dumps({self.host.hostname: {self.name: self.value}})
 
 
 class HostMonitoringException(models.Model):

@@ -20,7 +20,7 @@ MarkupSafe==0.23
 netifaces==0.10.4
 pexpect==4.0.1
 pickleshare==0.7.2
-plop==0.0.12
+plop==0.0.17
 psycopg2==2.6.1
 ptyprocess==0.5.1
 pytz==2016.4
