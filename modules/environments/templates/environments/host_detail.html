@@ -1,7 +1,10 @@
 {% extends "dewey/__base.html" %}
 {% load dewey_utils %}
+{% load static %}
 
 {% block content_container %}<div class="container-fluid">
+
+    {% include "environments/_grain_create_modal.html" %}
 
     <div class="row content-row">
 
@@ -13,7 +16,10 @@
                         <div class="card-block card-text">
                             <ul class="list-group list-group-flush" id="toc">
                                 <li class="list-group-item toc-item" id="toc-item-general">
-                                    <a href="#general"><i class="fa fa-cog"></i> general</a>
+                                    <a href="#general"><i class="fa fa-cogs"></i> general</a>
+                                </li>
+                                <li class="list-group-item toc-item" id="toc-item-grains">
+                                  <a href="#grains"><i class="fa fa-cubes"></i> grains</a>
                                 </li>
                                 <li class="list-group-item toc-item" id="toc-item-monitoring">
                                     <a href="#monitoring"><i class="fa fa-bell"></i> monitoring</a>
@@ -88,6 +94,38 @@
                         {% endif %}
                     </dl>
                 </div>
+            </div>
+
+            <div class="card" id="grains-card"><a name="grains"></a>
+              <h4 class="card-header">custom grains for {{ host.shortname }}</h4>
+              <div class="card-block card-text">
+                {% if host.grain_set.all %}
+                  <dl class="row">
+                  {% for grain in host.grain_set.all %}
+                      <dt class="col-xs-4">{{ grain.name }}</dt>
+                      <dd class="col-xs-8">{{ grain.value }}</dd>
+                  {% endfor %}
+                  </dl>
+                {% else %}
+                  <p>No custom grains for this host.</p>
+                {% endif %}
+              </div>
+              <div class="card-footer">
+                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#grain-create-modal">
+                  <i class="fa fa-cube"></i> Add Grain
+                </button>
+                <div class="btn-group" style="display: inline-block">
+                  <button type="button" class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown"
+                          area-haspopup="true" aria-expanded="false">
+                      <i class="fa fa-cube"></i> remove grain
+                  </button>
+                  <div class="dropdown-menu">
+                    {% for grain in host.grain_set.all|dictsort:"name" %}
+                    <a class="dropdown-item remove-grain" id="{{ grain.name }}">{{ grain.name }}</a>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div class="card" id="monitoring-card"><a name="monitoring"></a>
@@ -187,6 +225,8 @@
 
 {% block script %}
 {{  block.super }}
+<script type="text/javascript" src="{% static "dewey/javascript/pseudoform.js" %}"></script>
+
 <script type="text/javascript">
     $(function() {
         $.set_active = function(section) {
@@ -228,5 +268,19 @@
             return false;
          });
      });
+</script>
+
+<script type="text/javascript">
+    $(function() {
+        $('.remove-grain').click(function(event) {
+            event.preventDefault();
+            var parameters = {
+                "name": $(this)[0].id, "csrfmiddlewaretoken": "{{ csrf_token }}",
+                "redirect": window.location
+            };
+            console.log(parameters);
+            $.pseudoform("{% url "host_grain_delete" host.hostname %}", parameters);
+        });
+    });
 </script>
 {% endblock script %}

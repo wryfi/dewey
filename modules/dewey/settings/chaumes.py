@@ -8,7 +8,6 @@ COMPRESS_ROOT = STATIC_ROOT
 
 DEBUG = True
 
-DATABASES['default']['USER'] = 'chaumes'
 
 for backend in TEMPLATES:
     backend['OPTIONS']['debug'] = True
