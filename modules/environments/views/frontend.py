@@ -1,11 +1,12 @@
 from django.contrib.contenttypes.models import ContentType
+from django.http import HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 
-from ..models import Environment, Host, Role, Safe, SafeAccessControl, Secret, Vault
-from ..forms import SecretAddForm, SecretCreateForm, HostSafeAccessForm, RoleSafeAccessForm, SafeUpdateForm, \
+from ..models import Environment, Grain, Host, Role, Safe, SafeAccessControl, Secret, Vault
+from ..forms import GrainCreateForm, SecretAddForm, SecretCreateForm, HostSafeAccessForm, RoleSafeAccessForm, SafeUpdateForm, \
     SecretUpdateForm, SafeCreateForm
 
 import logging
@@ -38,8 +39,36 @@ def hosts_list(request, *args, **kwargs):
 
 
 def host_detail(request, *args, **kwargs):
-    context = {'host': get_object_or_404(Host, hostname=kwargs.get('hostname'))}
+    host = get_object_or_404(Host, hostname=kwargs.get('hostname'))
+    grain_form = GrainCreateForm(request.POST or None, initial={'host': host.id})
+    context = {'host': host, 'grain_form': grain_form}
+    if request.method == 'POST':
+        groups = [group.name for group in request.user.groups.all()]
+        if request.user.is_superuser or host.environment.name in groups:
+            if grain_form.is_valid():
+                grain = grain_form.save()
+                messages.add_message(request, messages.SUCCESS,
+                                     'added grain {} to {}'.format(grain.name, grain.host.shortname))
+                return redirect('host_detail', hostname=grain.host.hostname)
+        else:
+            messages.add_message(request, messages.ERROR, 'permission denied')
+            return redirect('host_detail', hostname=kwargs.get('hostname'))
     return render(request, 'environments/host_detail.html', context)
+
+
+def host_grain_delete(request, *args, **kwargs):
+    host = get_object_or_404(Host, hostname=kwargs.get('hostname'))
+    if request.method == 'POST':
+        groups = [group.name for group in request.user.groups.all()]
+        if request.user.is_superuser or host.environment.name in groups:
+            grain = get_object_or_404(Grain, host=host, name=request.POST.get('name'))
+            grain.delete()
+            messages.add_message(request, messages.SUCCESS, 'deleted grain {}'.format(request.POST.get('name')))
+            return redirect('host_detail', hostname=host.hostname)
+        else:
+            messages.add_message(request, messages.ERROR, 'permission denied')
+            return redirect('host_detail', hostname=host.hostname)
+    return HttpResponseNotAllowed(['POST'])
 
 
 def secrets_list(request, *args, **kwargs):
@@ -194,3 +223,4 @@ def create_safe_access(request, *args, **kwargs):
         except NameError:
             messages.add_message(request, messages.ERROR, 'host or role was not provided')
         return redirect(redirect_url)
+

@@ -9,6 +9,7 @@ urlpatterns  = [
     url(r'^nagios/hostgroups/$', rest_views.nagios_hostgroups, name='nagios_hostgroups'),
     url(r'^nagios/hostgroups/md5/$', rest_views.nagios_hostgroups_md5, name='nagios_hostgroups_md5'),
     url(r'^hosts/$', frontend_views.hosts_list, {'template': 'environments/hosts.html'}, name='hosts'),
+    url(r'^hosts/(?P<hostname>.*)/grains/delete/$', frontend_views.host_grain_delete, name='host_grain_delete'),
     url(r'^hosts/(?P<hostname>.*)/$', frontend_views.host_detail, name='host_detail'),
     url(r'^safes/$', frontend_views.safes_list, name='safe_list'),
     url(r'^safes/(?P<name>[\w.-]+)/$', frontend_views.safe_detail, name='safe_detail'),
