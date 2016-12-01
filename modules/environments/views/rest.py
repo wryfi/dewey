@@ -15,6 +15,7 @@ from rest_framework.decorators import api_view, renderer_classes
 from rest_framework_json_api.views import RelationshipView
 
 from dewey.utils import dotutils
+from environments import OperatingSystem
 from environments.models import Cluster, Environment, Host, Role, SafeAccessControl, Secret
 from networks.models import AddressAssignment, Network
 from environments.serializers import ClusterSerializer, HostRoleSerializer, HostDetailSerializer,\
@@ -205,7 +206,9 @@ def nagios_hosts(request):
 
 def nagios_hostgroups(request):
     roles = [role for role in Role.objects.all() if role.monitored_hosts]
-    return render(request, 'hosts/nagios_hostgroups.txt', {'roles': roles}, content_type='text/plain')
+    hosts_by_os = {name: Host.objects.filter(operating_system=id) for name, id in OperatingSystem.items()}
+    context = {'roles': roles, 'hosts': hosts_by_os}
+    return render(request, 'hosts/nagios_hostgroups.txt', context, content_type='text/plain')
 
 
 def nagios_hosts_md5(request):
