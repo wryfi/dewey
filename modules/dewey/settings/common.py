@@ -241,4 +241,5 @@ LOGIN_EXEMPT_URLS = (
     r'^api/.*',
     r'^environments/nagios/.*',
     r'^hosts/nagios/.*',
+    r'accounts/password/reset/request/',
 )

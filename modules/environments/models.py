@@ -450,11 +450,9 @@ class Secret(models.Model):
 
     @property
     def sls_reference(self):
-        out = '{{ pillar[\'secrets\']'
-        for part in self.name.split('.'):
-            out = out + '[\'' + part + '\']'
-        out = out + ' }}'
-        return out
+        colon_separated = self.name.replace('.', ':')
+        pillar_text = ':'.join(['secrets', colon_separated])
+        return '{{{{ salt.pillar.get(\'{}\') }}}}'.format(pillar_text)
 
     def __str__(self):
         return '{} :: {} :: {}'.format(self.name, self.safe.name, self.safe.vault.name)
