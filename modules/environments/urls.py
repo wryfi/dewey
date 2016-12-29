@@ -15,6 +15,9 @@ urlpatterns  = [
     url(r'^safes/(?P<name>[\w.-]+)/$', frontend_views.safe_detail, name='safe_detail'),
     url(r'^safe-access/delete/$', frontend_views.delete_safe_access, name='safe_access_delete'),
     url(r'^safe-access/create/$', frontend_views.create_safe_access, name='safe_access_create'),
-    url(r'^secrets/(?P<safe>[\w.-]+)/(?P<name>[\w.-]+)/$', frontend_views.secret_detail, name='secret_detail'),
     url(r'^secrets/$', frontend_views.secrets_list, name='secrets'),
+    url(r'^secrets/(?P<safe>[\w.-]+)/create/$', frontend_views.secret_create, name='secret_create'),
+    url(r'^secrets/(?P<safe>[\w.-]+)/(?P<name>[\w.-]+)/$', frontend_views.secret_detail, name='secret_detail'),
+    url(r'^secrets/(?P<safe>[\w.-]+)/(?P<name>[\w.-]+)/delete/$', frontend_views.secret_delete, name='secret_delete'),
+    url(r'^secrets/(?P<safe>[\w.-]+)/(?P<name>[\w.-]+)/update/$', frontend_views.secret_update, name='secret_update'),
 ]
