@@ -1,7 +1,8 @@
+from django.shortcuts import get_object_or_404, redirect
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 
-from environments.models import Secret, Safe
+from environments.models import Host, Secret, Safe
 
 
 class SafeAccessRequired(object):
@@ -25,4 +26,21 @@ class SafeAccessRequired(object):
                     return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
             return view(request, *args, **kwargs)
         return decorated
+
+
+class HostAccessRequired(object):
+    def __init__(self, urlparam):
+        self.urlparam = urlparam
+
+    def __call__(self, view):
+        def decorated(request, *args, **kwargs):
+            user_groups = [group.name for group in request.user.groups.all()]
+            host = get_object_or_404(Host, hostname=kwargs.get(self.urlparam))
+            if not request.user.is_superuser and host.environment.name not in user_groups:
+                message = 'You don\'t have access to hosts in the {} environment.'.format(host.environment.name)
+                messages.add_message(request, messages.ERROR, message)
+                return redirect(request.META.get('HTTP_REFERER', '/'))
+            return view(request, *args, **kwargs)
+        return decorated
+
 
