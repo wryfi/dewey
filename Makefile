@@ -12,6 +12,7 @@ install:
 	mkdir -p $(FINAL_PATH) $(DESTDIR)/usr/bin $(DESTDIR)/etc/init $(DESTDIR)/etc/default
 	[ -d $(FINAL_PATH)/.virtualenv ] || virtualenv -p python3 $(FINAL_PATH)/.virtualenv
 	. $(FINAL_PATH)/.virtualenv/bin/activate && pip --version | grep 8.1 || pip install --upgrade pip
+	. $(FINAL_PATH)/.virtualenv/bin/activate && pip install --upgrade setuptools
 	. $(FINAL_PATH)/.virtualenv/bin/activate && pip install --no-index --find-links lib/python -r requirements/production.txt
 	cp -R artwork bin README.md requirements $(FINAL_PATH)
 	rsync --exclude=*.pyc --exclude=__pycache__ -rl modules/ $(FINAL_PATH)/modules/
