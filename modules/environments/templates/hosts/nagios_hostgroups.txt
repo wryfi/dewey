@@ -7,3 +7,13 @@ define hostgroup{
 }
 {% endif %}
 {% endfor %}
+
+{% for os, hostnames in hosts.items %}
+{% if hostnames %}
+define hostgroup {
+    hostgroup_name                  os-{{ os }}
+    alias                           os-{{ os }}
+    members                         {{ hostnames|join:"," }}
+}
+{% endif %}
+{% endfor %}
