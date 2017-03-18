@@ -67,7 +67,7 @@ MIDDLEWARE_CLASSES = (
     'dewey.core.middleware.login_required.LoginRequiredMiddleware',
 )
 
-ROOT_URLCONF = 'core.urls'
+ROOT_URLCONF = 'dewey.core.urls'
 
 TEMPLATES = [
     {
