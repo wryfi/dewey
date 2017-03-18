@@ -1,0 +1,8 @@
+from django.apps import AppConfig
+
+
+class NetworksConfig(AppConfig):
+    name = 'dewey.networks'
+
+    def ready(self):
+        import dewey.networks.signals

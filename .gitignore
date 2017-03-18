@@ -2,6 +2,9 @@
 .idea
 *.log
 .*.swp
+build
 debian/dewey
 debian/files
 debian/changelog
+dewey.egg-info
+dist
