@@ -16,6 +16,7 @@ work, ensure your TEMPLATE_CONTEXT_PROCESSORS setting includes
 'django.core.context_processors.auth'.
 """
 
+
 class LoginRequiredMiddleware:
     """
     Middleware that requires a user to be authenticated to view any page other
