@@ -218,8 +218,8 @@
         });
         $('#delete-safe').click(function(event){
             event.preventDefault();
-            var parameters = { "name": "{{ safe.name }}", "verb": "delete", "csrfmiddlewaretoken": "{{ csrf_token }}" };
-            $.pseudoform("{% url "safe_detail" safe.name %}", parameters);
+            var parameters = { "csrfmiddlewaretoken": "{{ csrf_token }}" };
+            $.pseudoform("{% url "safe_delete" safe.name %}", parameters)
         });
     });
 </script>

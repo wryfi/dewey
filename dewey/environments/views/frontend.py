@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
+from django.views.decorators.http import require_POST
 
 from ..models import Environment, Grain, Host, Role, Safe, SafeAccessControl, Secret, Vault
 from ..forms import GrainCreateForm, SecretAddForm, SecretCreateForm, HostSafeAccessForm, RoleSafeAccessForm, SafeUpdateForm, \
@@ -45,29 +46,27 @@ def host_detail(request, *args, **kwargs):
     return render(request, 'environments/host_detail.html', context)
 
 
+@require_POST
 @HostAccessRequired('hostname')
 def host_grain_create(request, *args, **kwargs):
     host = get_object_or_404(Host, hostname=kwargs.get('hostname'))
-    if request.method == 'POST':
-        form = GrainCreateForm(request.POST, initial={'host': host.id})
-        if form.is_valid():
-            grain = form.save()
-            messages.add_message(request, messages.SUCCESS, 'added grain {} to {}'.format(grain.name, grain.host.shortname))
-        else:
-            messages.add_message(request, messages.ERROR, json.dumps(form.errors))
+    form = GrainCreateForm(request.POST, initial={'host': host.id})
+    if form.is_valid():
+        grain = form.save()
+        messages.add_message(request, messages.SUCCESS, 'added grain {} to {}'.format(grain.name, grain.host.shortname))
+    else:
+        messages.add_message(request, messages.ERROR, json.dumps(form.errors))
     return redirect('host_detail', hostname=host.hostname)
 
 
+@require_POST
 @HostAccessRequired('hostname')
 def host_grain_delete(request, *args, **kwargs):
     host = get_object_or_404(Host, hostname=kwargs.get('hostname'))
-    if request.method == 'POST':
-        grain = get_object_or_404(Grain, host=host, name=request.POST.get('name'))
-        grain.delete()
-        messages.add_message(request, messages.SUCCESS, 'deleted grain {}'.format(request.POST.get('name')))
-        return redirect('host_detail', hostname=host.hostname)
-    else:
-        return HttpResponseNotAllowed(['POST'])
+    grain = get_object_or_404(Grain, host=host, name=request.POST.get('name'))
+    grain.delete()
+    messages.add_message(request, messages.SUCCESS, 'deleted grain {}'.format(request.POST.get('name')))
+    return redirect('host_detail', hostname=host.hostname)
 
 
 def secrets_list(request, *args, **kwargs):
@@ -86,62 +85,60 @@ def secret_detail(request, *args, **kwargs):
     update_form.helper.form_action = reverse('secret_update', kwargs={'safe': safe.name, 'name': secret.name})
     delete_form = SecretUpdateForm(request.POST or None, instance=secret)
     delete_form.helper.form_action = reverse('secret_delete', kwargs={'safe': safe.name, 'name': secret.name})
-    create_form = SecretCreateForm()
     context = {
         'secrets_count': Secret.objects.count(),
         'safes_count': Safe.objects.count(),
         'secret_form': update_form,
         'delete_form': delete_form,
         'secret': secret,
-        'secret_create_form': create_form
     }
     return render(request, 'environments/secret_detail.html', context)
 
 
+@require_POST
 @SafeAccessRequired('safe')
 def secret_update(request, *args, **kwargs):
     safe = get_object_or_404(Safe, name=kwargs['safe'])
     secret = get_object_or_404(Secret, name=kwargs['name'], safe=safe)
     form = SecretUpdateForm(request.POST or None, instance=secret)
-    if request.method == 'POST':
-        if form.is_valid():
-            form.save()
-            messages.add_message(request, messages.SUCCESS, 'updated secret {}'.format(secret.name))
-        else:
-            messages.add_message(request, messages.ERROR, json.dumps(form.errors))
+    if form.is_valid():
+        form.save()
+        messages.add_message(request, messages.SUCCESS, 'updated secret {}'.format(secret.name))
+    else:
+        messages.add_message(request, messages.ERROR, json.dumps(form.errors))
     return redirect(reverse('secret_detail', kwargs={'name': secret.name, 'safe': safe.name}))
 
 
+@require_POST
 @SafeAccessRequired('safe')
 def secret_delete(request, *args, **kwargs):
     safe = get_object_or_404(Safe, name=kwargs.get('safe'))
     secret = get_object_or_404(Secret, name=kwargs.get('name'), safe=safe)
     form = SecretUpdateForm(request.POST or None, instance=secret)
-    if request.method == 'POST':
-        if form.is_valid():
-            secret.delete()
-            messages.add_message(request, messages.SUCCESS, 'deleted secret {}'.format(secret.name))
-            return redirect(reverse('secrets'))
-        else:
-            messages.add_message(request, messages.ERROR, json.dumps(form.errors))
+    if form.is_valid():
+        secret.delete()
+        messages.add_message(request, messages.SUCCESS, 'deleted secret {}'.format(secret.name))
+        return redirect(reverse('secrets'))
+    else:
+        messages.add_message(request, messages.ERROR, json.dumps(form.errors))
     return redirect(reverse('secret_detail', kwargs={'name': secret.name, 'safe': safe.name}))
 
 
+@require_POST
 @SafeAccessRequired('safe')
 def secret_create(request, *args, **kwargs):
-    if request.method == 'POST':
-        form = SecretAddForm(request.POST or None)
-        if form.is_valid():
-            secret = form.save(commit=False)
-            secret.safe = get_object_or_404(Safe, name=kwargs.get('safe'))
-            secret.save()
-            messages.add_message(request, messages.SUCCESS,
-                                 'saved secret {} to {}'.format(form.cleaned_data['name'], secret.safe.name))
-            if form.cleaned_data.get('redirect'):
-                return redirect(form.cleaned_data['redirect'])
-            return redirect(reverse('secret_detail', kwargs={'safe': secret.safe.name, 'name': secret.name}))
-        else:
-            messages.add_message(request, messages.ERROR, json.dumps(form.errors))
+    form = SecretAddForm(request.POST or None)
+    if form.is_valid():
+        secret = form.save(commit=False)
+        secret.safe = get_object_or_404(Safe, name=kwargs.get('safe'))
+        secret.save()
+        messages.add_message(request, messages.SUCCESS,
+                             'saved secret {} to {}'.format(form.cleaned_data['name'], secret.safe.name))
+        if form.cleaned_data.get('redirect'):
+            return redirect(form.cleaned_data['redirect'])
+        return redirect(reverse('secret_detail', kwargs={'safe': secret.safe.name, 'name': secret.name}))
+    else:
+        messages.add_message(request, messages.ERROR, json.dumps(form.errors))
     return redirect(reverse('secrets'))
 
 
@@ -164,13 +161,15 @@ def safes_list(request, *args, **kwargs):
     return render(request, 'environments/safes.html', context)
 
 
-# TODO: refactor some forms to call REST API via javascript
 def safe_detail(request, *args, **kwargs):
     safe = get_object_or_404(Safe, name=kwargs['name'])
     update_form = SafeUpdateForm(request.POST or None, instance=safe)
     create_form = SafeCreateForm()
-    secret_form =  SecretAddForm(
-            initial={'safe': safe.id, 'redirect': reverse('safe_detail', kwargs={'name': safe.name})}
+    secret_form = SecretAddForm(
+            initial={
+                'safe': safe.id,
+                'redirect': reverse('safe_detail', kwargs={'name': safe.name})
+            }
     )
     secret_form.helper.form_action = reverse('secret_create', kwargs={'safe': safe.name})
     context = {
@@ -184,18 +183,21 @@ def safe_detail(request, *args, **kwargs):
         'secret_form': secret_form,
     }
     if request.method == 'POST':
-        if request.POST.get('verb') == 'update':
-            if update_form.is_valid():
-                update_form.save()
-                messages.add_message(request, messages.SUCCESS, 'updated safe {}'.format(safe.name))
-                return redirect(reverse('safe_detail', kwargs={'name': safe.name}))
-        elif request.POST.get('verb') == 'delete':
-            count = safe.secret_set.count()
-            safe.delete()
-            messages.add_message(request, messages.SUCCESS,
-                                 'deleted safe {} and {} secrets'.format(safe.name, count))
-            return redirect(reverse('safe_list'))
+        if update_form.is_valid():
+            update_form.save()
+            messages.add_message(request, messages.SUCCESS, 'updated safe {}'.format(safe.name))
+            return redirect(reverse('safe_detail', kwargs={'name': safe.name}))
     return render(request, 'environments/safe_detail.html', context)
+
+
+@require_POST
+@SafeAccessRequired('name')
+def safe_delete(request, *args, **kwargs):
+    safe = get_object_or_404(Safe, name=kwargs.get('name'))
+    count = safe.secret_set.count()
+    safe.delete()
+    messages.add_message(request, messages.SUCCESS, 'deleted safe {} and {} secrets'.format(safe.name, count))
+    return redirect(reverse('safe_list'))
 
 
 # TODO: this view doesn't use the forms api like everything else;

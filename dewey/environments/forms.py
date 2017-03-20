@@ -131,13 +131,11 @@ class SecretAddForm(SecretCreateMixin, forms.ModelForm):
 
 class SafeUpdateForm(CrispyMixin, forms.ModelForm):
     name = forms.CharField()
-    verb = forms.CharField(widget=forms.HiddenInput, initial='update')
 
     def __init__(self, *args, **kwargs):
         super(SafeUpdateForm, self).__init__(*args, **kwargs)
         self.helper.layout = Layout(
             Field('name'),
-            Field('verb'),
             Div(
                 Submit('submit', 'save', css_class='btn btn-sm btn-primary'),
                 css_class='col-md-9 offset-md-3'
@@ -151,7 +149,6 @@ class SafeUpdateForm(CrispyMixin, forms.ModelForm):
 
 class SafeCreateForm(CrispyMixin, forms.ModelForm):
     name = forms.CharField()
-    verb = forms.CharField(widget=forms.HiddenInput, initial='update')
 
     def __init__(self, *args, **kwargs):
         super(SafeCreateForm, self).__init__(*args, **kwargs)
@@ -160,7 +157,6 @@ class SafeCreateForm(CrispyMixin, forms.ModelForm):
         self.helper.layout = Layout(
             Field('name'),
             Field('vault'),
-            Field('verb'),
             Div(
                 Submit('submit', 'save', css_class='btn btn-sm btn-primary'),
                 css_class='col-md-9 offset-md-3'
