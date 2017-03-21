@@ -18,7 +18,7 @@ class SafeAccessRequired(object):
     def __call__(self, view):
         def decorated(request, *args, **kwargs):
             user_groups = [group.name for group in request.user.groups.all()]
-            safe = Safe.objects.get(name=kwargs.get(self.urlparam))
+            safe = get_object_or_404(Safe, name=kwargs.get(self.urlparam))
             if safe.environment_name != 'all':
                 if not request.user.is_superuser and safe.environment_name not in user_groups:
                     message = 'You don\'t have access to safes in the {} environment.'.format(safe.environment_name)
