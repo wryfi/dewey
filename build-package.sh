@@ -11,9 +11,9 @@ if ! which dch; then
     exit 1
 fi
 
-if env | grep VIRTUAL_ENV; then 
+if env | grep VIRTUAL_ENV; then
     echo " * deactivate, jim!";
-    exit 1 
+    exit 1
 fi
 
 if [ -z "$1" ]; then
@@ -26,5 +26,5 @@ if [ -f "debian/changelog" ]; then
 fi
 
 dch --create --distribution stable -v "$1" --package dewey "this file is not maintained"
-dpkg-buildpackage
+dpkg-buildpackage -b -us -uc
 

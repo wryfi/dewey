@@ -1,8 +1,8 @@
 Source: dewey
 Section: unknown
 Priority: optional
-Maintainer: unknown <chaumes@unknown>
-Build-Depends: debhelper (>= 8.0.0), devscripts, python3-dev, build-essential,
+Maintainer: Chris Haumesser <ch@wryfi.net>
+Build-Depends: debhelper (>= 8.0.0), devscripts, python3-dev, build-essential, dh-virtualenv (>= 0.11),
   python-virtualenv, rsync, git, git-lfs, libpq-dev, libreadline-dev, libncurses5-dev
 Standards-Version: 3.9.4
 Homepage: <insert the upstream URL, if relevant>
@@ -11,6 +11,6 @@ Homepage: <insert the upstream URL, if relevant>
 
 Package: dewey
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, python3 (>= 3.4)
 Description: <insert up to 60 chars description>
  <insert long description, indented with spaces>
