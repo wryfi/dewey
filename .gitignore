@@ -8,3 +8,5 @@ debian/files
 debian/changelog
 dewey.egg-info
 dist
+debian/dewey.postinst.debhelper
+debian/dewey.substvars
