@@ -10,3 +10,6 @@ dewey.egg-info
 dist
 debian/dewey.postinst.debhelper
 debian/dewey.substvars
+debian/dewey.postrm.debhelper
+debian/dewey.preinst.debhelper
+debian/dewey.prerm.debhelper
