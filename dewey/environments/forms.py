@@ -12,10 +12,8 @@ class HostSafeAccessForm(CrispyMixin, forms.Form):
     safe = forms.CharField(widget=forms.HiddenInput)
 
     def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)
         super(HostSafeAccessForm, self).__init__(*args, **kwargs)
         self.fields['host'] = forms.ChoiceField(choices=Host.objects.order_by('hostname').values_list('id', 'hostname'))
-        self.helper.form_action = 'safe_access_create'
         self.helper.layout = Layout(
             Field('safe'),
             Field('host'),
@@ -24,15 +22,6 @@ class HostSafeAccessForm(CrispyMixin, forms.Form):
                 css_class='col-md-9 offset-md-3'
             ),
         )
-
-    def clean(self):
-        cleaned = super(HostSafeAccessForm, self).clean()
-        safe = self.instance.acl_object
-        groups = [group.name for group in self.user.groups.all()]
-        if safe.environment_name not in groups or safe.environment_name != 'all':
-            if not self.user.is_superuser:
-                return forms.ValidationError('permission denied')
-        return cleaned
 
     class Meta:
         model = SafeAccessControl
@@ -45,7 +34,6 @@ class RoleSafeAccessForm(CrispyMixin, forms.Form):
     def __init__(self, *args, **kwargs):
         super(RoleSafeAccessForm, self).__init__(*args, **kwargs)
         self.fields['role'] = forms.ChoiceField(choices=Role.objects.order_by('name').values_list('id', 'name'))
-        self.helper.form_action = 'safe_access_create'
         self.helper.layout = Layout(
             Field('role'),
             Field('safe'),
@@ -87,7 +75,6 @@ class SecretCreateMixin(SecretMixin, CrispyMixin):
 
     def __init__(self, *args, **kwargs):
         super(SecretCreateMixin, self).__init__(*args, **kwargs)
-        #self.helper.form_action = reverse('secret_create')
         self.helper.layout = Layout(
             Field('name'),
             Field('safe'),
@@ -111,6 +98,7 @@ class SecretCreateMixin(SecretMixin, CrispyMixin):
         fields = ('name', 'secret')
 
 
+# SecretCreateForm is not currently being used and could be deleted some day.
 class SecretCreateForm(SecretCreateMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(SecretCreateForm, self).__init__(*args, **kwargs)

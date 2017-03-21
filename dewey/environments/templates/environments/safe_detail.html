@@ -153,7 +153,7 @@
                         </button>
                         <div class="dropdown-menu">
                             {% for host in safe.access_controls.hosts|dictsort:"hostname" %}
-                                <a class="dropdown-item remove-host" id="{{ host.hostname }}"
+                                <a class="dropdown-item remove-host" id="{{ host.id }}"
                                    class="remove-host">{{ host.hostname }}</a>
                             {% endfor %}
                         </div>
@@ -168,7 +168,7 @@
                         </button>
                         <div class="dropdown-menu">
                             {% for role in safe.access_controls.roles|dictsort:"name" %}
-                                <a class="dropdown-item remove-role" id="{{ role.name }}">{{ role.name }}</a>
+                                <a class="dropdown-item remove-role" id="{{ role.id }}">{{ role.name }}</a>
                             {% endfor %}
                         </div>
                     </div>
@@ -205,7 +205,7 @@
                 "role": $(this)[0].id, "safe": $('#safe-id').text(),
                 "csrfmiddlewaretoken": "{{ csrf_token }}", "redirect": window.location
             };
-            $.pseudoform("{% url "safe_access_delete" %}", parameters);
+            $.pseudoform("{% url "safe_access_delete_role" safe.name %}", parameters);
         });
 
         $('.remove-host').click(function(event){
@@ -214,7 +214,7 @@
                 "host": $(this)[0].id, "safe": $('#safe-id').text(),
                 "csrfmiddlewaretoken": "{{ csrf_token }}", "redirect": window.location
             };
-            $.pseudoform("{% url "safe_access_delete" %}", parameters);
+            $.pseudoform("{% url "safe_access_delete_host" safe.name %}", parameters);
         });
         $('#delete-safe').click(function(event){
             event.preventDefault();

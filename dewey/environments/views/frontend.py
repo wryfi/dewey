@@ -1,15 +1,13 @@
 import json
 
 from django.contrib.contenttypes.models import ContentType
-from django.http import HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.views.decorators.http import require_POST
 
 from ..models import Environment, Grain, Host, Role, Safe, SafeAccessControl, Secret, Vault
-from ..forms import GrainCreateForm, SecretAddForm, SecretCreateForm, HostSafeAccessForm, RoleSafeAccessForm, SafeUpdateForm, \
+from ..forms import GrainCreateForm, SecretAddForm, HostSafeAccessForm, RoleSafeAccessForm, SafeUpdateForm, \
     SecretUpdateForm, SafeCreateForm
 from dewey.core.utils.decorators import HostAccessRequired, SafeAccessRequired
 
@@ -163,28 +161,24 @@ def safes_list(request, *args, **kwargs):
 
 def safe_detail(request, *args, **kwargs):
     safe = get_object_or_404(Safe, name=kwargs['name'])
-    update_form = SafeUpdateForm(request.POST or None, instance=safe)
-    create_form = SafeCreateForm()
-    secret_form = SecretAddForm(
-            initial={
-                'safe': safe.id,
-                'redirect': reverse('safe_detail', kwargs={'name': safe.name})
-            }
-    )
-    secret_form.helper.form_action = reverse('secret_create', kwargs={'safe': safe.name})
     context = {
         'secrets_count': Secret.objects.count(),
         'safes_count': Safe.objects.count(),
         'safe': safe,
-        'safe_update_form': update_form,
-        'safe_create_form': create_form,
-        'host_access_form': HostSafeAccessForm(initial={'safe': safe.id}, user=request.user),
+        'safe_update_form': SafeUpdateForm(request.POST or None, instance=safe),
+        'safe_create_form': SafeCreateForm(),
+        'host_access_form': HostSafeAccessForm(initial={'safe': safe.id}),
         'role_access_form': RoleSafeAccessForm(initial={'safe': safe.id}),
-        'secret_form': secret_form,
+        'secret_form': SecretAddForm(
+            initial={'safe': safe.id, 'redirect': reverse('safe_detail', kwargs={'name': safe.name})}
+        ),
     }
+    context['secret_form'].helper.form_action = reverse('safe_detail', kwargs={'name': safe.name})
+    context['host_access_form'].helper.form_action = reverse('safe_access_create_host', kwargs={'name': safe.name})
+    context['role_access_form'].helper.form_action = reverse('safe_access_create_role', kwargs={'name': safe.name})
     if request.method == 'POST':
-        if update_form.is_valid():
-            update_form.save()
+        if context['safe_update_form'].is_valid():
+            context['safe_update_form'].save()
             messages.add_message(request, messages.SUCCESS, 'updated safe {}'.format(safe.name))
             return redirect(reverse('safe_detail', kwargs={'name': safe.name}))
     return render(request, 'environments/safe_detail.html', context)
@@ -200,58 +194,88 @@ def safe_delete(request, *args, **kwargs):
     return redirect(reverse('safe_list'))
 
 
-# TODO: this view doesn't use the forms api like everything else;
-# it returns an ugly 403 instead of a pretty validation error when access is denied
-# this should really be a javascript call to an API endpoint
-def delete_safe_access(request, *args, **kwargs):
-    if request.method == 'POST':
-        safe = get_object_or_404(Safe, id=request.POST.get('safe'))
-        groups = [group.name for group in request.user.groups.all()]
-        if safe.environment_name not in groups and safe.environment_name != 'all':
-            if not request.user.is_superuser:
-                raise PermissionDenied
-        if request.POST.get('role'):
-            role = get_object_or_404(Role, name=request.POST.get('role'))
-            access_list = SafeAccessControl.objects.filter(safe=safe).filter(object_id=role.id).filter(
-                content_type=ContentType.objects.get_for_model(Role))
-        elif request.POST.get('host'):
-            host = get_object_or_404(Host, hostname=request.POST.get('host'))
-            access_list = SafeAccessControl.objects.filter(safe=safe).filter(object_id=host.id).filter(
-                content_type=ContentType.objects.get_for_model(Host))
-        redirect_url = request.POST.get('redirect', reverse('secrets'))
-        for control in access_list:
-            control.delete()
+@require_POST
+@SafeAccessRequired('name')
+def safe_access_delete_host(request, *args, **kwargs):
+    # I'm abusing HostSafeAccessForm for form validation;
+    form = HostSafeAccessForm(request.POST)
+    if form.is_valid():
+        host = get_object_or_404(Host, id=form.cleaned_data.get('host'))
+        safe = get_object_or_404(Safe, id=form.cleaned_data.get('safe'))
+        access_list = SafeAccessControl.objects\
+            .filter(safe=safe)\
+            .filter(object_id=host.id)\
+            .filter(content_type=ContentType.objects.get_for_model(Host))
+        for access_control in access_list:
+            access_control.delete()
         messages.add_message(request, messages.SUCCESS, 'removed control(s) from {}'.format(safe.name))
-        return redirect(redirect_url)
+        return redirect(reverse('safe_detail', kwargs={'name': safe.name}))
+    else:
+        safe = get_object_or_404(Safe, name=kwargs['name'])
+        messages.add_message(request, messages.ERROR, json.dumps(form.errors))
+        return redirect(reverse('safe_detail', kwargs={'name': safe.name}))
 
 
-# TODO: this view doesn't use the forms api like everything else;
-# it returns an ugly 403 instead of a pretty validation error when access is denied
-# this should really be a javascript call to an API endpoint
-def create_safe_access(request, *args, **kwargs):
-    if request.method == 'POST':
-        safe = get_object_or_404(Safe, id=request.POST.get('safe'))
-        groups = [group.name for group in request.user.groups.all()]
-        if safe.environment_name not in groups and safe.environment_name != 'all':
-            if not request.user.is_superuser:
-                raise PermissionDenied
-        redirect_url = request.POST.get('redirect', reverse('safe_detail', kwargs={'name': safe.name}))
-        if request.POST.get('role'):
-            contenttype = ContentType.objects.get_for_model(Role)
-            acl_object = get_object_or_404(Role, id=request.POST.get('role'))
-        elif request.POST.get('host'):
-            contenttype = ContentType.objects.get_for_model(Host)
-            acl_object = get_object_or_404(Host, id=request.POST.get('host'))
-        try:
-            control, created = SafeAccessControl.objects.get_or_create(
-                safe=safe, content_type=contenttype, object_id=acl_object.id
-            )
-            if created:
-                message, level = 'added access control', messages.SUCCESS
-            else:
-                message, level = 'access control already exists', messages.WARNING
-            messages.add_message(request, level, message)
-        except NameError:
-            messages.add_message(request, messages.ERROR, 'host or role was not provided')
-        return redirect(redirect_url)
+@require_POST
+@SafeAccessRequired('name')
+def safe_access_delete_role(request, *args, **kwargs):
+    # I'm abusing RoleSafeAccessForm for form validation;
+    form = RoleSafeAccessForm(request.POST)
+    if form.is_valid():
+        role = get_object_or_404(Role, id=form.cleaned_data.get('role'))
+        safe = get_object_or_404(Safe, id=form.cleaned_data.get('safe'))
+        access_list = SafeAccessControl.objects\
+            .filter(safe=safe)\
+            .filter(object_id=role.id)\
+            .filter(content_type=ContentType.objects.get_for_model(Role))
+        for access_control in access_list:
+            access_control.delete()
+        messages.add_message(request, messages.SUCCESS, 'removed control(s) from {}'.format(safe.name))
+        return redirect(reverse('safe_detail', kwargs={'name': safe.name}))
+    else:
+        messages.add_message(request, messages.ERROR, json.dumps(form.errors))
+        safe = get_object_or_404(Safe, name=kwargs['name'])
+        return redirect(reverse('safe_detail', kwargs={'name': safe.name}))
+
+
+@require_POST
+@SafeAccessRequired('name')
+def safe_access_create_host(request, *args, **kwargs):
+    form = HostSafeAccessForm(request.POST)
+    if form.is_valid():
+        host = get_object_or_404(Host, id=form.cleaned_data.get('host'))
+        safe = get_object_or_404(Safe, id=form.cleaned_data.get('safe'))
+        control, created = SafeAccessControl.objects.get_or_create(
+            safe=safe, object_id=host.id, content_type=ContentType.objects.get_for_model(Host)
+        )
+        if created:
+            message, level = 'added access control', messages.SUCCESS
+        else:
+            message, level = 'access control already exists', messages.WARNING
+    else:
+        message, level = json.dumps(form.errors), messages.ERROR
+        safe = get_object_or_404(Safe, name=kwargs.get('name'))
+    messages.add_message(request, level, message)
+    return redirect(reverse('safe_detail', kwargs={'name': safe.name}))
+
+
+@require_POST
+@SafeAccessRequired('name')
+def safe_access_create_role(request, *args, **kwargs):
+    form = RoleSafeAccessForm(request.POST)
+    if form.is_valid():
+        role = get_object_or_404(Role, id=form.cleaned_data.get('role'))
+        safe = get_object_or_404(Safe, id=form.cleaned_data.get('safe'))
+        control, created = SafeAccessControl.objects.get_or_create(
+            safe=safe, object_id=role.id, content_type=ContentType.objects.get_for_model(Role)
+        )
+        if created:
+            message, level = 'added access control', messages.SUCCESS
+        else:
+            message, level = 'access control already exists', messages.WARNING
+    else:
+        message, level = json.dumps(form.errors), messages.ERROR
+        safe = get_object_or_404(Safe, name=kwargs.get('name'))
+    messages.add_message(request, level, message)
+    return redirect(reverse('safe_detail', kwargs={'name': safe.name}))
 
