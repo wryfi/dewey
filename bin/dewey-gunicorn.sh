@@ -12,10 +12,8 @@ if [ -z "${VIRTUALENV}" ]; then
         VIRTUALENV="${HOME}/.virtualenv"
     elif [ -d "${HOME}/.virtualenvs/dewey" ]; then
         VIRTUALENV="${HOME}/.virtualenvs/dewey"
-    elif [ -d "/opt/wryfi/dewey" ]; then
-        VIRTUALENV="/opt/wryfi/dewey"
-    elif [ -d "/opt/plos/dewey" ]; then
-        VIRTUALENV="/opt/plos/dewey"
+    elif [ -d "/opt/dewey" ]; then
+        VIRTUALENV="/opt/dewey"
     else
         echo "ERROR: no virtualenv found; try setting the VIRTUALENV variable"
         exit 1
