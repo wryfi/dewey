@@ -23,7 +23,7 @@ case "$1" in
     purge|remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
       if [ $1 = "purge" ]; then
         rm -f /etc/init/dewey*.conf /etc/default/dewey
-        deluser dewey
+        deluser dewey || true
       fi
     ;;
 
