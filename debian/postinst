@@ -36,7 +36,7 @@ case "$1" in
       echo " * Attempting to run migrations; this might fail depending"
       echo "   on the status of your database"
 
-      su -c "/usr/bin/dewey-manage.sh migrate" dewey || true
+      su -c "/usr/bin/dewey-manage.sh migrate" dewey || echo " * migrations failed, please check on your database."
 
       echo ""
       echo " * (re)starting services"

@@ -1,0 +1,42 @@
+Template: dewey/settings_module
+Type: string
+Default: dewey.core.settings.production
+Description: Enter the name of the dewey settings module to use.
+
+Template: dewey/db_host
+Type: string
+Default: localhost
+Description: Enter the hostname of the postgres database to use with dewey.
+
+Template: dewey/db_port
+Type: string
+Default: 5432
+Description: Enter the port number of the postgres database to use with dewey.
+
+Template: dewey/db_user
+Type: string
+Description: Enter the postgres database username to use with dewey.
+
+Template: dewey/db_password
+Type: string
+Description: Enter the password for the postgres database to use with dewey.
+
+Template: dewey/jira_user
+Type: string
+Description: Enter the jira username for jira integration.
+
+Template: dewey/jira_password
+Type: string
+Description: Enter the jira password for the corresponding user.
+
+Template: dewey/pdns_uri
+Type: string
+Description: Enter the URL for PowerDNS API if using this integration.
+
+Template: dewey/pdns_key
+Type: string
+Description: Enter the API key for PowerDNS.
+
+Template: dewey/vault_password
+Type: string
+Description: Enter the password for Vault, if using this integration.

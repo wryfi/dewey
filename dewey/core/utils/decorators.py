@@ -42,5 +42,3 @@ class HostAccessRequired(object):
                 return redirect(request.META.get('HTTP_REFERER', '/'))
             return view(request, *args, **kwargs)
         return decorated
-
-

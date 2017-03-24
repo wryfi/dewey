@@ -4,7 +4,7 @@
 #
 # Values of * should be replaced by actual configuration data.
 
-export DJANGO_SETTINGS_MODULE="dewey.settings.production"
+export DJANGO_SETTINGS_MODULE="dewey.core.settings.production"
 export SECRET_KEY='*********************************'
 export POSTGRES_PASSWORD='**************************'
 export JIRA_USERNAME='dewey'
