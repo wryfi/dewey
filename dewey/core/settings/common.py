@@ -28,7 +28,7 @@ def get_env(variable):
         raise ImproperlyConfigured(message)
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = get_env('SECRET_KEY')
+SECRET_KEY = get_env('DEWEY_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -95,10 +95,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'dewey',
-        'USER' : 'dewey',
-        'PASSWORD' : get_env('POSTGRES_PASSWORD'),
-        'HOST' : 'localhost',
-        'PORT' : ''
+        'USER' : get_env('DEWEY_POSTGRES_USER'),
+        'PASSWORD' : get_env('DEWEY_POSTGRES_PASSWORD'),
+        'HOST' : get_env('DEWEY_POSTGRES_HOST'),
+        'PORT' : get_env('DEWEY_POSTGRES_PORT')
     },
 }
 
@@ -199,8 +199,8 @@ JSON_API_FORMAT_TYPES = 'dasherize'
 
 # Jira integration for syncing assets
 
-JIRA_USERNAME = get_env('JIRA_USERNAME')
-JIRA_PASSWORD = get_env('JIRA_PASSWORD')
+JIRA_USERNAME = get_env('DEWEY_JIRA_USERNAME')
+JIRA_PASSWORD = get_env('DEWEY_JIRA_PASSWORD')
 JIRA_URL = 'https://developer.plos.org/jira'
 
 

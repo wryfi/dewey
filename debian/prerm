@@ -24,7 +24,7 @@ case "$1" in
       service dewey stop || true
     ;;
 
-    failed-upgrade)
+    failed-upgrade|upgrade)
     ;;
 
     *)

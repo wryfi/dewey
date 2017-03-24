@@ -1,8 +1,11 @@
-#!/bin/bash -eu
+#!/bin/bash
 
 . /usr/share/debconf/confmodule
 
+set -e
+set -u
+
 for template in {settings_module,db_host,db_port,db_user,db_password,jira_user,jira_password,pdns_uri,pdns_key,vault_password}; do
-    db_input medium dewey/${template}
-    db_go
+    db_input high dewey/${template} || true
+    db_go || true
 done

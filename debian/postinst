@@ -20,9 +20,25 @@ set -e
 
 case "$1" in
     configure)
+      . /usr/share/debconf/confmodule
+      SECRET=$(python2 -c 'import random; import string; print "".join([random.SystemRandom().choice(string.digits + string.letters) for i in range(100)])')
+      GET="db_get dewey"
+      cat << EOF > /etc/default/dewey
+export DJANGO_SETTINGS_MODULE="$GET/settings_module"
+export DEWEY_SECRET_KEY="$SECRET"
+export DEWEY_POSTGRES_HOST="$GET/pg_host"
+export DEWEY_POSTGRES_PORT="$GET/pg_port"
+export DEWEY_POSTGRES_USER="$GET/pg_user"
+export DEWEY_POSTGRES_PASSWORD="$GET/pg_password"
+export DEWEY_JIRA_USERNAME="$GET/jira_user"
+export DEWEY_JIRA_PASSWORD="$GET/jira_password
+export PDNS_API_URL="$GET/pdns_uri"
+export PDNS_API_KEY="$GET/pdns_key"
+export DEWEY_VAULT_PASSWORD="$GET/vault_password"
+EOF
+
       echo " * If this is the first time installing dewey on this system,"
-      echo "   you will need to create a postgres database, and edit"
-      echo "   /etc/default/dewey to match. Then restart dewey:"
+      echo "   you will need to create a postgres database, then restart dewey:"
       echo ""
       echo "     for service in {dewey,dewey-worker,dewey-scheduler}; do"
       echo "       service \$service restart;"

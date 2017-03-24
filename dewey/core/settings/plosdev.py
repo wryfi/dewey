@@ -5,7 +5,7 @@ HOME = os.environ.get('HOME')
 
 STATIC_ROOT = os.path.join(HOME, 'static')
 
-DEBUG = False
+DEBUG = True
 
 SITE_PROTOCOL = 'http'
 SITE_DOMAIN = 'dewey.sfo.plos.org'
