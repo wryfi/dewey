@@ -199,7 +199,7 @@ JSON_API_FORMAT_TYPES = 'dasherize'
 
 # Jira integration for syncing assets
 
-JIRA_USERNAME = get_env('DEWEY_JIRA_USERNAME')
+JIRA_USERNAME = get_env('DEWEY_JIRA_USER')
 JIRA_PASSWORD = get_env('DEWEY_JIRA_PASSWORD')
 JIRA_URL = 'https://developer.plos.org/jira'
 

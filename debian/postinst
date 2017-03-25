@@ -21,21 +21,17 @@ set -e
 case "$1" in
     configure)
       . /usr/share/debconf/confmodule
-      SECRET=$(python2 -c 'import random; import string; print "".join([random.SystemRandom().choice(string.digits + string.letters) for i in range(100)])')
-      GET="db_get dewey"
-      cat << EOF > /etc/default/dewey
-export DJANGO_SETTINGS_MODULE="$($GET/settings_module)"
-export DEWEY_SECRET_KEY="$SECRET"
-export DEWEY_POSTGRES_HOST="$($GET/pg_host)"
-export DEWEY_POSTGRES_PORT="$($GET/pg_port)"
-export DEWEY_POSTGRES_USER="$($GET/pg_user)"
-export DEWEY_POSTGRES_PASSWORD="$($GET/pg_password)"
-export DEWEY_JIRA_USERNAME="$($GET/jira_user)"
-export DEWEY_JIRA_PASSWORD="$($GET/jira_password)"
-export PDNS_API_URL="$($GET/pdns_uri)"
-export PDNS_API_KEY="$($GET/pdns_key)"
-export DEWEY_VAULT_PASSWORD="$($GET/vault_password)"
-EOF
+      db_get dewey/settings_module && echo export DJANGO_SETTINGS_MODULE=\"$RET\" > /etc/default/dewey
+      db_get dewey/secret_key && echo export DEWEY_SECRET_KEY=\"$RET\" >> /etc/default/dewey
+      db_get dewey/pg_host && echo export DEWEY_POSTGRES_HOST=\"$RET\"  >> /etc/default/dewey
+      db_get dewey/pg_port && echo export DEWEY_POSTGRES_PORT=\"$RET\"  >> /etc/default/dewey
+      db_get dewey/pg_user && echo export DEWEY_POSTGRES_USER=\"$RET\"  >> /etc/default/dewey
+      db_get dewey/pg_password && echo export DEWEY_POSTGRES_PASSWORD=\"$RET\" >> /etc/default/dewey
+      db_get dewey/jira_user && echo export DEWEY_JIRA_USER=\"$RET\" >> /etc/default/dewey
+      db_get dewey/jira_password && echo export DEWEY_JIRA_PASSWORD=\"$RET\" >> /etc/default/dewey
+      db_get dewey/pdns_uri && echo export PDNS_API_URL=\"$RET\" >> /etc/default/dewey
+      db_get dewey/pdns_key && echo export PDNS_API_KEY=\"$RET\" >> /etc/default/dewey
+      db_get dewey/vault_password && echo export DEWEY_VAULT_PASSWORD=\"$RET\" >> /etc/default/dewey
 
       echo " * If this is the first time installing dewey on this system,"
       echo "   you will need to create a postgres database, then restart dewey:"

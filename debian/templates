@@ -3,6 +3,10 @@ Type: string
 Default: dewey.core.settings.production
 Description: Enter the name of the dewey settings module to use.
 
+Template: dewey/secret_key
+Type: string
+Description: Enter a long (100+ char) random string.
+
 Template: dewey/pg_host
 Type: string
 Default: localhost
