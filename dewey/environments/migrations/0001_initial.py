@@ -6,7 +6,7 @@ import dewey.core.utils
 from django.db import migrations, models
 import django.db.models.deletion
 import django_enumfield.db.fields
-import environments
+from dewey import environments
 
 from django.contrib.contenttypes.management import update_contenttypes
 from django.apps import apps

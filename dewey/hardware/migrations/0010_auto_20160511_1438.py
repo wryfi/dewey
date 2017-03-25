@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 import django_enumfield.db.fields
-import hardware
+from dewey import hardware
 
 
 class Migration(migrations.Migration):
