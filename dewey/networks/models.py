@@ -32,11 +32,11 @@ class Network(models.Model):
             with open(os.devnull, 'w') as nullfile:
                 subprocess.check_call(['ping', '-c', '1', '-w', '1', next_ip],
                                       stdout=nullfile, stderr=nullfile)
-            return next_ip
+            return self.get_unused_address(index+1)
         except IndexError:
             return 0
         except subprocess.CalledProcessError:
-            return self.get_unused_address(index+1)
+            return next_ip
 
     @property
     def mask_bits(self):
