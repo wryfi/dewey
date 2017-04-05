@@ -21,7 +21,7 @@ case "$1" in
       fi
     ;;
 
-    abort-upgrade)
+    abort-upgrade|upgrade)
     ;;
 
     *)

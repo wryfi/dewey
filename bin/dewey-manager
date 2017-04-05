@@ -1,0 +1,14 @@
+#!/bin/bash
+
+runner=$(whoami)
+if [ "$runner" != "dewey" ]; then
+  echo "You must run this script as the dewey user"
+  exit 1
+fi
+
+if [ -z "$VIRTUALENV" ]; then
+    VIRTUALENV="/opt/dewey"
+fi
+
+# the activate script should be modified to source /etc/default/dewey for us
+. $VIRTUALENV/bin/activate && dewey-manager "${@}"
