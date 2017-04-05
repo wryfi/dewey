@@ -18,6 +18,7 @@ class CustomHostForm(forms.ModelForm):
 
 class HostAdmin(admin.ModelAdmin):
     form = CustomHostForm
+    ordering = ('hostname',)
 
     def formfield_for_manytomany(self, db_field, request=None, **kwargs):
         if db_field.name == 'roles':
