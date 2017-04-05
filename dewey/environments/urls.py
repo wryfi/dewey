@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from dewey.environments.views import rest as rest_views
 from dewey.environments.views import frontend as frontend_views
