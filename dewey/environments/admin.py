@@ -26,9 +26,13 @@ class HostAdmin(admin.ModelAdmin):
         return super(HostAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
 
 
-admin.site.register(Host, HostAdmin)
+class RoleAdmin(admin.ModelAdmin):
+    ordering = ('name',)
 
+
+admin.site.register(Host, HostAdmin)
+admin.site.register(Role, RoleAdmin)
 
 for model in apps.get_app_config('environments').get_models():
-    if model != Host:
+    if model != Host and model != Role:
         admin.site.register(model)
