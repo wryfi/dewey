@@ -62,7 +62,7 @@ class Host(models.Model):
     (e.g. Server, PowerDistributionUnit, or NetworkDevice); or (2) another host
     (e.g. for a static VM); or (3) a cluster of hosts (e.g. a VM on an ESXi cluster)
     """
-    hostname = models.CharField(max_length=256, help_text='FQDN')
+    hostname = models.CharField(max_length=256, help_text='FQDN', unique=True)
     environment = models.ForeignKey('Environment')
     roles = models.ManyToManyField('Role', blank=True)
     operating_system = enum.EnumField(OperatingSystem)

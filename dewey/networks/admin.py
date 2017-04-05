@@ -2,7 +2,8 @@ from django.apps import apps
 from django.contrib import admin
 from django import forms
 
-from .models import AddressAssignment
+from .models import AddressAssignment, Network
+from dewey.environments.models import Host
 
 
 class CustomAddrAssignmentForm(forms.ModelForm):
@@ -28,6 +29,13 @@ class CustomAddrAssignmentForm(forms.ModelForm):
 class AddrAssignmentAdmin(admin.ModelAdmin):
     form = CustomAddrAssignmentForm
     change_form_template = 'networks/admin/change_form.html'
+
+    def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
+        if db_field.name == 'host':
+            kwargs['queryset'] = Host.objects.order_by('hostname')
+        if db_field.name == 'network':
+            kwargs['queryset'] = Network.objects.order_by('slug')
+        return super(AddrAssignmentAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 admin.site.register(AddressAssignment, AddrAssignmentAdmin)
