@@ -28,13 +28,12 @@ def available_addresses(request):
     return render(request, 'networks/unused_addrs.html', context)
 
 
-def assignments_csv(request, slug):
-    network = get_object_or_404(Network, slug=slug)
+def assignments_csv(request):
     now = int(time.time())
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="address_assignments_{}_{}.csv"'.format(network.slug, now)
+    response['Content-Disposition'] = 'attachment; filename="address_assignments_{}.csv"'.format(now)
     writer = csv.writer(response)
-    writer.writerow(['host', 'address'])
-    for assignment in sorted(network.address_assignments.all(), key=lambda item: socket.inet_aton(item.address)):
-        writer.writerow([assignment.host.hostname, assignment.address])
+    for network in Network.objects.all():
+        for assignment in sorted(network.address_assignments.all(), key=lambda item: socket.inet_aton(item.address)):
+            writer.writerow([network.slug, assignment.host.hostname, assignment.address])
     return response
