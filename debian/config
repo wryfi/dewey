@@ -1,0 +1,11 @@
+#!/bin/bash
+
+. /usr/share/debconf/confmodule
+
+set -e
+set -u
+
+for template in {secret_key,settings_module,pg_host,pg_port,pg_user,pg_password,jira_user,jira_password,pdns_uri,pdns_key,vault_password}; do
+    db_input high dewey/${template} || true
+    db_go || true
+done

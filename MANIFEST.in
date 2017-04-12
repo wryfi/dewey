@@ -1,0 +1,4 @@
+recursive-include dewey/core/static *
+recursive-include dewey/core/templates *
+recursive-include dewey/environments/templates *
+recursive-include dewey/networks/templates *

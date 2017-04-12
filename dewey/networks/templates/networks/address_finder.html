@@ -1,0 +1,19 @@
+<html>
+<head><title>Address Finder</title></head>
+
+<body>
+
+<h2>Find IP Address</h2>
+
+<p>The following IPs are neither assigned nor reserved in Dewey, and do not respond to a ping request. <br />
+<b>Please note that, for a variety of reasons, this information could be inaccurate! Please verify before using.</b></p>
+
+{% for network in networks %}
+  <p><b>{{ network.slug }}:</b> {{ network.address }}</p>
+{% endfor %}
+
+<p>You may also wish to view the list of <a href="{% url "networks_addresses_available" %}">available addresses</a>.</p>
+
+</body>
+
+</html>
