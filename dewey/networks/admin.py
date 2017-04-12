@@ -29,6 +29,7 @@ class CustomAddrAssignmentForm(forms.ModelForm):
 class AddrAssignmentAdmin(admin.ModelAdmin):
     form = CustomAddrAssignmentForm
     change_form_template = 'networks/admin/change_form.html'
+    change_list_template = 'networks/admin/change_list.html'
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         if db_field.name == 'host':
