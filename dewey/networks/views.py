@@ -2,8 +2,9 @@ import csv
 import socket
 import time
 
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
+from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
 from rest_framework import viewsets
 
 from .models import Network
@@ -15,6 +16,7 @@ class NetworkViewSet(viewsets.ModelViewSet):
     serializer_class = NetworkSerializer
 
 
+@login_required
 def available_addresses(request):
     context = {'networks': {}}
     networks_requested = request.GET.get('networks', 'all')
@@ -28,13 +30,22 @@ def available_addresses(request):
     return render(request, 'networks/unused_addrs.html', context)
 
 
-def assignments_csv(request, slug):
-    network = get_object_or_404(Network, slug=slug)
+@login_required
+def get_unused_addresses(request):
+    context = {'networks': []}
+    for network in Network.objects.all():
+        context['networks'].append({'slug': network.slug, 'address': network.get_unused_address()})
+    return render(request, 'networks/address_finder.html', context)
+
+
+@login_required
+def assignments_csv(request):
     now = int(time.time())
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="address_assignments_{}_{}.csv"'.format(network.slug, now)
+    response['Content-Disposition'] = 'attachment; filename="address_assignments_{}.csv"'.format(now)
     writer = csv.writer(response)
-    writer.writerow(['host', 'address'])
-    for assignment in sorted(network.address_assignments.all(), key=lambda item: socket.inet_aton(item.address)):
-        writer.writerow([assignment.host.hostname, assignment.address])
+    for network in Network.objects.all():
+        for assignment in sorted(network.address_assignments.all(), key=lambda item: socket.inet_aton(item.address)):
+            writer.writerow([network.slug, assignment.host.hostname, assignment.address])
     return response
+

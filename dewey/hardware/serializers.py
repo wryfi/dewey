@@ -1,4 +1,4 @@
-from rest_framework_json_api import serializers
+from rest_framework import serializers
 
 from dewey.hardware.models import NetworkDevice, PowerDistributionUnit, Server
 
@@ -15,6 +15,7 @@ class ServerDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Server
         fields = ('id', 'asset_tag', 'manufacturer', 'model', 'serial', 'hosts', 'rack_units')
+
 
 class NetworkDeviceListSerializer(serializers.ModelSerializer):
     class Meta:

@@ -17,7 +17,7 @@
 {% endblock %}
 
 <ul>
-  <li><a href="{% url "networks_addresses_available" %}" target="_new">Available Addresses</a></li>
+  <li><a href="{% url "networks_addresses_finder" %}" target="_new">Address Finder</a> (be patient)</li>
 </ul>
 
 <form {% if has_file_field %}enctype="multipart/form-data" {% endif %}action="{{ form_url }}" method="post" id="{{ opts.model_name }}_form" novalidate>{% csrf_token %}{% block form_top %}{% endblock %}

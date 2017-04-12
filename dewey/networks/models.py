@@ -27,6 +27,11 @@ class Network(models.Model):
             return True
 
     def get_unused_address(self, index=0):
+        """
+        Note: this will not work properly on MacOS, where the ping implmentation has no
+        '-w' argument.
+        TODO: detect platform and/or do something more elegant.
+        """
         try:
             next_ip = self.unused_addresses[index]
             with open(os.devnull, 'w') as nullfile:
