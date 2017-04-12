@@ -28,6 +28,7 @@ class CustomAddrAssignmentForm(forms.ModelForm):
 
 class AddrAssignmentAdmin(admin.ModelAdmin):
     form = CustomAddrAssignmentForm
+    ordering = ('host__hostname',)
     change_form_template = 'networks/admin/change_form.html'
     change_list_template = 'networks/admin/change_list.html'
 
