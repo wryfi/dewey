@@ -20,12 +20,14 @@ SETTINGS_MODULE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODULE_ROOT = os.path.dirname(SETTINGS_MODULE)
 PROJECT_ROOT = os.path.dirname(MODULE_ROOT)
 
+
 def get_env(variable):
     try:
         return os.environ[variable]
     except KeyError:
         message = 'Invalid settings. Please set the {} environment variable'.format(variable)
         raise ImproperlyConfigured(message)
+
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = get_env('DEWEY_SECRET_KEY')
@@ -178,23 +180,7 @@ LOGGING = {
 
 REST_FRAMEWORK = {
     'PAGE_SIZE': 25,
-    'EXCEPTION_HANDLER': 'rest_framework_json_api.exceptions.exception_handler',
-    'DEFAULT_PAGINATION_CLASS':
-        'rest_framework_json_api.pagination.PageNumberPagination',
-    'DEFAULT_PARSER_CLASSES': (
-        'rest_framework_json_api.parsers.JSONParser',
-        'rest_framework.parsers.FormParser',
-        'rest_framework.parsers.MultiPartParser'
-    ),
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework_json_api.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
-    ),
-    'DEFAULT_METADATA_CLASS': 'rest_framework_json_api.metadata.JSONAPIMetadata',
 }
-
-JSON_API_FORMAT_KEYS = 'dasherize'
-JSON_API_FORMAT_TYPES = 'dasherize'
 
 
 # Jira integration for syncing assets

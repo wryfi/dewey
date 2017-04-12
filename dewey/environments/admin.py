@@ -4,7 +4,7 @@ from django.apps import apps
 from django.contrib import admin
 from django import forms
 
-from .models import Environment, Host, Role
+from .models import Host, HostMonitoringException, Role
 
 
 class CustomHostForm(forms.ModelForm):
@@ -26,13 +26,18 @@ class HostAdmin(admin.ModelAdmin):
         return super(HostAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
 
 
+class MonitoringExceptionAdmin(admin.ModelAdmin):
+    ordering = ('host__hostname',)
+
+
 class RoleAdmin(admin.ModelAdmin):
     ordering = ('name',)
 
 
 admin.site.register(Host, HostAdmin)
 admin.site.register(Role, RoleAdmin)
+admin.site.register(HostMonitoringException, MonitoringExceptionAdmin)
 
 for model in apps.get_app_config('environments').get_models():
-    if model != Host and model != Role:
+    if model != Host and model != Role and model != HostMonitoringException:
         admin.site.register(model)

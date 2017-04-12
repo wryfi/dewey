@@ -9,93 +9,16 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.conf import settings
-from rest_framework import renderers, metadata, pagination, parsers, views, viewsets
+from rest_framework import renderers, metadata, parsers, viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, renderer_classes
-from rest_framework_json_api.views import RelationshipView
 
 from dewey.core.utils import dotutils
 from dewey.environments import OperatingSystem
 from dewey.environments.models import Cluster, Environment, Host, Role, SafeAccessControl, Secret
-from dewey.networks.models import AddressAssignment, Network
-from dewey.environments.serializers import ClusterSerializer, HostRoleSerializer, HostDetailSerializer,\
+from dewey.networks.models import Network
+from dewey.environments.serializers import ClusterSerializer, \
     SaltHostSerializer, SaltHostSecretsSerializer
-from dewey.networks.serializers import AddressAssignmentSerializer
-from dewey.hardware.models import NetworkDevice, PowerDistributionUnit, Server
-from dewey.hardware.serializers import NetworkDeviceDetailSerializer, PowerDistributionUnitDetailSerializer, ServerDetailSerializer
-
-
-class HostViewSet(viewsets.ModelViewSet):
-    queryset = Host.objects.all()
-    serializer_class = HostDetailSerializer
-    http_method_names = ['get', 'head', 'options']
-
-
-class HostRelationshipView(RelationshipView):
-    queryset = Host.objects
-
-
-class HostRoleViewSet(viewsets.ModelViewSet):
-    queryset = Role.objects.all()
-    serializer_class = HostRoleSerializer
-
-    def get_queryset(self):
-        queryset = self.queryset
-        if 'host_pk' in self.kwargs:
-            host_pk = self.kwargs['host_pk']
-            queryset = queryset.filter(host__pk=host_pk)
-        return queryset
-
-
-class HostParentViewSet(viewsets.ModelViewSet):
-    serializer_classes = {
-        Host: HostDetailSerializer,
-        Cluster: ClusterSerializer,
-        PowerDistributionUnit: PowerDistributionUnitDetailSerializer,
-        NetworkDevice: NetworkDeviceDetailSerializer,
-        Server: ServerDetailSerializer
-    }
-
-    def get_parent_type(self):
-        host_pk = self.kwargs.get('host_pk', None)
-        if host_pk:
-            host = Host.objects.get(id=host_pk)
-            return host.parent_type.model_class()
-
-    def get_serializer_class(self):
-        if self.kwargs.get('host_pk'):
-            return self.serializer_classes.get(self.get_parent_type())
-
-    def get_queryset(self):
-        host_pk = self.kwargs.get('host_pk', None)
-        if host_pk:
-            host = Host.objects.get(id=host_pk)
-            parent_type = self.get_parent_type()
-            queryset = parent_type.objects.filter(id=host.parent_id)
-            return queryset
-
-
-class HostVirtualMachineViewSet(viewsets.ModelViewSet):
-    queryset = Host.objects.all()
-    serializer_class = HostDetailSerializer
-
-    def get_queryset(self):
-        host_pk = self.kwargs.get('host_pk', None)
-        host_type = ContentType.objects.get(app_label='environments', model='host')
-        if host_pk:
-            queryset = Host.objects.filter(parent_id=host_pk).filter(parent_type=host_type).exclude(id=host_pk)
-            return queryset
-
-
-class HostAddressAssignmentViewSet(viewsets.ModelViewSet):
-    queryset = AddressAssignment.objects.all()
-    serializer_class = AddressAssignmentSerializer
-
-    def get_queryset(self):
-        host_pk = self.kwargs.get('host_pk', None)
-        if host_pk:
-            queryset = AddressAssignment.objects.filter(host_id=host_pk)
-            return queryset
 
 
 class StandardApiMixin(object):
