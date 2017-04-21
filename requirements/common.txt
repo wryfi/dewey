@@ -8,6 +8,8 @@ celery==3.1.23
 decorator==4.0.9
 Django==1.10.7
 django-celery==3.2.1
+# remove django-enumfield after squashing migrations
+django-enumfield==1.3b2
 django_enumfields==0.9.0
 djangorestframework==3.6.2
 djangorestframework-jsonapi==2.0.1
