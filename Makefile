@@ -17,6 +17,7 @@ install:
 	rsync -rl bin/ $(DESTDIR)/usr/bin/
 	cp debian/dewey-scheduler.upstart $(DESTDIR)/etc/init/dewey-scheduler.conf
 	cp debian/dewey-worker.upstart $(DESTDIR)/etc/init/dewey-worker.conf
+	cp debian/dewey-flower.upstart $(DESTDIR)/etc/init/dewey-flower.conf
 	for file in `ls lib/misc/*.tar.gz`; do tar xzf $$file -C $(DESTDIR); done
 	virtualenv -p python3 --relocatable $(FINAL_PATH)
 	echo '[ -f /etc/default/dewey ] && . /etc/default/dewey' >> $(FINAL_PATH)/bin/activate

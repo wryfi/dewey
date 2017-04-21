@@ -1,0 +1,6 @@
+start on started networking and runlevel [2345]
+stop on runlevel [016]
+respawn
+script
+  exec start-stop-daemon --start -d /opt/dewey -c dewey:dewey --exec /usr/bin/dewey-celery.sh flower
+end script
