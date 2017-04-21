@@ -47,10 +47,10 @@ def update_host_dns_record(sender, **kwargs):
     if 'dewey.networks' in settings.INSTALLED_APPS and settings.TASKS_ENABLED:
         from dewey.networks.tasks import create_dns_records, delete_dns_records
         host = kwargs.get('instance')
-        canonical = host.canonical_assignment
-        if canonical:
-            if host.hostname != host.old_hostname:
-                logger.debug('updating dns records for {} (formerly {})'.format(host.hostname, host.old_hostname))
+        if host.hostname != host.old_hostname:
+            canonical = host.canonical_assignment
+            if canonical:
+                logger.info('updating dns records for {} (formerly {})'.format(host.hostname, host.old_hostname))
                 # First construct a transient Host object with the old hostname; we never save this,
                 # just use it in our transient AddressAssignment object ...
                 old_host = copy.deepcopy(host)
