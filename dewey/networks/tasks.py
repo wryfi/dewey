@@ -1,6 +1,7 @@
 import logging
 
-from celery import shared_task
+
+from celery import chain, shared_task
 
 from plop.pdns import zones
 

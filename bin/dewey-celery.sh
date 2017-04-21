@@ -1,8 +1,8 @@
 #!/bin/bash
 
 runner=$(whoami)
-if [ "$runner" != "dewey" ]; then
-  echo "You must run this script as the dewey user"
+if [ "$runner"  = "root" ]; then
+  echo "You must not run this as root"
   exit 1
 fi
 
@@ -35,4 +35,6 @@ if [ $1 = worker ]; then
     exec ${VIRTUALENV}/bin/celery worker -A dewey.core -E -l info --pidfile=${WORKER_PIDFILE}
 elif [ $1 = beat ]; then
     exec ${VIRTUALENV}/bin/celery beat -A dewey.core -l info --pidfile=${BEAT_PIDFILE}
+elif [ $1 = flower ]; then
+    exec ${VIRTUALENV}/bin/celery flower -A dewey.core --address=127.0.0.1 --port=5555
 fi

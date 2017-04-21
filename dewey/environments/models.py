@@ -1,11 +1,11 @@
 import base64
+from enumfields import EnumIntegerField
 import json
 import os
 import re
 import requests
 
 from django.contrib.contenttypes.models import ContentType
-from django_enumfield import enum
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.db import models
 from django.conf import settings
@@ -65,7 +65,7 @@ class Host(models.Model):
     hostname = models.CharField(max_length=256, help_text='FQDN', unique=True)
     environment = models.ForeignKey('Environment')
     roles = models.ManyToManyField('Role', blank=True)
-    operating_system = enum.EnumField(OperatingSystem)
+    operating_system = EnumIntegerField(OperatingSystem)
     parent_type = models.ForeignKey(ContentType)
     parent_id = models.PositiveIntegerField()
     parent = GenericForeignKey('parent_type', 'parent_id')
@@ -238,7 +238,7 @@ class HostMonitoringException(models.Model):
 class Cluster(models.Model):
     name = models.CharField(max_length=256)
     description = models.CharField(max_length=128, blank=True)
-    kind = enum.EnumField(ClusterType)
+    kind = EnumIntegerField(ClusterType)
     members = models.ManyToManyField('Host')
     virtual_machines = GenericRelation(
         'Host',
@@ -271,7 +271,7 @@ class Vault(models.Model):
                                            help_text='this vault is for secrets shared among environments')
     environment = models.ForeignKey('Environment', null=True, blank=True,
                                     help_text='this vault is specific to the selected environment')
-    vault_protocol = enum.EnumField(ProtocolEnum)
+    vault_protocol = EnumIntegerField(ProtocolEnum)
     vault_host = models.CharField(max_length=256)
     vault_port = models.PositiveIntegerField()
     transit_key_name = models.CharField(max_length=256)

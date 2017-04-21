@@ -1,22 +1,21 @@
-from django_enumfield import enum
+from enumfields import Enum
 
 
 default_app_config = 'dewey.environments.apps.EnvironmentsConfig'
 
 
-class ClusterType(enum.Enum):
+class ClusterType(Enum):
     ESX = 1
     JUNIPER = 2
     APPLICATION = 3
 
-    labels = {
-        ESX: 'VMWare ESX/ESXi cluster',
-        JUNIPER: 'JunOS cluster',
-        APPLICATION: 'Generic application cluster'
-    }
+    class Labels:
+        ESX = 'VMWare ESX/ESXi cluster'
+        JUNIPER = 'JunOS cluster'
+        APPLICATION = 'Generic application cluster'
 
 
-class OperatingSystem(enum.Enum):
+class OperatingSystem(Enum):
     UBUNTU = 1
     CENTOS = 2
     WINDOWS = 3
@@ -25,12 +24,11 @@ class OperatingSystem(enum.Enum):
     ESX = 6
     OTHER = 7
 
-    labels = {
-        UBUNTU: 'ubuntu',
-        CENTOS: 'CentOS',
-        WINDOWS: 'Windows',
-        MAC_OS: 'Mac OS',
-        JUNOS: 'JunOS',
-        ESX: 'VMware ESX/ESXi',
-        OTHER: 'other'
-    }
+    class Labels:
+        UBUNTU = 'ubuntu'
+        CENTOS = 'CentOS'
+        WINDOWS = 'Windows'
+        MAC_OS = 'Mac OS'
+        JUNOS = 'JunOS'
+        ESX = 'VMware ESX/ESXi'
+        OTHER = 'other'
