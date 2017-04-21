@@ -1,6 +1,6 @@
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django_enumfield import enum
+from enumfields import EnumIntegerField
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 
@@ -34,8 +34,8 @@ class Cabinet(models.Model):
 class CabinetAssignment(models.Model):
     cabinet = models.ForeignKey('Cabinet')
     position = models.PositiveIntegerField(blank=True, null=True)
-    orientation = enum.EnumField(RackOrientation, blank=True, null=True)
-    depth = enum.EnumField(RackDepth, blank=True, null=True)
+    orientation = EnumIntegerField(RackOrientation, blank=True, null=True)
+    depth = EnumIntegerField(RackDepth, blank=True, null=True)
     equipment_type = models.ForeignKey(ContentType)
     equipment_id = models.PositiveIntegerField()
     equipment = GenericForeignKey('equipment_type', 'equipment_id')
@@ -137,8 +137,8 @@ class PowerDistributionUnit(PortDeviceMixin, AssetBase):
 
 
 class NetworkDevice(PortDeviceMixin, AssetBase):
-    speed = enum.EnumField(SwitchSpeed)
-    interconnect = enum.EnumField(SwitchInterconnect)
+    speed = EnumIntegerField(SwitchSpeed)
+    interconnect = EnumIntegerField(SwitchInterconnect)
 
     def __str__(self):
         return 'networking device: {}'.format(self.name)

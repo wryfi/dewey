@@ -1,11 +1,10 @@
-from django_enumfield import enum
+from enumfields import Enum
 
 
-class ProtocolEnum(enum.Enum):
+class ProtocolEnum(Enum):
     HTTPS = 1
     HTTP = 2
 
-    labels = {
-        HTTPS: 'https',
-        HTTP: 'http'
-    }
+    class Labels:
+        HTTPS = 'https'
+        HTTP = 'http'
