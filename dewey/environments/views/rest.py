@@ -130,9 +130,9 @@ def nagios_hosts(request):
 def nagios_hostgroups(request):
     roles = [role for role in Role.objects.all() if role.monitored_hosts]
     hosts_by_os = {}
-    for os, id in OperatingSystem.items():
-        hosts = Host.objects.filter(operating_system=id)
-        hosts_by_os[os] = [host for host in hosts if host.monitored]
+    for os in OperatingSystem:
+        hosts = Host.objects.filter(operating_system=os)
+        hosts_by_os[os.name] = [host for host in hosts if host.monitored]
     context = {'roles': roles, 'hosts': hosts_by_os}
     return render(request, 'hosts/nagios_hostgroups.txt', context, content_type='text/plain')
 

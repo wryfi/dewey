@@ -19,6 +19,7 @@ set -e
 
 case "$1" in
     remove|deconfigure)
+      service dewey-flower stop || true
       service dewey-scheduler stop || true
       service dewey-worker stop || true
       service dewey stop || true
