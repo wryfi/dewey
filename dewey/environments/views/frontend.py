@@ -173,7 +173,7 @@ def safe_detail(request, *args, **kwargs):
             initial={'safe': safe.id, 'redirect': reverse('safe_detail', kwargs={'name': safe.name})}
         ),
     }
-    context['secret_form'].helper.form_action = reverse('safe_detail', kwargs={'name': safe.name})
+    context['secret_form'].helper.form_action = reverse('secret_create', kwargs={'safe': safe.name})
     context['host_access_form'].helper.form_action = reverse('safe_access_create_host', kwargs={'name': safe.name})
     context['role_access_form'].helper.form_action = reverse('safe_access_create_role', kwargs={'name': safe.name})
     if request.method == 'POST':
