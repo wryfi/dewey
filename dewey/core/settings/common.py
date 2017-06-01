@@ -54,6 +54,7 @@ INSTALLED_APPS = (
     'dewey.environments',
     'dewey.hardware',
     'dewey.networks',
+    'dewey.salt',
     'rest_framework'
 )
 
@@ -229,3 +230,17 @@ LOGIN_EXEMPT_URLS = (
     r'^hosts/nagios/.*',
     r'accounts/password/reset/request/',
 )
+
+# SALT_HIGHSTATE_DAYS sets the number of days that records of
+# uneventful highstate runs will be maintained.
+SALT_HIGHSTATE_DAYS = 30
+
+# SALT_HIGHSTATE_CHANGE_DAYS sets the number of days that records of
+# highstate changes will be retained. In addition to the change records,
+# the corresponding highstate records are also retained.
+SALT_HIGHSTATE_CHANGE_DAYS = 180
+
+# SALT_HIGHSTATE_ERROR_DAYS sets the number of days that records of
+# highstate errors will be retained. In addition to the error records,
+# the corresponding highstate records are also retained.
+SALT_HIGHSTATE_ERROR_DAYS = 180
