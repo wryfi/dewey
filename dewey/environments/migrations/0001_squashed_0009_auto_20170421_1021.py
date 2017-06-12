@@ -10,12 +10,12 @@ import django_enumfield.db.fields
 import enumfields.fields
 
 from django.apps import apps
-from django.contrib.contenttypes.management import update_contenttypes
+from django.contrib.contenttypes.management import create_contenttypes
 
 
 def update_environment_contenttypes(*args):
     environments = apps.get_app_config('environments')
-    update_contenttypes(environments)
+    create_contenttypes(environments)
 
 
 class Migration(migrations.Migration):

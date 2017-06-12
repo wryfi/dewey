@@ -50,11 +50,12 @@ INSTALLED_APPS = (
     'crispy_forms',
     'compressor',
     'dewey.core',
-    'djcelery',
     'dewey.environments',
     'dewey.hardware',
     'dewey.networks',
-    'rest_framework'
+    'rest_framework',
+    'django_celery_results',
+    'django_celery_beat',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -192,9 +193,8 @@ JIRA_URL = 'https://developer.plos.org/jira'
 
 # Celery Task queue
 
-BROKER_URL = 'redis://localhost:6379/0'
-CELERY_RESULT_BACKEND='djcelery.backends.database:DatabaseBackend'
-CELERYBEAT_SCHEDULER='djcelery.schedulers.DatabaseScheduler'
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'django-db'
 
 SITE_PROTOCOL = 'http'
 SITE_DOMAIN = 'localhost:8000'
