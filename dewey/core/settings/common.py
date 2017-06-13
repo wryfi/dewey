@@ -55,6 +55,7 @@ INSTALLED_APPS = (
     'dewey.networks',
     'dewey.salt',
     'rest_framework',
+    'rest_framework.authtoken',
     'django_celery_results',
     'django_celery_beat',
 )
@@ -181,6 +182,11 @@ LOGGING = {
 
 
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ),
     'PAGE_SIZE': 25,
 }
 
