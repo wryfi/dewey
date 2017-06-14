@@ -1,0 +1,52 @@
+{% extends "dewey/__base.html" %}
+
+{% block content %}
+    <div class="col-xs-12 col-md-4 col-xl-3 side-navigation">
+        {% include "salt/_salt_side_navigation.html" %}
+    </div>
+    <div class="col-xs-12 col-md-8 col-xl-9 content">
+      <div class="row">
+        <div class="col-xs-12 col-md-6 col-xl-9 content">
+          <div class="row">
+            <div class="col-xs-12">
+              <div class="card">
+                <div class="card-header">State Change</div>
+                <div class="card-block card-text">
+                      <dl class="row">
+                        <dt class="col-xs-4">highstate</dt>
+                        <dd class="col-xs-8">{{ statechange.highstate.jid }}</dd>
+
+                        <dt class="col-xs-4">host</dt>
+                        <dd class="col-xs-8">{{ statechange.highstate.host.hostname }}</dd>
+
+                        <dt class="col-xs-4">timestamp</dt>
+                        <dd class="col-xs-8">{{ statechange.highstate.timestamp }}</dd>
+
+                        <dt class="col-xs-4">name</dt>
+                        <dd class="col-xs-8">{{ statechange.name }}</dd>
+
+                        <dt class="col-xs-4">state id</dt>
+                        <dd class="col-xs-8">{{ statechange.state_id }}</dd>
+
+                        <dt class="col-xs-4">comment</dt>
+                        <dd class="col-xs-8">{{ statechange.comment }}</dd>
+
+                        <dt class="col-xs-4">changes</dt>
+                        <dd class="col-xs-8">
+                        <ul class="list-unstyled">
+                            {% for change in statechange.change_set.all %}
+                              <li class="list-item">
+                              <a href="#">{{ change.change_type }}</a>
+                              </li>
+                            {% endfor %}
+                        </ul>
+                        </dd>
+                      </dl>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}

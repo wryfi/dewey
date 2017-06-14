@@ -1,4 +1,7 @@
 from django.db import models
+from pygments import highlight
+from pygments.lexers import DiffLexer
+from pygments.formatters import HtmlFormatter
 
 from dewey.environments.models import Host
 
@@ -53,3 +56,9 @@ class Change(models.Model):
     @property
     def host(self):
         return self.highstate.host
+
+    @property
+    def diff(self):
+        if self.change_type == 'diff':
+            content = self.content.replace('\\n', '\n')
+            return highlight(content, DiffLexer(), HtmlFormatter(cssclass='code highlight', noclasses=True))

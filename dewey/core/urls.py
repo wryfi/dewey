@@ -42,6 +42,7 @@ urlpatterns = [
     url(r'^environments/', include(enviro_urls)),
     url(r'^export/secrets', enviro_views.export_secrets, name='export-secrets'),
     url(r'^networks/', include(networks_urls)),
+    url(r'^salt/', include(salt_urls, namespace='salt')),
 ]
 
 if settings.DEBUG:

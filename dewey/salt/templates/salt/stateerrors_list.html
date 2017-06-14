@@ -1,0 +1,38 @@
+{% extends "dewey/__base.html" %}
+
+{% block content %}
+    <div class="col-xs-12 col-md-4 col-xl-3 side-navigation">
+        {% include "salt/_salt_side_navigation.html" %}
+    </div>
+    <div class="col-xs-12 col-md-8 col-xl-9 content">
+      <div class="row">
+        <div class="col-xs-12 col-md-6 col-xl-9 content">
+          <div class="row">
+            <div class="col-xs-12">
+              <div class="card">
+                <div class="card-header">State Errors</div>
+                <div class="card-block card-text">
+                  <table class="table table-responsive table-striped">
+                      <tr>
+                        <th>host</th>
+                        <th>state id</th>
+                        <th>comment</th>
+                        <th>details</th>
+                      </tr>
+                    {% for stateerror in stateerrors %}
+                      <tr>
+                        <td>{{ stateerror.highstate.host.hostname }}</td>
+                        <td>{{ stateerror.state_id }}</td>
+                        <td>{{ stateerror.comment }}</td>
+                        <td><a href="#">view</a></td>
+                      </tr>
+                    {% endfor %}
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}

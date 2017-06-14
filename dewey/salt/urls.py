@@ -1,6 +1,8 @@
+from django.conf.urls import url
+
 from rest_framework_nested import routers
 
-from . import api
+from dewey.salt import api, views
 from dewey.environments.views import rest as enviro_views
 
 
@@ -20,3 +22,13 @@ events_router.register(r'errors', api.StateErrorViewSet, base_name='highststate-
 hosts_router = routers.NestedSimpleRouter(router, 'salt/hosts', lookup='host')
 hosts_router.register(r'secrets', enviro_views.SaltHostSecretsViewSet, base_name='host-secrets')
 
+urlpatterns = [
+    url(r'^$', views.highstates_list, name='highstates_index'),
+    url(r'^highstate/(?P<jid>\d+)/$', views.highstate_detail, name='highstate_detail'),
+    url(r'^highstates/$', views.highstates_list, name='highstates_list'),
+    url(r'^highstates/changes/$', views.statechanges_list, name='statechanges_list'),
+    url(r'^highstates/change/(?P<id>\d+)/$', views.statechange_detail, name='statechange_detail'),
+    url(r'^change/(?P<id>\d+)/$', views.change_detail, name='change_detail'),
+    url(r'^highstates/errors/$', views.stateerrors_list, name='stateerrors_list'),
+    url(r'^highstates/error/(?P<id>\d+)/$', views.stateerror_detail, name='stateerror_detail'),
+]
