@@ -9,6 +9,7 @@
         <div class="col-xs-12 col-md-6 col-xl-9 content">
           <div class="row">
             <div class="col-xs-12">
+
               <div class="card">
                 <div class="card-header">Highstate {{ highstate.jid }}</div>
                 <div class="card-block card-text">
@@ -27,10 +28,62 @@
 
                         <dt class="col-xs-4">state errors</dt>
                         <dd class="col-xs-8">{{ highstate.stateerror_set.all|length }}</dd>
-
                   </dl>
                 </div>
               </div>
+
+              {% if highstate.stateerror_set.all %}
+              <div class="card">
+                <div class="card-header">State Errors for Highstate {{ highstate.jid }}</div>
+                <div class="card-block card-text">
+                    {% for stateerror in highstate.stateerror_set.all %}
+                      <dl class="row">
+                        <dt class="col-xs-4">name</dt>
+                        <dd class="col-xs-8">{{ stateerror.name }}</dd>
+
+                        <dt class="col-xs-4">state id</dt>
+                        <dd class="col-xs-8">{{ stateerror.state_id }}</dd>
+
+                        <dt class="col-xs-4">comment</dt>
+                        <dd class="col-xs-8">{{ stateerror.comment }}</dd>
+                      </dl>
+                    {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+
+              {% if highstate.statechange_set.all %}
+              <div class="card">
+                <div class="card-header">State Changes for Highstate {{ highstate.jid }}</div>
+                <div class="card-block card-text">
+                    {% for statechange in highstate.statechange_set.all %}
+                      <dl class="row">
+                        <dt class="col-xs-4">name</dt>
+                        <dd class="col-xs-8">{{ statechange.name }}</dd>
+
+                        <dt class="col-xs-4">state id</dt>
+                        <dd class="col-xs-8">{{ statechange.state_id }}</dd>
+
+                        <dt class="col-xs-4">comment</dt>
+                        <dd class="col-xs-8">{{ statechange.comment }}</dd>
+
+                        <dt class="col-xs-4">changes</dt>
+                        <dd class="col-xs-8">
+                        <ul class="list-unstyled">
+                            {% for change in statechange.change_set.all %}
+                              <li class="list-item">
+                              <a href="{% url "salt:change_detail" change.id %}">{{ change.change_type }}</a>
+                              </li>
+                            {% endfor %}
+                        </ul>
+                        </dd>
+                      </dl>
+                    {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+
+
             </div>
           </div>
         </div>

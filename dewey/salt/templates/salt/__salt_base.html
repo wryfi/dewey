@@ -1,0 +1,17 @@
+{% extends "dewey/__base.html" %}
+
+{% block script %}
+    {{ block.super }}
+    <script type="text/javascript">
+        $(function() {
+            var location = window.location.href;
+            if (location.endsWith('highstates/')) {
+                $('#toc-item-highstates').addClass('active');
+            } else if (location.endsWith('errors/')) {
+                $('#toc-item-stateerrors').addClass('active');
+            } else if (location.endsWith('changes/')) {
+                $('#toc-item-statechanges').addClass('active');
+            }
+        });
+    </script>
+{% endblock %}

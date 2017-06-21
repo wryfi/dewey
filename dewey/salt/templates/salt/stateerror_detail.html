@@ -14,7 +14,7 @@
                 <div class="card-block card-text">
                       <dl class="row">
                         <dt class="col-xs-4">highstate</dt>
-                        <dd class="col-xs-8">{{ stateerror.highstate.jid }}</dd>
+                        <dd class="col-xs-8"><a href="{% url "salt:highstate_detail" stateerror.highstate.jid %}">{{ stateerror.highstate.jid }}</a></dd>
 
                         <dt class="col-xs-4">host</dt>
                         <dd class="col-xs-8">{{ stateerror.highstate.host.hostname }}</dd>

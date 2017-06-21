@@ -1,4 +1,4 @@
-{% extends "dewey/__base.html" %}
+{% extends "salt/__salt_base.html" %}
 
 {% block content %}
     <div class="col-xs-12 col-md-4 col-xl-3 side-navigation">
@@ -12,19 +12,19 @@
               <div class="card">
                 <div class="card-header">State Errors</div>
                 <div class="card-block card-text">
-                  <table class="table table-responsive table-striped">
+                  <table class="table table-bordered table-striped">
                       <tr>
                         <th>host</th>
                         <th>state id</th>
-                        <th>comment</th>
+                        <th>timestamp</th>
                         <th>details</th>
                       </tr>
                     {% for stateerror in stateerrors %}
                       <tr>
                         <td>{{ stateerror.highstate.host.hostname }}</td>
                         <td>{{ stateerror.state_id }}</td>
-                        <td>{{ stateerror.comment }}</td>
-                        <td><a href="#">view</a></td>
+                        <td>{{ stateerror.highstate.timestamp }}</td>
+                        <td><a href="{% url "salt:highstate_detail" stateerror.highstate.jid %}">view</a></td>
                       </tr>
                     {% endfor %}
                   </table>
