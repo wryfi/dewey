@@ -1,0 +1,25 @@
+    <div class="card card-inverse navigation-card"><!-- card -->
+      <div class="card-header"><h4 class="card-title">Filters</h4></div>
+      <div class="card-block card-text"><!-- card block -->
+
+        <form class="form form-horizontal host-filter-form">
+
+          <p><label for="env-select">Host</label>
+            <select id="env-select" name="env-select" form="host-filter-form">
+              <option value="all">all</option>
+              {% for host in hosts %}
+                <option value="{{ host.hostname }}">{{ host.hostname }}</option>
+              {% endfor %}
+            </select>
+          </p>
+
+        </form>
+
+        <div class="row">
+          <div class="col-md-12">
+            <button id="filter-button" class="btn btn-primary">Filter</button>
+          </div>
+        </div>
+
+      </div><!-- end card block -->
+    </div><!-- end card -->
