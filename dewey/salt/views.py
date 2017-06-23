@@ -29,11 +29,6 @@ def statechanges_list(request):
     return render(request, 'salt/statechanges_list.html', context=context)
 
 
-def statechange_detail(request, id):
-    context = {'statechange': get_object_or_404(StateChange, id=id)}
-    return render(request, 'salt/statechange_detail.html', context=context)
-
-
 def change_detail(request, id):
     context = {'change': get_object_or_404(Change, id=id)}
     return render(request, 'salt/change_detail.html', context=context)
@@ -48,7 +43,3 @@ def stateerrors_list(request):
             context['stateerrors'] = context['stateerrors'].filter(highstate__host__hostname=hostname)
     return render(request, 'salt/stateerrors_list.html', context=context)
 
-
-def stateerror_detail(request, id):
-    context = {'stateerror': get_object_or_404(StateError, id=id)}
-    return render(request, 'salt/stateerror_detail.html', context=context)
