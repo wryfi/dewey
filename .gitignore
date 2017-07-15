@@ -13,3 +13,4 @@ debian/dewey.substvars
 debian/dewey.postrm.debhelper
 debian/dewey.preinst.debhelper
 debian/dewey.prerm.debhelper
+.DS_Store

@@ -53,6 +53,7 @@ INSTALLED_APPS = (
     'dewey.environments',
     'dewey.hardware',
     'dewey.networks',
+    'dewey.plos',
     'dewey.salt',
     'rest_framework',
     'rest_framework.authtoken',

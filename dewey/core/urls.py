@@ -15,6 +15,7 @@ from dewey.environments.views import rest as enviro_views
 from dewey.environments.views import frontend as enviro_frontend
 from dewey.networks import urls as networks_urls
 from dewey.salt import urls as salt_urls
+from dewey.plos import urls as plos_urls
 
 from dewey.salt.urls import router as salt_router
 
@@ -43,6 +44,7 @@ urlpatterns = [
     url(r'^export/secrets', enviro_views.export_secrets, name='export-secrets'),
     url(r'^networks/', include(networks_urls)),
     url(r'^salt/', include(salt_urls, namespace='salt')),
+    url(r'^plos/', include(plos_urls, namespace='plos'))
 ]
 
 if settings.DEBUG:

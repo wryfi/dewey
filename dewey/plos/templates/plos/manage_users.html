@@ -1,0 +1,107 @@
+{% extends "dewey/__base.html" %}
+
+{% block content %}
+
+  <div class="col-xs-12 col-md-4 col-xl-3 side-navigation">
+    <div class="row">
+      <div class="col-xs-12 col-sm-6 col-md-12">
+        <div class="card card-inverse navigation-card">
+          <div class="card-header"><h4 class="card-title">Directory Users</h4></div>
+          <div class="card-block card-text">
+            <ul class="list-group list-group-flush" id="toc">
+              <li class="list-group-item toc-item" id="toc-item-core">
+                <a href="#core">Core Groups</a>
+              </li>
+              <li class="list-group-item toc-item" id="toc-item-extra">
+                <a href="#extra">Extra Groups</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xs-12 col-md-8 col-xl-9 content">
+    <div class="row">
+      <div class="col-xs-12 col-md-6 col-xl-9 content">
+
+        <div class="row">
+          <div class="col-xs-12">
+
+            <a name="core"></a>
+            <div class="card">
+              <div class="card-header">Core Groups</div>
+              <div class="card-block card-text">
+                <p>
+                  Core groups determine what users get created on our deployed systems. If a user is
+                  a member of one of the core groups, that user will have an account created on all of our systems.
+                  Generally speaking, a user should be in <b>only one</b> core group.
+                </p>
+                {% for group in core_groups %}
+                  <div class="card">
+                    <div class="card-header">{{ group.name }}</div>
+
+                    <div class="card-text">
+                      <table class="table table-bordered">
+                        {% for user in group.users|dictsort:"sAMAccountName" %}
+                          <tr>
+                            <td><a href="#">{{ user.sAMAccountName.0 }}</a></td>
+                            <td>{{ user.cn.0 }}</td>
+                            <td>{{ user.uidNumber.0 }}</td>
+                          </tr>
+                        {% endfor %}
+                      </table>
+                    </div>
+
+                    <div class="card-footer">
+                      <button class="btn btn-sm btn-primary">Add User</button> <button class="btn btn-sm btn-danger">Remove User</button>
+                    </div>
+
+                  </div>
+                {% endfor %}
+              </div>
+
+            </div>
+
+            <a name="extra"></a>
+            <div class="card">
+              <div class="card-header">Extra Groups</div>
+              <div class="card-block card-text">
+                <p>
+                  Extra groups generally exist to give their members extra permissions. The users added
+                  to an extra group must <b>also</b> exist in one of the core groups, or else the account
+                  will never be created.
+                </p>
+                {% for group in extra_groups %}
+                  <div class="card">
+                    <div class="card-header">{{ group.name }}</div>
+
+                    <div class="card-text">
+                      <table class="table table-bordered">
+                        {% for user in group.users|dictsort:"sAMAccountName" %}
+                          <tr>
+                            <td><a href="#">{{ user.sAMAccountName.0 }}</a></td>
+                            <td>{{ user.cn.0 }}</td>
+                            <td>{{ user.uidNumber.0 }}</td>
+                          </tr>
+                        {% endfor %}
+                      </table>
+                    </div>
+
+                    <div class="card-footer">
+                      <button class="btn btn-sm btn-primary">Add User</button> <button class="btn btn-sm btn-danger">Remove User</button>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
