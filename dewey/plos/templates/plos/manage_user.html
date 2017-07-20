@@ -1,0 +1,27 @@
+{% extends "dewey/__base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+  <div class="col-xs-12 col-md-4 col-xl-3 side-navigation">
+    <!-- side nav goes here -->
+  </div>
+
+<div class="col-xs-12 col-md-8 col-xl-9 content">
+  <div class="row">
+    <div class="col-xs-12 col-md-6 col-xl-9 content">
+      <div class="row">
+        <div class="col-xs-12">
+          <div class="card">
+            <div class="card-header">{{ user.cn.0 }}</div>
+            <div class="card-text">
+              {% crispy form %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
