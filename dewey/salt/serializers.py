@@ -21,7 +21,7 @@ class StateErrorSerializer(serializers.ModelSerializer):
 class StateChangeSerializer(serializers.ModelSerializer):
     class Meta:
         model = StateChange
-        fields = ('id', 'highstate', 'state_id', 'name', 'comment', 'change_set')
+        fields = ('id', 'highstate', 'state_id', 'name', 'comment')
 
 
 class ChangeSerializer(serializers.ModelSerializer):
