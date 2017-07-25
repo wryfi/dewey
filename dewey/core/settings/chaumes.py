@@ -13,12 +13,12 @@ for backend in TEMPLATES:
     backend['OPTIONS']['debug'] = True
 
 INSTALLED_APPS += (
-    'django_extensions', 'debug_toolbar'
+    'django_extensions',
 )
 
-MIDDLEWARE_CLASSES += (
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
-)
+#MIDDLEWARE_CLASSES += (
+#    'debug_toolbar.middleware.DebugToolbarMiddleware',
+#)
 
 INTERNAL_IPS = ['127.0.0.1']
 

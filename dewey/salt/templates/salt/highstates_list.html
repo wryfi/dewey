@@ -1,0 +1,64 @@
+{% extends "salt/__salt_base.html" %}
+{% load dewey_utils %}
+
+{% block content %}
+    <div class="col-xs-12 col-md-4 col-xl-3 side-navigation">
+        {% include "salt/_salt_side_navigation.html" %}
+        {% include "salt/_salt_host_filter.html" %}
+    </div>
+    <div class="col-xs-12 col-md-8 col-xl-9 content">
+      <div class="row">
+        <div class="col-xs-12 col-md-6 col-xl-9 content">
+          <div class="row">
+            <div class="col-xs-12">
+              <div class="card">
+                <div class="card-header">Highstates</div>
+                <div class="card-block card-text">
+                  <table class="table table-striped table-bordered">
+                       <tr>
+                        <th>host</th>
+                        <th>timestamp</th>
+                        <th>changes</th>
+                        <th>errors</th>
+                        <th>details</th>
+                      </tr>
+
+                    {% for highstate in highstates %}
+                      {% if highstate.stateerror_set.all %}
+                        <tr class="table-danger">
+                      {% elif highstate.statechange_set.all %}
+                        <tr class="table-info">
+                      {% elif highstate.disabled %}
+                        <tr class="table-warning">
+                      {% else %}
+                      <tr>
+                      {% endif %}
+                        <td>{{ highstate.host.hostname }}</td>
+                        <td>{{ highstate.timestamp }}</td>
+                        <td>{{ highstate.statechange_set.count }}</td>
+                        <td>{{ highstate.stateerror_set.count }}</td>
+                        <td><a href="{% url "salt:highstate_detail" highstate.id %}">view</a></td>
+                      </tr>
+                    {% endfor %}
+                  </table>
+                </div>
+              </div><!-- /card -->
+              {% if highstates.paginator.num_pages > 1 %}
+                <nav aria-label="pagination">
+                  <ul class="pagination">
+                  {% if highstates.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?{% qstring_replace page=highstates.previous_page_number %}">Previous</a></li>
+                  {% endif %}
+                    <li class="page-item"><span class="page-link">{{ highstates.number }} of {{ highstates.paginator.num_pages }}</span></li>
+                  {% if highstates.has_next %}
+                    <li class="page-item"><a class="page-link" href="?{% qstring_replace page=highstates.next_page_number %}">Next</a></li>
+                  {% endif %}
+                  </ul>
+                </nav>
+              {% endif %}
+            </div><!-- /col-xs-12 -->
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}

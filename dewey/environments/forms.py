@@ -1,3 +1,5 @@
+import re
+
 from django import forms
 from django.shortcuts import get_object_or_404
 
@@ -90,18 +92,9 @@ class SecretCreateMixin(SecretMixin, CrispyMixin):
         safe = get_object_or_404(Safe, id=self.data.get('safe'))
         if Secret.objects.filter(name=cleaned['name'], safe=safe):
             raise forms.ValidationError('secret with that name already exists in {}'.format(safe.name))
+        if not re.match(r'^[\w.]+$', cleaned['name']):
+            raise forms.ValidationError('secret names can only contain word chars and periods')
         return cleaned
-
-    class Meta:
-        model = Secret
-        fields = ('name', 'secret')
-
-
-# SecretCreateForm is not currently being used and could be deleted some day.
-class SecretCreateForm(SecretCreateMixin, forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(SecretCreateForm, self).__init__(*args, **kwargs)
-        self.fields['safe'] = forms.ChoiceField(choices=Safe.objects.order_by('name').values_list('id', 'name'))
 
     class Meta:
         model = Secret
