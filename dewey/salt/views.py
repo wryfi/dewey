@@ -1,4 +1,5 @@
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.http.response import Http404, HttpResponse
 from django.shortcuts import render, get_object_or_404
 
 from dewey.environments.models import Host
@@ -50,3 +51,18 @@ def stateerrors_list(request):
     print(context)
     return render(request, 'salt/stateerrors_list.html', context=context)
 
+
+def diff_enlarge(request, id):
+    change = get_object_or_404(Change, id=id)
+    if change.change_type == 'diff':
+        return render(request, 'salt/diff_enlarge.html', context={'change': change})
+    else:
+        raise Http404
+
+
+def diff_txt(request, id):
+    change = get_object_or_404(Change, id=id)
+    if change.change_type == 'diff':
+        return HttpResponse(change.content, content_type='text/plain')
+    else:
+        raise Http404

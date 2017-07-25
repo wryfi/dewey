@@ -30,7 +30,11 @@
 
                   <dt class="col-xs-4">change data</dt>
                   {% if change.change_type == 'diff' %}
-                    <dd class="col-xs-8">{% autoescape off %}{{ change.diff }}{% endautoescape %}</dd>
+                    <dd class="col-xs-8">
+                      {% autoescape off %}{{ change.diff }}{% endautoescape %}
+                      <a href="{% url "salt:diff_enlarge" change.id %}">enlarge</a>,
+                      <a href="{% url "salt:diff_txt" change.id %}">plaintext</a>
+                    </dd>
                   {% else %}
                     <dd class="col-xs-8">{{ change.content }}</dd>
                   {% endif %}
