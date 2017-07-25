@@ -24,7 +24,7 @@ hosts_router.register(r'secrets', enviro_views.SaltHostSecretsViewSet, base_name
 
 urlpatterns = [
     url(r'^$', views.highstates_list, name='highstates_index'),
-    url(r'^highstate/(?P<jid>\d+)/$', views.highstate_detail, name='highstate_detail'),
+    url(r'^highstate/(?P<id>\d+)/$', views.highstate_detail, name='highstate_detail'),
     url(r'^highstates/$', views.highstates_list, name='highstates_list'),
     url(r'^highstates/changes/$', views.statechanges_list, name='statechanges_list'),
     url(r'^change/(?P<id>\d+)/$', views.change_detail, name='change_detail'),

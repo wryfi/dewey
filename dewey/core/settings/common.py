@@ -250,3 +250,5 @@ SALT_HIGHSTATE_CHANGE_DAYS = 180
 # highstate errors will be retained. In addition to the error records,
 # the corresponding highstate records are also retained.
 SALT_HIGHSTATE_ERROR_DAYS = 180
+
+PAGINATION_RECORDS = 25

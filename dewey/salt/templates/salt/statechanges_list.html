@@ -1,4 +1,5 @@
 {% extends "salt/__salt_base.html" %}
+{% load dewey_utils %}
 
 {% block content %}
     <div class="col-xs-12 col-md-4 col-xl-3 side-navigation">
@@ -24,13 +25,26 @@
                       <tr>
                         <td>{{ statechange.highstate.host.hostname }}</td>
                         <td>{{ statechange.state_id }}</td>
-                        <td>{{ statechange.highstate.timestamp }}</td>
-                        <td><a href="{% url "salt:highstate_detail" statechange.highstate.jid %}">view</a></td>
+                        <td>{{ statechange.highstate.timestamp }} </td>
+                        <td><a href="{% url "salt:highstate_detail" statechange.highstate.id %}">view</a></td>
                       </tr>
                     {% endfor %}
                   </table>
                 </div>
-              </div>
+              </div>><!-- /card -->
+              {% if statechanges.paginator.num_pages > 1 %}
+                <nav aria-label="pagination">
+                  <ul class="pagination">
+                  {% if statechanges.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?{% qstring_replace page=statechanges.previous_page_number %}">Previous</a></li>
+                  {% endif %}
+                    <li class="page-item"><span class="page-link">{{ statechanges.number }} of {{ statechanges.paginator.num_pages }}</span></li>
+                  {% if statechanges.has_next %}
+                    <li class="page-item"><a class="page-link" href="?{% qstring_replace page=statechanges.next_page_number %}">Next</a></li>
+                  {% endif %}
+                  </ul>
+                </nav>
+              {% endif %}
             </div>
           </div>
         </div>
