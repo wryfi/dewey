@@ -1,0 +1,20 @@
+<div class="row">
+
+  <div class="col-xs-12 col-sm-6 col-md-12"><!-- navigation-card column -->
+    <div class="card card-inverse navigation-card"><!-- card -->
+      <div class="card-header"><h4 class="card-title">Salt Events</h4></div>
+      <div class="card-block card-text">
+        <ul class="list-group list-group-flush" id="toc">
+          <li class="list-group-item toc-item" id="toc-item-highstates"><a href="{% url "salt:highstates_list" %}"><i
+              class="fa fa-arrow-up"></i> Highstates</a></li>
+          <li class="list-group-item toc-item" id="toc-item-stateerrors"><a href="{% url "salt:stateerrors_list" %}"><i
+              class="fa fa-exclamation-triangle"></i> State Errors</a></li>
+          <li class="list-group-item toc-item" id="toc-item-statechanges"><a
+              href="{% url "salt:statechanges_list" %}"><i class="fa fa-files-o"></i> State Changes</a></li>
+        </ul>
+      </div><!-- end card block -->
+    </div><!-- end card -->
+  </div><!-- end navigation card column -->
+
+
+</div><!-- end row -->

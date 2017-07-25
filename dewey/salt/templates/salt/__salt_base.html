@@ -1,0 +1,38 @@
+{% extends "dewey/__base.html" %}
+{% load static %}
+
+{% block script %}
+    {{ block.super }}
+    <script src="{% static "dewey/javascript/get_url_params.js" %}"></script>
+    <script type="text/javascript">
+        $(function() {
+            var location = window.location.href;
+            if (location.match(/.*\/salt\/highstates\/(\?.*)*$/)) {
+                $('#toc-item-highstates').addClass('active');
+            } else if (location.match(/.*\/salt\/$/)) {
+                $('#toc-item-highstates').addClass('active');
+            } else if (location.match(/.*\/salt\/highstates\/errors\/(\?.*)*$/)) {
+                $('#toc-item-stateerrors').addClass('active');
+            } else if (location.match(/.*\/salt\/highstates\/changes\/(\?.*)*$/)) {
+                $('#toc-item-statechanges').addClass('active');
+            }
+        });
+    </script>
+    <script type="text/javascript">
+        $(function() {
+            var host = $.get_url_param('host');
+            if (typeof host === 'undefined') {
+                $('#host-select').val('all');
+            } else {
+                $('#host-select').val(host);
+            }
+            $('#filter-button').click(function(){
+                var hostselect = $('#host-select')[0];
+                var host_param = {'host': hostselect.value};
+                var param = jQuery.param(host_param);
+                var dest_url = document.location.protocol + '//' + window.location.host + window.location.pathname + '?' + param;
+                $(location).attr('href', dest_url);
+            })
+        });
+    </script>
+{% endblock %}

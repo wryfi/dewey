@@ -1,0 +1,53 @@
+{% extends "salt/__salt_base.html" %}
+{% load dewey_utils %}
+
+{% block content %}
+    <div class="col-xs-12 col-md-4 col-xl-3 side-navigation">
+        {% include "salt/_salt_side_navigation.html" %}
+        {% include "salt/_salt_host_filter.html" %}
+    </div>
+    <div class="col-xs-12 col-md-8 col-xl-9 content">
+      <div class="row">
+        <div class="col-xs-12 col-md-6 col-xl-9 content">
+          <div class="row">
+            <div class="col-xs-12">
+              <div class="card">
+                <div class="card-header">State Errors</div>
+                <div class="card-block card-text">
+                  <table class="table table-bordered table-striped">
+                      <tr>
+                        <th>host</th>
+                        <th>state id</th>
+                        <th>timestamp</th>
+                        <th>details</th>
+                      </tr>
+                    {% for stateerror in stateerrors %}
+                      <tr>
+                        <td>{{ stateerror.highstate.host.hostname }}</td>
+                        <td>{{ stateerror.state_id }}</td>
+                        <td>{{ stateerror.highstate.timestamp }}</td>
+                        <td><a href="{% url "salt:highstate_detail" stateerror.highstate.id %}">view</a></td>
+                      </tr>
+                    {% endfor %}
+                  </table>
+                </div>
+              </div><!-- /card -->
+              {% if stateerrors.paginator.num_pages > 1 %}
+                <nav aria-label="pagination">
+                  <ul class="pagination">
+                  {% if stateerrors.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?{% qstring_replace page=stateerrors.previous_page_number %}">Previous</a></li>
+                  {% endif %}
+                    <li class="page-item"><span class="page-link">{{ stateerrors.number }} of {{ stateerrors.paginator.num_pages }}</span></li>
+                  {% if stateerrors.has_next %}
+                    <li class="page-item"><a class="page-link" href="?{% qstring_replace page=stateerrors.next_page_number %}">Next</a></li>
+                  {% endif %}
+                  </ul>
+                </nav>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}

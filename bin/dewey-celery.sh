@@ -34,7 +34,7 @@ BEAT_PIDDIR=$(dirname ${BEAT_PIDFILE})
 if [ $1 = worker ]; then
     exec ${VIRTUALENV}/bin/celery worker -A dewey.core -E -l info --pidfile=${WORKER_PIDFILE}
 elif [ $1 = beat ]; then
-    exec ${VIRTUALENV}/bin/celery beat -A dewey.core -l info --pidfile=${BEAT_PIDFILE}
+    exec ${VIRTUALENV}/bin/celery beat -A dewey.core -l info -S django --pidfile=${BEAT_PIDFILE}
 elif [ $1 = flower ]; then
     exec ${VIRTUALENV}/bin/celery flower -A dewey.core --address=127.0.0.1 --port=5555
 fi

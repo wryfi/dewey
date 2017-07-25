@@ -1,0 +1,53 @@
+{% extends "dewey/__base.html" %}
+{% load dewey_utils %}
+
+{% block content %}
+  <div class="col-xs-12 col-md-4 col-xl-3 side-navigation">
+    {% include "salt/_salt_side_navigation.html" %}
+  </div>
+  <div class="col-xs-12 col-md-8 col-xl-9 content">
+    <div class="row">
+      <div class="col-xs-12 col-md-6 col-xl-9 content">
+        <div class="row">
+          <div class="col-xs-12">
+            <div class="card">
+              <div class="card-header">Change to {{ change.state_change.state_id }}</div>
+              <div class="card-block card-text">
+                <dl class="row">
+
+                  <dt class="col-xs-4">host</dt>
+                  <dd class="col-xs-8">{{ change.state_change.highstate.host.hostname }}</dd>
+
+                  <dt class="col-xs-4">state change</dt>
+                  <dd class="col-xs-8">{{ change.state_change.state_id }}</dd>
+
+                  <dt class="col-xs-4">highstate</dt>
+                  <dd class="col-xs-8"><a
+                      href="{% url "salt:highstate_detail" change.state_change.highstate.id %}">{{ change.state_change.highstate.jid }}</a>
+                  </dd>
+
+                  <dt class="col-xs-4">timestamp</dt>
+                  <dd class="col-xs-8">{{ change.state_change.highstate.timestamp }}</dd>
+
+                  <dt class="col-xs-4">change type</dt>
+                  <dd class="col-xs-8">{{ change.change_type }}</dd>
+
+                  <dt class="col-xs-4">change data</dt>
+                  {% if change.change_type == 'diff' %}
+                    <dd class="col-xs-8">
+                      {% autoescape off %}{{ change.diff }}{% endautoescape %}
+                      <a href="{% url "salt:diff_enlarge" change.id %}">enlarge</a>,
+                      <a href="{% url "salt:diff_txt" change.id %}">plaintext</a>
+                    </dd>
+                  {% else %}
+                    <dd class="col-xs-8">{{ change.content }}</dd>
+                  {% endif %}
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

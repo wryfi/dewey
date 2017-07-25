@@ -1,0 +1,25 @@
+{% extends "dewey/__base.html" %}
+{% load dewey_utils %}
+
+{% block content %}
+
+  <div class="col-md-12">
+
+    <div class="row">
+      <div class="col-md-6">
+        <p><a href="{% url "salt:change_detail" change.id %}"><< change details</a></p>
+      </div>
+      <div class="col-md-6">
+        <p class="text-md-right"><a href="{% url "salt:diff_txt" change.id %}">plain text >></a></pc>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12 diff-large">
+        {% autoescape off %}{{ change.diff }}{% endautoescape %}
+      </div>
+    </div>
+
+  </div>
+
+{% endblock %}
