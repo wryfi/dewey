@@ -9,7 +9,8 @@ class HighstateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Highstate
-        fields = ('id', 'host', 'timestamp', 'return_code', 'jid')
+        fields = ('id', 'host', 'timestamp', 'return_code', 'jid', 'statechange_set', 'stateerror_set')
+        read_only_fields = ('statechange_set', 'stateerror_set')
 
 
 class StateErrorSerializer(serializers.ModelSerializer):
@@ -21,7 +22,8 @@ class StateErrorSerializer(serializers.ModelSerializer):
 class StateChangeSerializer(serializers.ModelSerializer):
     class Meta:
         model = StateChange
-        fields = ('id', 'highstate', 'state_id', 'name', 'comment')
+        fields = ('id', 'highstate', 'state_id', 'name', 'comment', 'change_set')
+        read_only_fields = ('change_set',)
 
 
 class ChangeSerializer(serializers.ModelSerializer):
