@@ -14,6 +14,10 @@
               <div class="card-header">Change to {{ change.state_change.state_id }}</div>
               <div class="card-block card-text">
                 <dl class="row">
+
+                  <dt class="col-xs-4">host</dt>
+                  <dd class="col-xs-8">{{ change.state_change.highstate.host.hostname }}</dd>
+
                   <dt class="col-xs-4">state change</dt>
                   <dd class="col-xs-8">{{ change.state_change.state_id }}</dd>
 

@@ -46,7 +46,7 @@ def stateerrors_list(request):
     if 'host' in request.GET.keys():
         hostname = request.GET.get('host')
         if hostname != 'all':
-            stateerrors = stateerrors.filter(highstate__host=hostname)
+            stateerrors = stateerrors.filter(highstate__host__hostname=hostname)
     context['stateerrors'] = get_paginator(stateerrors, request.GET.get('page'))
     print(context)
     return render(request, 'salt/stateerrors_list.html', context=context)
