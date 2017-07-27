@@ -13,7 +13,7 @@ import os
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(HERE, 'VERSION')) as versionfile:
-    VERSION = versionfile.read()
+    VERSION = versionfile.read().strip()
 
 LONG_DESCRIPTION = "a solution for inventorying servers, virtual machines, network assignments, and more"
 
