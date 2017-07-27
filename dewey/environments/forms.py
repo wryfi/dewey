@@ -53,6 +53,12 @@ class SecretMixin(forms.Form):
     name = forms.CharField()
     secret = forms.CharField(widget=forms.Textarea)
 
+    def clean(self):
+        cleaned = super(SecretMixin, self).clean()
+        if not re.match(r'^[\w.-]+$', cleaned['name']):
+            raise forms.ValidationError('secret name can only contain letters, numbers, hyphens, and periods')
+        return cleaned
+
 
 class SecretUpdateForm(CrispyMixin, SecretMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -92,8 +98,6 @@ class SecretCreateMixin(SecretMixin, CrispyMixin):
         safe = get_object_or_404(Safe, id=self.data.get('safe'))
         if Secret.objects.filter(name=cleaned['name'], safe=safe):
             raise forms.ValidationError('secret with that name already exists in {}'.format(safe.name))
-        if not re.match(r'^[\w.-]+$', cleaned['name']):
-            raise forms.ValidationError('secret names can only contain letters, numbers, hyphens, and periods')
         return cleaned
 
     class Meta:

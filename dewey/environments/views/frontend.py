@@ -104,7 +104,7 @@ def secret_update(request, *args, **kwargs):
         messages.add_message(request, messages.SUCCESS, 'updated secret {}'.format(secret.name))
     else:
         messages.add_message(request, messages.ERROR, json.dumps(form.errors))
-    return redirect(reverse('secret_detail', kwargs={'name': secret.name, 'safe': safe.name}))
+    return redirect(reverse('safe_detail', kwargs={'name': safe.name}))
 
 
 @require_POST
