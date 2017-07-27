@@ -202,6 +202,9 @@ JIRA_URL = 'https://developer.plos.org/jira'
 
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'django-db'
+CELERY_TASK_SERIALIZER = 'pickle'
+CELERY_RESULT_SERIALIZER = 'pickle'
+CELERY_ACCEPT_CONTENT = {'pickle'}
 
 SITE_PROTOCOL = 'http'
 SITE_DOMAIN = 'localhost:8000'
