@@ -143,7 +143,7 @@ def nagios_hosts_md5(request):
     if settings.FRONTEND == 'runserver':
         return HttpResponse('this view is unsupported with the development server, {}'.format(hosts_url))
     else:
-        request = requests.get(hosts_url, verify='/etc/ssl/certs/plos-ca.pem')
+        request = requests.get(hosts_url, verify=False)
         request.raise_for_status()
         checksum = md5(request.content).hexdigest()
         return HttpResponse(checksum, content_type='text/plain')
@@ -155,7 +155,7 @@ def nagios_hostgroups_md5(request):
     if settings.FRONTEND == 'runserver':
         return HttpResponse('this view is unsupported with the development server, {}'.format(hostgroups_url))
     else:
-        request = requests.get(hostgroups_url, verify='/etc/ssl/certs/plos-ca.pem')
+        request = requests.get(hostgroups_url, verify=False)
         request.raise_for_status()
         checksum = md5(request.content).hexdigest()
         return HttpResponse(checksum, content_type='text/plain')
