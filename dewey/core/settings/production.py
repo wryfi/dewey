@@ -13,6 +13,7 @@ SITE_DOMAIN = 'dewey.soma.plos.org'
 # send logs to syslog
 LOGGING['handlers']['syslog'] = {
     'class': 'logging.handlers.SysLogHandler',
+    'formatter': 'syslog',
     'facility': 3
 }
 LOGGING['formatters']['syslog'] = {
