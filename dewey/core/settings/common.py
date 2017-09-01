@@ -15,18 +15,11 @@ import os
 import sys
 
 from django.core.exceptions import ImproperlyConfigured
+from dewey.core.utils.settings import get_env, get_log_dir
 
 SETTINGS_MODULE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODULE_ROOT = os.path.dirname(SETTINGS_MODULE)
 PROJECT_ROOT = os.path.dirname(MODULE_ROOT)
-
-
-def get_env(variable):
-    try:
-        return os.environ[variable]
-    except KeyError:
-        message = 'Invalid settings. Please set the {} environment variable'.format(variable)
-        raise ImproperlyConfigured(message)
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -54,6 +47,7 @@ INSTALLED_APPS = (
     'dewey.hardware',
     'dewey.networks',
     'dewey.salt',
+    'gunicorn',
     'rest_framework',
     'rest_framework.authtoken',
     'django_celery_results',
@@ -145,6 +139,8 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 # Logging configuration
 
+LOG_DIR = get_log_dir()
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -161,7 +157,7 @@ LOGGING = {
       'file': {
           'level': 'DEBUG',
           'class': 'logging.handlers.RotatingFileHandler',
-          'filename': os.path.join(PROJECT_ROOT, 'dewey.log'),
+          'filename': os.path.join(LOG_DIR, 'dewey.log'),
           'maxBytes' : 1024 * 1024 * 5,  # 5MiB
           'backupCount' : 5,
           'formatter': 'verbose'
@@ -171,7 +167,7 @@ LOGGING = {
       'django': {
           'handlers':['file'],
           'propagate': True,
-          'level':'INFO',
+          'level': 'DEBUG',
       },
       'dewey' : {
           'handlers': ['file'],
@@ -242,16 +238,16 @@ LOGIN_EXEMPT_URLS = (
 
 # SALT_HIGHSTATE_DAYS sets the number of days that records of
 # uneventful highstate runs will be maintained.
-SALT_HIGHSTATE_DAYS = 30
+SALT_HIGHSTATE_DAYS = 1
 
 # SALT_HIGHSTATE_CHANGE_DAYS sets the number of days that records of
 # highstate changes will be retained. In addition to the change records,
 # the corresponding highstate records are also retained.
-SALT_HIGHSTATE_CHANGE_DAYS = 180
+SALT_HIGHSTATE_CHANGE_DAYS = 365
 
 # SALT_HIGHSTATE_ERROR_DAYS sets the number of days that records of
 # highstate errors will be retained. In addition to the error records,
 # the corresponding highstate records are also retained.
-SALT_HIGHSTATE_ERROR_DAYS = 180
+SALT_HIGHSTATE_ERROR_DAYS = 365
 
 PAGINATION_RECORDS = 25
