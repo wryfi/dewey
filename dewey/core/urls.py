@@ -47,8 +47,11 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
-    import debug_toolbar
-    urlpatterns += [url(r'^__debug__/', include(debug_toolbar.urls))]
+    try:
+        import debug_toolbar
+        urlpatterns += [url(r'^__debug__/', include(debug_toolbar.urls))]
+    except ImportError:
+        pass
     if settings.FRONTEND == 'gunicorn':
         from django.conf.urls.static import static
         urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

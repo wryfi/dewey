@@ -9,7 +9,7 @@ class HighstateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Highstate
-        fields = ('id', 'host', 'timestamp', 'return_code', 'jid', 'statechange_set', 'stateerror_set')
+        fields = ('id', 'host', 'timestamp', 'return_code', 'jid', 'comment', 'statechange_set', 'stateerror_set')
         read_only_fields = ('statechange_set', 'stateerror_set')
 
 

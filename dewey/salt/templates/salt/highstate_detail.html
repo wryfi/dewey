@@ -37,6 +37,11 @@
                         <dt class="col-xs-4">state errors</dt>
                         <dd class="col-xs-8">{{ highstate.stateerror_set.all|length }}</dd>
                         {% endif %}
+
+                        {% if highstate.comment and highstate.return_code != 0 %}
+                        <dt class="col-xs-4 text-danger">comment</dt>
+                        <dd class="col-xs-8 text-danger">ERROR: {{ highstate.comment }}</dd>
+                        {% endif %}
                   </dl>
                 </div>
               </div>

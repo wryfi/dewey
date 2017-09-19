@@ -22,7 +22,7 @@ Jinja2==2.9.6
 kombu==4.0.2
 MarkupSafe==1.0
 netifaces==0.10.6
-plop==0.0.28
+#plop==0.0.28
 psycopg2==2.7.1
 Pygments==2.2.0
 PyYAML==3.12
