@@ -24,7 +24,7 @@
                       </tr>
 
                     {% for highstate in highstates %}
-                      {% if highstate.stateerror_set.all %}
+                      {% if highstate.stateerror_set.all or highstate.comment %}
                         <tr class="table-danger">
                       {% elif highstate.statechange_set.all %}
                         <tr class="table-info">
