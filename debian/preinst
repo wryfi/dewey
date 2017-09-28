@@ -19,6 +19,9 @@ case "$1" in
       if ! getent passwd dewey; then
         adduser --home /opt/dewey --gecos '' --disabled-password dewey
       fi
+      mkdir -p /var/log/dewey
+      chown root:dewey /var/log/dewey
+      chmod 0775 /var/log/dewey
     ;;
 
     abort-upgrade|upgrade)

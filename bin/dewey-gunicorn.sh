@@ -44,4 +44,5 @@ exec $VIRTUALENV/bin/gunicorn ${DJANGO_WSGI_MODULE}:application \
 --workers $NUM_WORKERS \
 --user=$USER --group=$GROUP \
 --bind=unix:$SOCKFILE \
---log-file=-
+--log-syslog \
+--log-level=warning
