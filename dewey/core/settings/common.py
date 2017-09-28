@@ -223,7 +223,7 @@ TASKS_ENABLED = True
 
 APPEND_SLASH = True
 
-PLOS_CA_CERTIFICATE = '/etc/ssl/certs/plos-ca.pem'
+PLOS_CA_CERTIFICATE = '/etc/ssl/certs/plos-easyrsa-ca.pem'
 
 HOST_MONITORING_DELAY = 14400
 
