@@ -45,4 +45,5 @@ exec $VIRTUALENV/bin/gunicorn ${DJANGO_WSGI_MODULE}:application \
 --user=$USER --group=$GROUP \
 --bind=unix:$SOCKFILE \
 --log-syslog \
---log-level=warning
+--log-level=warning \
+--timeout 60
